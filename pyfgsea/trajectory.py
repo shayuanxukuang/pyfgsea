@@ -50,7 +50,7 @@ def _compute_dpt(adata, root_gene=None, n_top_genes=2000, n_pcs=30, n_neighbors=
     try:
         sc.tl.pca(adata_graph, n_comps=n_pcs, svd_solver="arpack")
     except Exception:
-        sc.tl.pca(adata_graph, n_comps=n_pcs, svd_solver="arpack")
+        sc.tl.pca(adata_graph, n_comps=n_pcs, svd_solver="auto")
         
     sc.pp.neighbors(adata_graph, n_neighbors=n_neighbors, n_pcs=n_pcs)
     sc.tl.diffmap(adata_graph)
@@ -122,12 +122,12 @@ def run_trajectory_gsea(
     if pseudotime_key not in adata.obs:
          adata = _compute_dpt(adata, root_gene=root_gene)
     elif root_gene is not None:
-         # If root_gene is provided, recompute DPT might be intended, 
-         # but usually if key exists we use it. 
-         # Following original logic: recompute if root_gene is explicit?
-         # Or maybe just use existing. Let's stick to "use existing if present unless forced"
-         # But here the original code recomputed if root_gene was present.
-         # Let's keep original logic for safety.
+         # If root_gene is explicitly provided, we assume the user wants to recompute DPT
+         # based on this new root, even if pseudotime_key exists.
+         logger.info(f"Pseudotime key '{pseudotime_key}' exists, but root_gene provided. Recomputing DPT...")
+         # Remove existing key to force recompute in _compute_dpt or handle inside
+         if "dpt_pseudotime" in adata.obs:
+             del adata.obs["dpt_pseudotime"]
          adata = _compute_dpt(adata, root_gene=root_gene)
     
     pt = adata.obs[pseudotime_key].to_numpy()
@@ -197,7 +197,9 @@ def run_trajectory_gsea(
 
     df = pd.concat(all_rows, ignore_index=True)
     if out_csv:
-        os.makedirs(os.path.dirname(out_csv), exist_ok=True)
+        dirpath = os.path.dirname(out_csv)
+        if dirpath:
+            os.makedirs(dirpath, exist_ok=True)
         df.to_csv(out_csv, index=False)
         
     return df

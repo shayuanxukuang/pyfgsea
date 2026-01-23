@@ -1,5 +1,5 @@
 
-from pyfgsea import run_trajectory_gsea
+from ..trajectory import run_trajectory_gsea
 import pandas as pd
 import os
 from .smooth import smooth_nes

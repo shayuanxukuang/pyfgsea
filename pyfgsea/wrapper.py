@@ -69,6 +69,9 @@ def prepare_pathways(
     ]
 
     if not filtered_pathways:
+        logger.warning(f"No valid pathways found after filtering (min_size={min_size}, max_size={max_size}). "
+                       f"Raw pathways: {len(raw_pathways)}. "
+                       f"Ensure gene symbols match your input data.")
         return [], []
 
     pathway_names, pathway_indices = zip(*filtered_pathways)
@@ -115,6 +118,9 @@ class GseaRunner:
                 mean_lookup = self._nes_cache
             else:
                 means_vec = get_random_es_means(scores, self.unique_sizes, nperm_nes, seed, gsea_param)
+                # Check structure of means_vec
+                if not (isinstance(means_vec, list) and all(len(x) == 2 for x in means_vec)):
+                    raise ValueError("get_random_es_means returned invalid format. Expected list of (pos_mean, neg_mean).")
                 mean_lookup = {size: means for size, means in zip(self.unique_sizes, means_vec)}
                 if use_nes_cache:
                     self._nes_cache = mean_lookup
@@ -225,7 +231,8 @@ def run_gsea(
     pathway_names, pathway_indices = prepare_pathways(genes, gmt, min_size, max_size)
             
     if not pathway_indices:
-        logger.warning("No valid pathways found after filtering.")
+        logger.warning(f"No valid pathways found after filtering (min_size={min_size}, max_size={max_size}). "
+                       f"Ensure gene symbols match your input data.")
         return pd.DataFrame()
 
     # 3. NES Background (Optional)
@@ -234,6 +241,8 @@ def run_gsea(
         sizes = [len(p) for p in pathway_indices]
         unique_sizes = sorted(list(set(sizes)))
         means_vec = get_random_es_means(scores, unique_sizes, nperm_nes, seed, gsea_param)
+        if not (isinstance(means_vec, list) and all(len(x) == 2 for x in means_vec)):
+            raise ValueError("get_random_es_means returned invalid format. Expected list of (pos_mean, neg_mean).")
         mean_lookup = {size: means for size, means in zip(unique_sizes, means_vec)}
     
     # 4. Run Core GSEA
