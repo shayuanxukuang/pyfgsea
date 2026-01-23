@@ -1,0 +1,27 @@
+[build-system]
+requires = ["maturin>=1.0,<2.0"]
+build-backend = "maturin"
+
+[project]
+name = "pyfgsea"
+version = "0.1.2"
+description = "Universal Trajectory GSEA Framework"
+requires-python = ">=3.9"
+dependencies = [
+    "scanpy",
+    "anndata",
+    "pandas",
+    "numpy",
+    "scipy",
+    "matplotlib",
+    "seaborn",
+    "statsmodels",
+    "scikit-learn",
+    "click"
+]
+
+[project.scripts]
+pyfgsea-traj = "pyfgsea.cli.main:cli"
+
+[tool.maturin]
+module-name = "pyfgsea._core"

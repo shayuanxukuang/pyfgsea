@@ -1,0 +1,23 @@
+[package]
+name = "pyfgsea"
+version = "0.1.3"
+edition = "2021"
+
+# See more keys and their definitions at `https://doc.rust-lang.org/cargo/reference/manifest.html`
+
+[lib]
+name = "_core"
+crate-type = ["cdylib"]
+
+[dependencies]
+# PyO3 是核心，abi3 允许你编译一次支持多个 Python 版本
+pyo3 = { version = "0.20", features = ["extension-module", "abi3-py38"] }
+numpy = "0.20"
+
+# 随机数生成，后面 Multilevel 必用
+rand = { version = "0.8", features = ["small_rng"] }
+rand_chacha = "0.3.1"
+rand_distr = "0.4"
+
+# 并行计算，未来做 batch 模式必用
+rayon = "1.8"
