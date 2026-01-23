@@ -253,9 +253,9 @@ def run_gsea(
         if calculate_nes and size in mean_lookup:
             pos_mean, neg_mean = mean_lookup[size]
             if es > 0:
-                nes = es / pos_mean
+                nes = es / pos_mean if pos_mean > 1e-9 else np.nan
             elif es < 0:
-                nes = es / abs(neg_mean)
+                nes = es / abs(neg_mean) if abs(neg_mean) > 1e-9 else np.nan
             else:
                 nes = 0.0
             
