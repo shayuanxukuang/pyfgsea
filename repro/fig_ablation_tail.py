@@ -52,7 +52,8 @@ def run_r_multiseed(df, gmt, seeds, out_dir):
     df.to_csv(ranks_file, index=False)
     with open(gmt_file, "w") as f:
         for k, v in gmt.items():
-            f.write(f"{k}\tNA\t{'\t'.join(v)}\n")
+            joined = "\t".join(v)
+            f.write(f"{k}\tNA\t{joined}\n")
             
     r_script = f"""
     suppressPackageStartupMessages(library(fgsea))
