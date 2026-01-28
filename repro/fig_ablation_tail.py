@@ -4,7 +4,14 @@ import numpy as np
 import subprocess
 from pathlib import Path
 from pyfgsea import run_gsea
+def have_rscript():
+    return shutil.which("Rscript") is not None
 
+if not have_rscript():
+    print("[WARN] Rscript not found. Skipping R baseline. (Install R or set up conda r-base)")
+    run_r = False
+else:
+    run_r = True
 def generate_synthetic_data(n_genes=20000, n_sets=500, seed=42):
     """Generates synthetic data with embedded signals for tail analysis."""
     rng = np.random.default_rng(seed)
