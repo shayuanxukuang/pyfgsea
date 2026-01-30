@@ -264,15 +264,15 @@ fn build_tail_curve(
 #[pyclass]
 struct GseaPrerankedRunner {
     pathways: Vec<Vec<usize>>, // Raw indices (0..N_genes)
-    min_size: usize,
-    max_size: usize,
+    _min_size: usize,
+    _max_size: usize,
 }
 
 #[pymethods]
 impl GseaPrerankedRunner {
     #[new]
     fn new(pathways: Vec<Vec<usize>>, min_size: usize, max_size: usize) -> Self {
-        GseaPrerankedRunner { pathways, min_size, max_size }
+        GseaPrerankedRunner { pathways, _min_size: min_size, _max_size: max_size }
     }
 
     #[pyo3(signature = (scores, sample_size, seed, gsea_param, eps, score_type=None, bin_width=None, precheck_n=None, precheck_eps=None))]

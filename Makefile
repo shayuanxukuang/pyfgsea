@@ -1,35 +1,14 @@
+.PHONY: check lint test build
 
-.PHONY: install test clean figures benchmarks all
+check: lint test
 
-install:
-	pip install -r requirements.txt
-	maturin develop --release
+lint:
+	ruff check pyfgsea repro
+	ruff format pyfgsea repro
+	mypy pyfgsea --ignore-missing-imports
 
 test:
-	python -c "import pyfgsea; print('PyFgsea imported successfully')"
+	pytest -q
 
-benchmarks:
-	@echo "Running performance benchmarks..."
-	python repro/fig1_table1_performance.py
-	python repro/benchmark_threads.py
-	python repro/benchmark_calibration.py
-
-figures:
-	@echo "Generating figures..."
-	python repro/fig_ablation_tail.py
-	python repro/fig_stability.py
-
-supp:
-	@echo "Generating supplementary figures..."
-	python repro/fig_supp_tail_consistency.py
-	python repro/fig_supp_bland_altman.py
-	python repro/fig_supp_thread_scaling.py
-	python repro/fig_supp_null_calibration.py
-	python repro/fig_supp_window_sensitivity.py
-	python repro/fig_supp_myeloid_traj.py
-
-all: benchmarks figures supp
-	@echo "All reproduction scripts completed."
-
-info:
-	python scripts/print_versions.py
+build:
+	maturin build --release
