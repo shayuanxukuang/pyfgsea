@@ -40,10 +40,19 @@ jobs:
         ruff check pyfgsea
         mypy pyfgsea --ignore-missing-imports
 
-    - name: Build and Install
+    - name: Build wheel
+      run: maturin build --release --out dist
+
+    - name: Install wheel
+      shell: bash
       run: |
-        maturin build --release --out dist
-        pip install --force-reinstall dist/*.whl
+        python - <<'PY'
+        import glob, sys, subprocess
+        whls = glob.glob("dist/*.whl")
+        assert whls, "No wheel found in dist/"
+        print("Installing:", whls[0])
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "--force-reinstall", whls[0]])
+        PY
 
     - name: Run Tests
       # Run from root (or a different dir) to test installed package
