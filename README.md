@@ -26,11 +26,17 @@ maturin develop --release
 
 We provide a complete suite of reproduction scripts in the `repro/` directory.
 
-### Quick Start
-To generate the key "Tail Consistency" figure (Figure Sx):
+### Reproducibility (with/without R)
+
+The core reproduction scripts can run in pure Python mode (skipping R benchmarks if R is missing) or full comparison mode.
+
+**Core Commands:**
 ```bash
+python repro/fig_ablation_tail.py
 python repro/fig_supp_tail_consistency.py
 ```
+
+> **Note**: To run the full R baseline comparison, ensure `Rscript` is in your PATH and the `fgsea` package is installed in R. If not found, these scripts will automatically skip the R comparison steps and only run the Python parts.
 
 For full details, see [repro/README.md](repro/README.md).
 
