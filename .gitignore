@@ -37,6 +37,7 @@ Thumbs.db
 
 # Bioinfo large files (prevent accidental commit)
 *.h5ad
+!repro/data/toy_trajectory.h5ad
 *.bam
 *.fastq
 *.fastq.gz
@@ -45,6 +46,10 @@ Thumbs.db
 *.rds
 *.gct
 *.cls
+
+# Output
+results/
+*.log
 
 # Virtual Env
 .venv/

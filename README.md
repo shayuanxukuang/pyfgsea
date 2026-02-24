@@ -69,7 +69,8 @@ res = pyfgsea.run_gsea(
 )
 
 # 4. View Results
-print(res[['pathway', 'NES', 'pval', 'padj', 'ES']])
+res.columns = [c.lower() for c in res.columns]
+print(res[["pathway", "nes", "pval", "padj", "es"]])
 ```
 
 ### Input Formats
@@ -78,14 +79,63 @@ print(res[['pathway', 'NES', 'pval', 'padj', 'ES']])
 - **Deduplication**: Default strategy (`dedup_genes='max_abs'`) retains the gene entry with the highest absolute score.
 
 ### Output Columns
-The returned DataFrame includes:
+Example below normalizes columns to lowercase for display.
 - `pathway`: Pathway name
 - `pval`: Multilevel P-value
 - `padj`: Benjamini-Hochberg adjusted P-value
-- `ES`: Enrichment Score
-- `NES`: Normalized Enrichment Score
+- `es`: Enrichment Score
+- `nes`: Normalized Enrichment Score
 - `size`: Size of the pathway after filtering
-- `leadingEdge`: List of genes driving the enrichment
+- `log2err`: P-value estimation error metric
+- `n_levels`: Multilevel depth used for the result
+- `pval_capped`: Whether p-value hit the eps floor
+
+## Trajectory (rolling-window) GSEA along pseudotime
+
+PyFgsea supports rolling-window preranked GSEA to track pathway activity changes along single-cell trajectories.
+It is designed to run **many windows efficiently** via a stateful runner.
+
+<p align="center">
+  <img src="docs/assets/trajectory_demo.png" width="900" alt="Rolling-window trajectory demo">
+</p>
+
+### One-command demo
+
+> **Note**: Requires `anndata` (and optionally `scanpy` for convenience).
+> This is a synthetic toy dataset for demonstration only (not biological data).
+
+```bash
+# from the repo root
+python examples/trajectory_demo.py \
+  --adata repro/data/toy_trajectory.h5ad \
+  --pseudotime-key dpt_pseudotime \
+  --outdir results/
+```
+
+### What the plot shows
+- **Cells are ordered by pseudotime.**
+- **A sliding window moves along this ordering** (window size = `window_size`, step = `step`).
+- **Points denote window centers** (`pt_mid`), and curves are lightly smoothed for display.
+- **Preranked GSEA is run per window** to obtain ES/NES and FDR.
+
+### Ranking statistic
+`mean(expression in window) − mean(expression outside window)` on log1p-normalized expression.
+
+### Key parameters
+- `window_size`: number of cells per window (larger = smoother, smaller = higher resolution)
+- `step`: stride between windows (smaller = more windows)
+- `min_size`, `max_size`: gene set size filters
+- `eps`, `sample_size`: multilevel sampling controls
+- `n_threads`: CPU threads
+Defaults: `window_size=50`, `step=5`, `min_size=5`, `max_size=500`, `nperm_nes=1000`, `seed=42`.
+
+### Outputs
+- `results/trajectory_demo.png`: marker expression and pathway NES dynamics along pseudotime
+- `results/trajectory_gsea_table.tsv`: per-window GSEA results (ES, NES, pval, FDR, window index)
+
+### Notes
+- Synthetic toy dataset for demonstration only (not biological data).
+- Expected trend: Pathway_Up increases and Pathway_Down decreases along pseudotime.
 
 ## Reproducing Paper Results
 
@@ -94,6 +144,7 @@ We provide a complete suite of reproduction scripts in the `repro/` directory.
 ### Reproducibility (with/without R)
 
 The core reproduction scripts can run in pure Python mode (skipping R benchmarks if R is missing) or full comparison mode.
+Recommended setup: `pip install -e .` with `numpy`, `pandas`, `scipy`, `anndata`, `matplotlib` available.
 
 **Core Commands:**
 ```bash
