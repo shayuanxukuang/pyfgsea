@@ -1,0 +1,7 @@
+\section{Discussion}
+
+PyFgsea brings an fgseaMultilevel-aligned multilevel estimator to the Python ecosystem and extends it to rolling-window trajectory analysis.
+
+\rev{When interpreting trajectory dynamics, users should be mindful of the inherent limitations of the rolling-window ranking statistic. By summarizing local expression changes as a simple difference of means, it inherently assumes monotonic expression shifts within the evaluated window. Consequently, genes exhibiting complex, non-monotonic dynamics outside the local window may have their relative changes underestimated, potentially causing false-negative enrichments. Conversely, sparse genes with high technical variance may dominate local rankings, risking false positives. We recommend interpreting dynamic pathways cautiously and cross-referencing with smoothed single-gene visualizations.}
+
+Future work includes broader input conventions, additional trajectory ranking statistics, and more diverse cross-platform validation.

@@ -1,0 +1,37 @@
+\section{Materials and Methods}
+
+\subsection{Core multilevel workflow}
+
+\rev{PyFgsea re-implements the fgseaMultilevel rare-event estimator target with the same ES definition, null-pathway construction, and multilevel tail factorization~\cite{ref4}; in the current Rust release, the conditional levels are realized through empirical median thresholding and elite-clone rejuvenation. A complete methodological workflow diagram is provided in Supplementary Figure~S7.}
+\rev{For a pathway $S$ of size $K$ in a ranked list of $N$ genes with ranked statistics $\{r_j\}$, PyFgsea uses the same weighted preranked enrichment score:}
+\[
+\rev{ES=\max_{1\le i\le N}\left(P_{\mathrm{hit}}(i)-P_{\mathrm{miss}}(i)\right),}
+\]
+\[
+\rev{P_{\mathrm{hit}}(i)=\sum_{\substack{j\le i\\ j\in S}}\frac{|r_j|^{p}}{\sum_{g\in S}|r_g|^{p}},\qquad
+P_{\mathrm{miss}}(i)=\sum_{\substack{j\le i\\ j\notin S}}\frac{1}{N-K}.}
+\]
+\rev{The rare-event tail probability is estimated through the same multilevel factorization}
+\[
+\rev{P(ES\ge ES_{\mathrm{obs}})\approx P_0\prod_{l=1}^{L}P(ES\ge c_l\mid ES\ge c_{l-1}).}
+\]
+\rev{The current release therefore combines a baseline sample, empirical median-conditioned levels, elite-clone rejuvenation, and budget/precision/floor-based stopping.}
+The Python API adheres to standard GSEA conventions: users provide ranked genes, a GMT gene set collection, and parameters controlling multilevel estimation (e.g. \texttt{eps}, sample size, seed). \rev{PyFgsea differs primarily at the implementation layer (Rust/PyO3 backend, Rayon scheduling, deterministic pathway-local PRNG streams) and in the functional extension of a stateful rolling-window runner for trajectory analysis; Supplementary Table~S5 and Section~S8 provide a concise same-versus-different summary and fuller algorithmic details.}
+
+\subsection{Rust backend and parallelism}
+
+The computational core is implemented in Rust and exposed to Python via PyO3. \rev{Pathway-level evaluations are parallelized across threads using a dynamic work-stealing strategy. To guarantee deterministic reproducibility across thread counts under matched inputs and a fixed master seed without synchronization blocking, PyFgsea derives independent, deterministic pseudo-random number generator (PRNG) streams for each pathway by hashing a user-provided global master seed with the unique pathway identifier (see Supplementary Section~S9).} Memory allocations are minimized by reusing buffers across pathways and windows. This design targets both speed and reduced peak RAM for large gene-set collections.
+
+\subsection{Rolling-window GSEA for single-cell trajectories}
+
+For trajectory analysis, PyFgsea supports rolling-window enrichment along pseudotime. Cells are ordered by pseudotime (e.g. diffusion pseudotime, DPT~\cite{ref5}) computed using Scanpy~\cite{ref6}. A window of fixed size slides along the ordered cells with a user-defined step size. \rev{Trajectory termini are handled without padding, and Supplementary Figure~S14 additionally audits an explicit terminal-truncation extension. The choice of window and step size governs temporal resolution and statistical stability. As a practical starting range that should be tuned to trajectory length and noise level, we suggest an initial window size spanning 5--10\% of the total cells and a step size of 1--2\% of total cells. Smaller windows may be overly sensitive to single-cell noise, while excessively large windows risk oversmoothing biologically transient dynamics (a comprehensive parameter sensitivity analysis is provided in Supplementary Figure~S8 and Sections~S10 and S13). The erythroid illustration in Figure~2 intentionally uses a somewhat larger 500-cell baseline window (approximately 14\% of that analyzed trajectory) because this lineage segment is relatively short and noisy, and the figure prioritizes a smoother descriptive profile over maximal temporal resolution.} For each sliding window along the pseudotime-ordered cells, we rank genes by a logFC-like score computed on log1p-normalized expression:
+\[
+S_g = \mu_{g,\mathrm{in}} - \mu_{g,\mathrm{out}},
+\]
+where $\mu_{g,\mathrm{in}}$ and $\mu_{g,\mathrm{out}}$ denote mean expression of gene $g$ inside the current window and in all remaining cells, respectively. The ranked list is then used as input to preranked GSEA over a chosen gene-set collection (e.g. MSigDB Hallmark~\cite{ref7,ref8}). \rev{Within each window, Benjamini--Hochberg adjustment is applied across pathways, so window-level significance corresponds to within-window FDR control. The rolling-window workflow is implemented in \texttt{pyfgsea.trajectory.run\_trajectory\_gsea}, and the repository includes a demonstrative script at \texttt{examples/trajectory\_demo.py} (release tag: \texttt{v0.1.4}).}
+
+\subsection{Datasets and benchmarking}
+
+We evaluated performance and faithfulness on both bulk-like and single-cell settings. For single-cell demonstrations we used Human Cell Atlas (HCA) datasets~\cite{ref9} accessed through HCAData~\cite{ref10}. Benchmarking compared PyFgsea with GSEApy~\cite{ref2}, BlitzGSEA~\cite{ref3}, and the reference R fgsea implementation~\cite{ref4} under matched inputs and parameters (see Supplementary Material for detailed parameter alignment).
+
+Benchmarks were conducted on a server equipped with dual Intel Xeon Platinum 8352Y CPUs (64 cores/128 threads, @2.20GHz) and 1.5~TiB RAM, running Ubuntu 22.04.1 LTS. Software versions were Python 3.10.19, R 4.4.3 (fgsea 1.32.2), GSEApy 1.1.11, and BlitzGSEA 1.3.54. To ensure fairness, multithreading was controlled: PyFgsea and Python baselines used 4 threads (via \texttt{RAYON\_NUM\_THREADS=4} or \texttt{OMP\_NUM\_THREADS=4}), while R/fgsea was configured with \texttt{nproc=4} (using BiocParallel). Each condition was measured in 3 independent repeats using independent processes to minimize cache interference. Runtime and peak memory (PeakRSS) were recorded via \texttt{/usr/bin/time -v} or internal timers, reported as the mean of 3 repeats in Supplementary Table~S4. Detailed performance breakdowns, including thread scaling and rolling-window component analysis, are provided in the Supplementary Material.

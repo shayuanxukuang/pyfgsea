@@ -1,0 +1,43 @@
+\documentclass[11pt]{article}
+
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{amsmath}
+\usepackage{authblk}
+\usepackage{hyperref}
+\usepackage{caption}
+\usepackage{float}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=blue!50!black,
+  citecolor=blue!50!black,
+  urlcolor=blue!50!black
+}
+
+\definecolor{revisionred}{RGB}{185,28,28}
+\newcommand{\rev}[1]{\textcolor{revisionred}{#1}}
+
+\title{\textbf{PyFgsea: A Rust-Powered, fgseaMultilevel-Aligned GSEA Framework with Rolling-Window Enrichment Along Single-Cell Trajectories}}
+\author[1]{Kuanghao Wang}
+\author[1,*]{Hong Shi}
+\affil[1]{Institute of Primate Translational Medicine, Kunming University of Science and Technology, Kunming 650500, China}
+\affil[*]{To whom correspondence should be addressed. Email: \href{mailto:shih@kust.edu.cn}{shih@kust.edu.cn}}
+\date{}
+
+\begin{document}
+\maketitle
+
+\input{sections/abstract}
+\input{sections/introduction}
+\input{sections/methods}
+\input{sections/results}
+\input{sections/discussion}
+\input{sections/backmatter}
+
+\end{document}
