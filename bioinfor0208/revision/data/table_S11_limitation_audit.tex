@@ -1,0 +1,10 @@
+\begin{tabular}{p{0.17\textwidth}p{0.10\textwidth}p{0.11\textwidth}p{0.10\textwidth}p{0.10\textwidth}p{0.11\textwidth}p{0.25\textwidth}}
+\toprule
+Pattern & Corr. (current) & Peak shift & Sig. windows & Weighted sig. & Max $|NES|$ (cur$\rightarrow$wt) & Interpretation \\
+\midrule
+Monotonic up & 0.93 & 0.000 & 55 & 55 & 2.63$\rightarrow$2.62 & Monotonic pathway behaviour remained stable and served as the baseline reference. \\
+Transient pulse & 0.88 & -0.048 & 51 & 51 & 2.71$\rightarrow$2.70 & The narrow pulse remained detectable but its peak shifted slightly earlier than the latent optimum. \\
+Mixed biphasic & 0.95 & -0.018 & 18 & 17 & 2.53$\rightarrow$2.52 & Early and late subprograms diluted each other, reducing the number of significant windows despite matched per-gene amplitude. \\
+Sparse high-variance noise & -- & -- & 4 & 0 & 2.28$\rightarrow$1.82 & Sparse high-variance bursts generated local false-positive windows; a simple detection-rate-weighted control attenuated them. \\
+\bottomrule
+\end{tabular}

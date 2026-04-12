@@ -308,4 +308,46 @@ The stateful trajectory runner reduces repeated computational overhead & Statefu
 \end{tabular}}
 \end{table}
 
+\section*{S15. Limitation Audit of the Rolling-Window Ranking Statistic}
+
+The revised Discussion now explicitly acknowledges two practical limitations of the rolling-window ranking statistic used in trajectory analysis: (i) genes or pathways with complex non-monotonic dynamics may be underestimated, increasing false-negative risk; and (ii) sparse, high-variance genes may be over-amplified, creating local false-positive peaks. To make these caveats directly observable rather than merely verbal, we added the targeted audit below. The goal is not to defend the statistic as universally optimal, but to show where it behaves stably, where it begins to fail, and how simple sensitivity checks can help users interpret local pathway peaks more cautiously.
+
+\paragraph{S15.1 Real-data examples of how the limitation manifests.}
+Figure~\ref{fig:s16} uses four representative genes from the real erythroid pseudotime analysis to visualize the relationship between smoothed single-gene expression, the actual rolling-window ranking signal used by the method, and a related Hallmark pathway NES trajectory. Monotonic programs (for example, HBB or IFI27) produce ranking traces that remain easy to interpret. In contrast, transient or non-monotonic genes (for example, MKI67 and JUNB) generate ranking traces that are broader, more asymmetric, or more locally mixed than the underlying smoothed expression profile, illustrating why temporally localized biology can be blurred or phase-shifted by the window-versus-rest statistic. Because the released erythroid matrix is a dense standardized layer rather than a raw-count matrix with preserved dropout structure, the sparse/high-variance failure mode is audited below through semi-simulation rather than by raw-gene plots alone.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{assets/figure_S16_limitation_examples.png}
+\caption{Real-data limitation-oriented examples from the erythroid trajectory. Each row shows (left) the smoothed single-gene expression profile, (middle) the corresponding rolling-window ranking signal used by the method, and (right) a related Hallmark pathway NES curve under the same rolling-window settings. Monotonic genes produce comparatively stable ranking traces, whereas transient or non-monotonic genes generate broader or locally mixed ranking signals, illustrating the mechanism underlying potential false-negative pathway calls for complex temporal programs.}
+\label{fig:s16}
+\end{figure}
+
+\paragraph{S15.2 Semi-simulated audit of false-negative and false-positive regimes.}
+To test these limitations more directly, we embedded synthetic pathway genes into the real erythroid pseudotime cell ordering while keeping a large background of real standardized genes. Four pathway archetypes were examined: a coherent monotonic program, a narrow transient pulse, a mixed biphasic program consisting of early- and late-peaking subgroups, and a sparse high-variance burst process with no latent biological trajectory. Figure~\ref{fig:s17} overlays the latent pathway signal with the observed NES trajectories returned by the current rolling-window statistic. The monotonic pathway remained the most stable reference case. The transient pathway remained detectable but its peak shifted slightly earlier than the latent optimum. The mixed biphasic pathway showed a markedly smaller number of significant windows despite matched per-gene amplitude, because early and late subprograms diluted each other within the same pathway. Finally, the sparse-noise pathway had a flat latent truth yet still produced localized positive NES peaks, directly illustrating the false-positive mechanism discussed in the revised main-text Discussion.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{assets/figure_S17_limitation_benchmark.png}
+\caption{Semi-simulated limitation audit on the real erythroid pseudotime ordering. Dashed curves show the latent pathway signal (rescaled for visual comparison), whereas colored curves show the observed NES trajectories returned by the current rolling-window statistic. The monotonic pathway behaves stably; the narrow transient pulse is shifted slightly; the mixed biphasic pathway is attenuated and yields fewer significant windows; and the sparse high-variance pathway shows local positive NES peaks despite a flat latent truth.}
+\label{fig:s17}
+\end{figure}
+
+\paragraph{S15.3 Sensitivity-check control for sparse/high-variance pathways.}
+We did not replace the main ranking statistic in the revised manuscript. However, as a sensitivity check, Figure~\ref{fig:s18} compares the current trajectory workflow against a simple detection-rate-weighted control that downweights genes observed in only a tiny fraction of cells. This control is not proposed as the new default method; it is included only to test whether the sparse/high-variance failure mode is real. The result is informative: monotonic and transient pathways change very little, whereas the sparse-noise pathway loses its false-positive windows under the weighted control. This reinforces the interpretation that extreme local peaks should be cross-checked when they are driven by very low-detection genes.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{assets/figure_S18_limitation_control.png}
+\caption{Sensitivity-check control for the limitation audit. Solid lines show the current rolling-window statistic, dashed black lines show a simple detection-rate-weighted control, and dotted gray lines show the latent pathway signal or flat latent truth. The control barely changes the monotonic baseline but attenuates the sparse-noise pathway enough to remove its significant windows, supporting the interpretation that low-detection, high-variance genes can drive local false-positive enrichments.}
+\label{fig:s18}
+\end{figure}
+
+\begin{table}[htbp]
+\centering
+\caption{Compact summary of the limitation-oriented audit. Corr.\ denotes the correlation between the latent pathway signal and the observed NES trajectory in the semi-simulation; peak shift is reported in pseudotime units. The detection-rate-weighted control is included as a sensitivity check only and is not the primary method used in the main manuscript.}
+\label{tab:s11}
+\scriptsize
+\resizebox{\textwidth}{!}{\input{data/table_S11_limitation_audit.tex}}
+\end{table}
+
 \end{document}

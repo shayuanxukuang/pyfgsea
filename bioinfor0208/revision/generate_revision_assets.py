@@ -16,6 +16,7 @@ import numpy as np
 import pandas as pd
 import scanpy as sc
 import seaborn as sns
+from anndata import AnnData
 from PIL import Image, ImageDraw, ImageFont
 from matplotlib.lines import Line2D
 from matplotlib.patches import FancyArrowPatch, FancyBboxPatch
@@ -1604,6 +1605,496 @@ def generate_stateful_scaling_figure() -> None:
     plt.close(fig)
 
 
+def generate_limitation_audit_assets() -> None:
+    hallmark_gmt_path = REPO_ROOT / "hallmark_enrichr.gmt"
+    hallmark_gmt = load_gmt(str(hallmark_gmt_path))
+
+    # Part 1. Real-data examples that make the acknowledged limitations visually concrete.
+    adata_real = sc.read_h5ad(REPO_ROOT / "data" / "gse155254_ery_only_pt.h5ad")
+    pt_key = "pseudotime" if "pseudotime" in adata_real.obs else "dpt_pseudotime"
+    context = _trajectory_context(adata_real, pt_key)
+    pt = context["pt"]
+    order = context["order"]
+    pt_sorted = pt[order]
+
+    example_defs = [
+        {
+            "label": "Monotonic up",
+            "gene": "HBB",
+            "pathway": "heme Metabolism",
+            "color": "#b91c1c",
+        },
+        {
+            "label": "Monotonic down",
+            "gene": "IFI27",
+            "pathway": "Interferon Alpha Response",
+            "color": "#1d4ed8",
+        },
+        {
+            "label": "Transient pulse",
+            "gene": "MKI67",
+            "pathway": "G2-M Checkpoint",
+            "color": "#ea580c",
+        },
+        {
+            "label": "Non-monotonic / biphasic-like",
+            "gene": "JUNB",
+            "pathway": "TNF-alpha Signaling via NF-kB",
+            "color": "#047857",
+        },
+    ]
+
+    real_example_gmt = {item["pathway"]: hallmark_gmt[item["pathway"]] for item in example_defs}
+    real_example_gmt_path = DATA_DIR / "limitation_real_examples.gmt"
+    _write_gmt_dict(real_example_gmt, real_example_gmt_path)
+
+    real_traj = run_trajectory_gsea(
+        adata_real,
+        str(real_example_gmt_path),
+        window_size=500,
+        step=50,
+        min_size=15,
+        max_size=500,
+        sample_size=101,
+        nperm_nes=200,
+        seed=21,
+        pseudotime_key=pt_key,
+    )
+
+    real_windows = pyfgsea.trajectory._make_windows(order, 500, 50)
+    example_records = []
+
+    fig, axes = plt.subplots(len(example_defs), 3, figsize=(13.5, 11.2), sharex="col")
+    col_titles = [
+        "Smoothed single-gene expression",
+        "Rolling-window ranking signal",
+        "Related pathway NES",
+    ]
+    for ax, title in zip(axes[0], col_titles):
+        ax.set_title(title, fontsize=11.5, fontweight="bold")
+
+    for row_idx, item in enumerate(example_defs):
+        gene = item["gene"]
+        pathway = item["pathway"]
+        color = item["color"]
+        gene_idx = int(np.where(context["genes"] == gene)[0][0])
+
+        gene_values = np.asarray(adata_real[:, gene].X).ravel()[order]
+        gene_smoothed = _smooth(gene_values, window=151)
+
+        rank_signal = []
+        window_mid = []
+        for win_id, (_, _, window_indices) in enumerate(real_windows):
+            scores = _rank_scores_from_window(
+                adata_real.X,
+                window_indices,
+                context["sum_total"],
+                int(context["n_all"]),
+            )
+            rank_signal.append(float(scores[gene_idx]))
+            window_mid.append(float(pt[window_indices].mean()))
+
+        pathway_df = (
+            real_traj[real_traj["Pathway"] == pathway]
+            .sort_values("window_id")
+            .reset_index(drop=True)
+        )
+
+        ax_expr, ax_rank, ax_path = axes[row_idx]
+
+        ax_expr.plot(pt_sorted, gene_values, color="#cbd5e1", linewidth=1.0, alpha=0.75)
+        ax_expr.plot(pt_sorted, gene_smoothed, color=color, linewidth=2.3)
+        ax_expr.set_ylabel(item["label"], fontsize=10.5, fontweight="bold")
+        ax_expr.text(
+            0.01,
+            0.93,
+            gene,
+            transform=ax_expr.transAxes,
+            ha="left",
+            va="top",
+            fontsize=10,
+            fontweight="bold",
+            bbox={"boxstyle": "round,pad=0.25", "facecolor": "white", "edgecolor": "#d1d5db"},
+        )
+
+        ax_rank.plot(window_mid, rank_signal, color=color, linewidth=2.2)
+        ax_rank.axhline(0, color="#64748b", linestyle="--", linewidth=1.0)
+
+        ax_path.plot(pathway_df["pt_mid"], pathway_df["NES"], color=color, linewidth=2.2)
+        sig = pathway_df[pathway_df["padj"] < 0.05]
+        if not sig.empty:
+            ax_path.scatter(sig["pt_mid"], sig["NES"], color=color, s=24, zorder=3)
+        ax_path.axhline(0, color="#64748b", linestyle="--", linewidth=1.0)
+        ax_path.text(
+            0.01,
+            0.93,
+            pathway,
+            transform=ax_path.transAxes,
+            ha="left",
+            va="top",
+            fontsize=9,
+            bbox={"boxstyle": "round,pad=0.25", "facecolor": "white", "edgecolor": "#d1d5db"},
+        )
+
+        if row_idx == len(example_defs) - 1:
+            for ax in (ax_expr, ax_rank, ax_path):
+                ax.set_xlabel("Pseudotime")
+
+        for x, expr_val, expr_smooth in zip(pt_sorted, gene_values, gene_smoothed):
+            example_records.append(
+                {
+                    "example_type": item["label"],
+                    "gene": gene,
+                    "pathway": pathway,
+                    "series": "expression_raw",
+                    "pt": float(x),
+                    "value": float(expr_val),
+                }
+            )
+            example_records.append(
+                {
+                    "example_type": item["label"],
+                    "gene": gene,
+                    "pathway": pathway,
+                    "series": "expression_smoothed",
+                    "pt": float(x),
+                    "value": float(expr_smooth),
+                }
+            )
+        for x, score in zip(window_mid, rank_signal):
+            example_records.append(
+                {
+                    "example_type": item["label"],
+                    "gene": gene,
+                    "pathway": pathway,
+                    "series": "ranking_signal",
+                    "pt": float(x),
+                    "value": float(score),
+                }
+            )
+        for _, row in pathway_df.iterrows():
+            example_records.append(
+                {
+                    "example_type": item["label"],
+                    "gene": gene,
+                    "pathway": pathway,
+                    "series": "pathway_nes",
+                    "pt": float(row["pt_mid"]),
+                    "value": float(row["NES"]),
+                    "padj": float(row["padj"]),
+                }
+            )
+
+    fig.suptitle(
+        "Limitation-oriented real-data examples of the rolling-window ranking statistic",
+        y=0.995,
+        fontsize=13.8,
+    )
+    fig.tight_layout(rect=[0, 0, 1, 0.985])
+    fig.savefig(ASSET_DIR / "figure_S16_limitation_examples.png", dpi=300, bbox_inches="tight")
+    fig.savefig(ASSET_DIR / "figure_S16_limitation_examples.pdf", bbox_inches="tight")
+    plt.close(fig)
+    pd.DataFrame(example_records).to_csv(DATA_DIR / "figure_S16_limitation_examples.csv", index=False)
+
+    # Part 2. Semi-simulation on the real pseudotime cell ordering to audit false-negative and false-positive regimes.
+    rng = np.random.default_rng(5)
+    adata_bg = sc.read_h5ad(REPO_ROOT / "data" / "gse155254_ery_only_pt.h5ad")
+    pt_key_bg = "pseudotime" if "pseudotime" in adata_bg.obs else "dpt_pseudotime"
+    pt_bg = adata_bg.obs[pt_key_bg].to_numpy().astype(float)
+    order_bg = np.argsort(pt_bg)
+    pt_bg = pt_bg[order_bg]
+    x_bg = np.asarray(adata_bg.X)[order_bg]
+    x_bg = x_bg[:, rng.choice(x_bg.shape[1], size=1600, replace=False)]
+
+    n_cells = len(pt_bg)
+    sigmoid = lambda x, c, w: 1 / (1 + np.exp(-(x - c) / w))
+    synthetic_rows = []
+    var_names = [f"BG_{i}" for i in range(x_bg.shape[1])]
+    observed_blocks: List[np.ndarray] = []
+    latent_blocks: Dict[str, np.ndarray] = {}
+    pathways: Dict[str, List[str]] = {}
+
+    pattern_defs = [
+        ("monotonic_up", "Monotonic up"),
+        ("transient_pulse", "Transient pulse"),
+        ("mixed_biphasic", "Mixed biphasic"),
+        ("sparse_noise", "Sparse high-variance noise"),
+    ]
+
+    for pattern_name, _ in pattern_defs:
+        latent_mat = []
+        pathway_genes = []
+        for k in range(12):
+            if pattern_name == "monotonic_up":
+                latent = rng.normal(1.0, 0.12) * 1.2 * (
+                    sigmoid(pt_bg, 0.60 + rng.normal(0, 0.012), 0.09) - 0.5
+                )
+                observed = latent + rng.normal(0, 0.55, n_cells)
+            elif pattern_name == "transient_pulse":
+                center = 0.50 + rng.normal(0, 0.012)
+                latent = (
+                    rng.normal(1.0, 0.10)
+                    * 1.25
+                    * np.exp(-0.5 * ((pt_bg - center) / 0.03) ** 2)
+                    - 0.12
+                )
+                observed = latent + rng.normal(0, 0.60, n_cells)
+            elif pattern_name == "mixed_biphasic":
+                center = (0.30 if k < 6 else 0.76) + rng.normal(0, 0.012)
+                latent = (
+                    rng.normal(1.0, 0.10)
+                    * 1.25
+                    * np.exp(-0.5 * ((pt_bg - center) / 0.035) ** 2)
+                    - 0.12
+                )
+                observed = latent + rng.normal(0, 0.60, n_cells)
+            else:
+                latent = np.zeros_like(pt_bg)
+                observed = np.zeros(n_cells)
+                center = 0.64 + rng.normal(0, 0.015)
+                region = np.abs(pt_bg - center) < 0.025
+                active = region & (rng.random(n_cells) < 0.08)
+                observed[active] = rng.normal(4.0, 1.1, active.sum())
+                observed += rng.normal(0, 0.02, n_cells)
+                observed[~active & (rng.random(n_cells) < 0.995)] = 0.0
+
+            gene_name = f"{pattern_name}_g{k+1}"
+            pathway_genes.append(gene_name)
+            var_names.append(gene_name)
+            observed_blocks.append(observed)
+            latent_mat.append(latent)
+
+        pathways[pattern_name] = pathway_genes
+        latent_blocks[pattern_name] = np.vstack(latent_mat)
+
+    synthetic_x = np.column_stack([x_bg] + observed_blocks)
+    detection_rate = (synthetic_x != 0).mean(axis=0)
+    weighted_x = synthetic_x * detection_rate[np.newaxis, :]
+
+    synthetic_obs = pd.DataFrame({"pseudotime": pt_bg})
+    synthetic_var = pd.DataFrame(index=var_names)
+    adata_sim = AnnData(X=synthetic_x, obs=synthetic_obs.copy(), var=synthetic_var.copy())
+    adata_weighted = AnnData(X=weighted_x, obs=synthetic_obs.copy(), var=synthetic_var.copy())
+
+    synthetic_gmt_path = DATA_DIR / "limitation_audit_synthetic.gmt"
+    _write_gmt_dict(pathways, synthetic_gmt_path)
+
+    sim_current = run_trajectory_gsea(
+        adata_sim,
+        str(synthetic_gmt_path),
+        window_size=500,
+        step=50,
+        min_size=5,
+        max_size=50,
+        sample_size=101,
+        nperm_nes=300,
+        seed=13,
+        pseudotime_key="pseudotime",
+    )
+    sim_weighted = run_trajectory_gsea(
+        adata_weighted,
+        str(synthetic_gmt_path),
+        window_size=500,
+        step=50,
+        min_size=5,
+        max_size=50,
+        sample_size=101,
+        nperm_nes=300,
+        seed=13,
+        pseudotime_key="pseudotime",
+    )
+
+    sim_windows = pyfgsea.trajectory._make_windows(np.arange(n_cells), 500, 50)
+    sim_curve_records = []
+    table_rows = []
+
+    fig17, axes17 = plt.subplots(2, 2, figsize=(12.6, 8.8), sharex=True)
+    fig18, axes18 = plt.subplots(2, 2, figsize=(12.6, 8.8), sharex=True)
+    panel_colors = {
+        "monotonic_up": "#b91c1c",
+        "transient_pulse": "#1d4ed8",
+        "mixed_biphasic": "#7c3aed",
+        "sparse_noise": "#ea580c",
+    }
+
+    for ax, (pattern_name, panel_title) in zip(axes17.ravel(), pattern_defs):
+        latent_mat = latent_blocks[pattern_name]
+        latent_signal = []
+        window_mid = []
+        for _, _, idx in sim_windows:
+            mu_in = latent_mat[:, idx].mean(axis=1)
+            mask = np.ones(n_cells, dtype=bool)
+            mask[idx] = False
+            mu_out = latent_mat[:, mask].mean(axis=1)
+            latent_signal.append(float(np.mean(mu_in - mu_out)))
+            window_mid.append(float(pt_bg[idx].mean()))
+
+        current_df = (
+            sim_current[sim_current["Pathway"] == pattern_name]
+            .sort_values("window_id")
+            .reset_index(drop=True)
+        )
+        weighted_df = (
+            sim_weighted[sim_weighted["Pathway"] == pattern_name]
+            .sort_values("window_id")
+            .reset_index(drop=True)
+        )
+
+        curve_df = pd.DataFrame(
+            {
+                "pattern": pattern_name,
+                "pt_mid": window_mid,
+                "latent_signal": latent_signal,
+                "NES_current": current_df["NES"].astype(float).to_numpy(),
+                "padj_current": current_df["padj"].astype(float).to_numpy(),
+                "NES_weighted": weighted_df["NES"].astype(float).to_numpy(),
+                "padj_weighted": weighted_df["padj"].astype(float).to_numpy(),
+            }
+        )
+        sim_curve_records.append(curve_df)
+
+        if np.max(np.abs(curve_df["latent_signal"])) > 0:
+            latent_plot = (
+                curve_df["latent_signal"]
+                / np.max(np.abs(curve_df["latent_signal"]))
+                * np.max(np.abs(curve_df["NES_current"]))
+            )
+            current_corr = float(np.corrcoef(curve_df["latent_signal"], curve_df["NES_current"])[0, 1])
+            latent_peak_pt = float(curve_df.loc[curve_df["latent_signal"].idxmax(), "pt_mid"])
+            current_peak_pt = float(curve_df.loc[curve_df["NES_current"].idxmax(), "pt_mid"])
+            peak_shift = current_peak_pt - latent_peak_pt
+        else:
+            latent_plot = np.zeros(len(curve_df), dtype=float)
+            current_corr = np.nan
+            latent_peak_pt = np.nan
+            current_peak_pt = np.nan
+            peak_shift = np.nan
+
+        ax.plot(curve_df["pt_mid"], latent_plot, color="#111827", linestyle="--", linewidth=1.8, label="Latent signal (rescaled)")
+        ax.plot(curve_df["pt_mid"], curve_df["NES_current"], color=panel_colors[pattern_name], linewidth=2.2, label="Observed NES")
+        sig_points = curve_df[curve_df["padj_current"] < 0.05]
+        if not sig_points.empty:
+            ax.scatter(sig_points["pt_mid"], sig_points["NES_current"], color=panel_colors[pattern_name], s=20, zorder=3)
+        ax.axhline(0, color="#64748b", linestyle="--", linewidth=1.0)
+        ax.set_title(panel_title, loc="left", fontweight="bold")
+        ax.set_xlabel("Pseudotime")
+        ax.set_ylabel("Pathway trajectory")
+        if np.isfinite(current_corr):
+            stats_text = f"corr = {current_corr:.2f}\npeak shift = {peak_shift:.03f}\nsig windows = {(curve_df['padj_current'] < 0.05).sum()}"
+        else:
+            stats_text = f"flat latent truth\nmax |NES| = {np.max(np.abs(curve_df['NES_current'])):.2f}\nsig windows = {(curve_df['padj_current'] < 0.05).sum()}"
+        ax.text(
+            0.02,
+            0.95,
+            stats_text,
+            transform=ax.transAxes,
+            va="top",
+            ha="left",
+            fontsize=8.5,
+            bbox={"boxstyle": "round,pad=0.3", "facecolor": "white", "edgecolor": "#d1d5db"},
+        )
+
+        ax_control = axes18.ravel()[list(dict(pattern_defs).keys()).index(pattern_name)]
+        ax_control.plot(curve_df["pt_mid"], curve_df["NES_current"], color=panel_colors[pattern_name], linewidth=2.2, label="Current statistic")
+        ax_control.plot(curve_df["pt_mid"], curve_df["NES_weighted"], color="#111827", linewidth=1.8, linestyle="--", label="Detection-rate weighted control")
+        if np.max(np.abs(curve_df["latent_signal"])) > 0:
+            ax_control.plot(curve_df["pt_mid"], latent_plot, color="#94a3b8", linewidth=1.6, linestyle=":", label="Latent signal (rescaled)")
+        else:
+            ax_control.axhline(0, color="#94a3b8", linewidth=1.6, linestyle=":", label="Flat latent truth")
+        ax_control.axhline(0, color="#64748b", linestyle="--", linewidth=1.0)
+        ax_control.set_title(panel_title, loc="left", fontweight="bold")
+        ax_control.set_xlabel("Pseudotime")
+        ax_control.set_ylabel("NES")
+        ax_control.text(
+            0.02,
+            0.95,
+            f"current sig = {(curve_df['padj_current'] < 0.05).sum()}\nweighted sig = {(curve_df['padj_weighted'] < 0.05).sum()}",
+            transform=ax_control.transAxes,
+            va="top",
+            ha="left",
+            fontsize=8.5,
+            bbox={"boxstyle": "round,pad=0.3", "facecolor": "white", "edgecolor": "#d1d5db"},
+        )
+
+        if pattern_name == "sparse_noise":
+            interpretation = "Sparse high-variance bursts generated local false-positive windows; a simple detection-rate-weighted control attenuated them."
+        elif pattern_name == "mixed_biphasic":
+            interpretation = "Early and late subprograms diluted each other, reducing the number of significant windows despite matched per-gene amplitude."
+        elif pattern_name == "transient_pulse":
+            interpretation = "The narrow pulse remained detectable but its peak shifted slightly earlier than the latent optimum."
+        else:
+            interpretation = "Monotonic pathway behaviour remained stable and served as the baseline reference."
+
+        table_rows.append(
+            {
+                "Pattern": panel_title,
+                "corr_current": current_corr,
+                "peak_shift": peak_shift,
+                "sig_current": int((curve_df["padj_current"] < 0.05).sum()),
+                "sig_weighted": int((curve_df["padj_weighted"] < 0.05).sum()),
+                "max_abs_current": float(np.max(np.abs(curve_df["NES_current"]))),
+                "max_abs_weighted": float(np.max(np.abs(curve_df["NES_weighted"]))),
+                "interpretation": interpretation,
+            }
+        )
+
+    curve_df_all = pd.concat(sim_curve_records, ignore_index=True)
+    curve_df_all.to_csv(DATA_DIR / "figure_S17_limitation_benchmark.csv", index=False)
+    curve_df_all.to_csv(DATA_DIR / "figure_S18_limitation_control.csv", index=False)
+
+    handles17 = [
+        Line2D([0], [0], color="#111827", linestyle="--", linewidth=1.8, label="Latent signal (rescaled)"),
+        Line2D([0], [0], color="#111827", linewidth=2.2, label="Observed NES"),
+    ]
+    fig17.legend(handles=handles17, loc="upper center", ncol=2, frameon=True, bbox_to_anchor=(0.5, 0.02))
+    fig17.suptitle(
+        "Semi-simulated audit of false-negative and false-positive regimes\n(real pseudotime ordering with synthetic pathway genes)",
+        y=0.995,
+        fontsize=13.8,
+    )
+    fig17.tight_layout(rect=[0, 0.04, 1, 0.97])
+    fig17.savefig(ASSET_DIR / "figure_S17_limitation_benchmark.png", dpi=300, bbox_inches="tight")
+    fig17.savefig(ASSET_DIR / "figure_S17_limitation_benchmark.pdf", bbox_inches="tight")
+    plt.close(fig17)
+
+    handles18 = [
+        Line2D([0], [0], color="#111827", linewidth=2.2, label="Current statistic"),
+        Line2D([0], [0], color="#111827", linewidth=1.8, linestyle="--", label="Detection-rate weighted control"),
+        Line2D([0], [0], color="#94a3b8", linewidth=1.6, linestyle=":", label="Latent signal / flat truth"),
+    ]
+    fig18.legend(handles=handles18, loc="upper center", ncol=3, frameon=True, bbox_to_anchor=(0.5, 0.02))
+    fig18.suptitle(
+        "Sensitivity-check control for the limitation audit\n(detection-rate weighting; not used in the main method)",
+        y=0.995,
+        fontsize=13.8,
+    )
+    fig18.tight_layout(rect=[0, 0.04, 1, 0.97])
+    fig18.savefig(ASSET_DIR / "figure_S18_limitation_control.png", dpi=300, bbox_inches="tight")
+    fig18.savefig(ASSET_DIR / "figure_S18_limitation_control.pdf", bbox_inches="tight")
+    plt.close(fig18)
+
+    table_df = pd.DataFrame(table_rows)
+    table_df.to_csv(DATA_DIR / "table_S11_limitation_audit.csv", index=False)
+
+    table_lines = [
+        r"\begin{tabular}{p{0.17\textwidth}p{0.10\textwidth}p{0.11\textwidth}p{0.10\textwidth}p{0.10\textwidth}p{0.11\textwidth}p{0.25\textwidth}}",
+        r"\toprule",
+        r"Pattern & Corr. (current) & Peak shift & Sig. windows & Weighted sig. & Max $|NES|$ (cur$\rightarrow$wt) & Interpretation \\",
+        r"\midrule",
+    ]
+    for row in table_rows:
+        corr_text = "--" if not np.isfinite(row["corr_current"]) else _format_fixed(row["corr_current"], 2)
+        peak_text = "--" if not np.isfinite(row["peak_shift"]) else _format_fixed(row["peak_shift"], 3)
+        max_text = f"{row['max_abs_current']:.2f}$\\rightarrow${row['max_abs_weighted']:.2f}"
+        table_lines.append(
+            f"{_latex_escape(row['Pattern'])} & {corr_text} & {peak_text} & "
+            f"{row['sig_current']} & {row['sig_weighted']} & {max_text} & "
+            f"{_latex_escape(row['interpretation'])} \\\\"
+        )
+    table_lines.extend([r"\bottomrule", r"\end{tabular}"])
+    _write_tabular(DATA_DIR / "table_S11_limitation_audit.tex", table_lines)
+
+
 def generate_patched_supplement_intro_pages() -> None:
     source_pdf = REPO_ROOT / "bioinfor0208" / "pyfgsea_supplementary.pdf"
     base_prefix = ASSET_DIR / "supp_intro_patch"
@@ -1661,6 +2152,7 @@ def main() -> None:
     generate_parameter_grid_summary_figure()
     generate_boundary_handling_figure()
     generate_stateful_scaling_figure()
+    generate_limitation_audit_assets()
     generate_patched_supplement_intro_pages()
 
 

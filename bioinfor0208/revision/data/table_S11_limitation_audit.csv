@@ -1,0 +1,5 @@
+Pattern,corr_current,peak_shift,sig_current,sig_weighted,max_abs_current,max_abs_weighted,interpretation
+Monotonic up,0.9274212456935143,0.0,55,55,2.6259382590806797,2.6207275638788703,Monotonic pathway behaviour remained stable and served as the baseline reference.
+Transient pulse,0.8781947475175962,-0.047778058826923375,51,51,2.7104321715179758,2.7016447980503036,The narrow pulse remained detectable but its peak shifted slightly earlier than the latent optimum.
+Mixed biphasic,0.9463352027282358,-0.017595844894647605,18,17,2.5264461187006875,2.5182552383590697,"Early and late subprograms diluted each other, reducing the number of significant windows despite matched per-gene amplitude."
+Sparse high-variance noise,,,4,0,2.2829923791881237,1.8231148270461701,Sparse high-variance bursts generated local false-positive windows; a simple detection-rate-weighted control attenuated them.
