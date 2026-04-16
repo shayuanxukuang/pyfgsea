@@ -50,6 +50,7 @@ Thumbs.db
 # Output
 results/
 *.log
+/bioinfor0208/
 
 # Virtual Env
 .venv/

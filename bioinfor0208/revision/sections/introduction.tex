@@ -1,7 +1,0 @@
-\section{Introduction}
-
-Gene set enrichment analysis (GSEA) is widely used to interpret genome-wide expression profiles by quantifying whether a gene set is enriched toward the top or bottom of a ranked list~\cite{ref1}. In Python, commonly used implementations such as GSEApy~\cite{ref2} and BlitzGSEA~\cite{ref3} offer accessible workflows but may differ in runtime, memory, or the behaviour of extreme-tail $P$-values under multilevel sampling.
-
-The fgsea R package provides an efficient multilevel adaptive sampling procedure (\emph{fgseaMultilevel}) that targets accurate rare-event $P$-values without requiring extremely large numbers of permutations~\cite{ref4}. However, a statistically aligned, high-performance implementation has been missing from the Python ecosystem. This gap becomes more pronounced in single-cell trajectory analysis, where enrichment is often desired along pseudotime using rolling windows, resulting in hundreds to thousands of GSEA evaluations.
-
-We present PyFgsea, a high-performance framework built on a Rust backend with PyO3 bindings. \rev{To our knowledge, it fills a critical gap by providing: (i) a Python implementation aligned with the fgseaMultilevel rare-event estimator target; (ii) a multi-threaded architecture that substantially reduces runtime and memory footprint; and (iii) a specialized stateful rolling-window runner that minimizes redundant computations for efficient trajectory analysis.}
