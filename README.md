@@ -167,7 +167,13 @@ For full details, see [repro/README.md](repro/README.md).
 
 ## Citation
 If you use PyFgsea in academic work, please cite:
-> Manuscript in preparation.
+
+> Wang K, Shi H. PyFgsea: a Rust-powered, fgseaMultilevel-aligned GSEA framework with rolling-window enrichment along single-cell trajectories. *Bioinformatics*. 2026;42(5):btag257. doi:[10.1093/bioinformatics/btag257](https://doi.org/10.1093/bioinformatics/btag257).
+
+- Article: <https://doi.org/10.1093/bioinformatics/btag257>
+- Source code: <https://github.com/shayuanxukuang/pyfgsea>
+- PyPI: <https://pypi.org/project/pyfgsea/>
+- Zenodo archive: <https://doi.org/10.5281/zenodo.19446446>
 
 ## License
 MIT License. See [LICENSE](LICENSE) for details.
