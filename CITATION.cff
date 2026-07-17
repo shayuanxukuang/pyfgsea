@@ -1,0 +1,27 @@
+cff-version: 1.2.0
+message: "If you use TED, cite the version-specific software archive and the method article when available."
+title: "Trajectory Pathway Event Discovery (TED): an artifact-aware protocol for structured interpretation of dynamic pathway events in single-cell genomics"
+type: software
+version: 1.0.0
+date-released: 2026-07-17
+doi: 10.5281/zenodo.21403133
+authors:
+  - family-names: Wang
+    given-names: Kuanghao
+  - family-names: Shi
+    given-names: Hong
+repository-code: "https://github.com/shayuanxukuang/pyfgsea-TED"
+url: "https://doi.org/10.5281/zenodo.21403133"
+license: MIT
+keywords:
+  - single-cell genomics
+  - trajectory analysis
+  - pathway analysis
+  - event discovery
+  - evidence provenance
+  - reproducible bioinformatics
+abstract: >-
+  TED converts pathway, module or perturbation activity profiles into structured
+  event objects that record event mode, artifact controls, identifiability,
+  within-study support and external-evidence provenance. PyFgsea is an optional
+  upstream activity generator; TED is a separate downstream inference task.
