@@ -81,7 +81,7 @@ jobs:
           cd /tmp
           PYTHONPATH=/tmp/ted-test-support python -m pytest "$GITHUB_WORKSPACE/tests" -q -m slow --import-mode=importlib
 
-  reviewer-demo:
+  validation-demo:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -99,7 +99,7 @@ jobs:
       - name: Upload validation evidence
         uses: actions/upload-artifact@v4
         with:
-          name: ted-reviewer-demo
+          name: ted-validation-demo
           path: ci_ted_demo/**
 
   docker-smoke:

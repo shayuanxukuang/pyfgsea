@@ -500,8 +500,9 @@ def test_aligned_trajectory_contrast_separates_speed_from_rewiring():
 
     aligned = tables["aligned_pathway_score_process"]
     speed = aligned[aligned["pathway"] == "SPEED_ONLY"]
-    raw_auc = np.trapz(speed["raw_D_A_minus_B"], x=speed["state_time"])
-    aligned_auc = np.trapz(speed["D_A_minus_B"], x=speed["state_time"])
+    integrate = getattr(np, "trapezoid", None) or np.trapz
+    raw_auc = integrate(speed["raw_D_A_minus_B"], x=speed["state_time"])
+    aligned_auc = integrate(speed["D_A_minus_B"], x=speed["state_time"])
     assert abs(aligned_auc) < abs(raw_auc)
     assert "event_q" in tables["differential_event_fdr"].columns
 

@@ -41,8 +41,7 @@ def test_gse93735_reversal_passes_and_controls_do_not_match_primary():
     assert controls["reversal_fraction"].astype(float).max() < float(primary["reversal_fraction"])
 
 
-def test_pending_datasets_are_not_promoted():
+def test_submission_table_excludes_unfinished_candidates():
     claims = pd.read_csv(TABLES / "ted_dataset_level_claim_boundary.tsv", sep="\t")
-    pending = claims[claims["dataset"].isin(["GSE90546", "GSE90063", "GSE133344"])]
-    assert set(pending["status"]) == {"pending"}
-    assert set(pending["claim_boundary"]) == {"not_evaluable"}
+    unfinished = claims[claims["dataset"].isin(["GSE90546", "GSE90063", "GSE133344"])]
+    assert unfinished.empty
