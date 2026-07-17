@@ -1,0 +1,11 @@
+{
+  "outdir": "results\\ted_submission_calibration",
+  "packets_per_class": 16,
+  "fdr_replicates": 500,
+  "fdr_q01_replicates": 10000,
+  "fdr_q05_replicates": 5000,
+  "fdr_relative_tolerance": 0.5,
+  "null_replicates": 500,
+  "confounded_signal_replicates": 500,
+  "seed": 20260715
+}

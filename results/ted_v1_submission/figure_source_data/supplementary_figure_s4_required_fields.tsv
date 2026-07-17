@@ -1,0 +1,9 @@
+required_field
+pathway
+event_type
+event_FDR
+event_FDR_available
+robustness_score
+evidence_boundary
+supported_interpretation
+unsupported_interpretation

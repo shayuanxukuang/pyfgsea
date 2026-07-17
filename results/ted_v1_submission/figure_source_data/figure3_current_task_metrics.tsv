@@ -1,0 +1,16 @@
+task	method	audit_n	auditable_reason_codes	primary_metric	macro_f1	balanced_accuracy	false_e_promotion	false_e_demotion	non_e0_call_fraction
+packet_class	TED_fixed_rules	40	True	0.7405772005772007	0.7405772005772007	0.75			
+packet_class	dummy_most_frequent	40	False	0.0181818181818181	0.0181818181818181	0.1			
+packet_class	logistic	40	False	0.8730158730158731	0.8730158730158731	0.875			
+packet_class	random_forest	40	False	0.85	0.85	0.85			
+packet_class	hist_gradient_boosting	40	False	0.7768253968253969	0.7768253968253969	0.8			
+artifact	TED_fixed_rules	40	True	0.6153846153846154	0.7703788748564868	0.734375			
+artifact	dummy_most_frequent	40	False	0.0	0.4444444444444444	0.5			
+artifact	logistic	40	False	0.8888888888888888	0.92831541218638	0.96875			
+artifact	random_forest	40	False	1.0	1.0	1.0			
+artifact	hist_gradient_boosting	40	False	0.9411764705882352	0.9626517273576096	0.984375			
+evidence	TED_fixed_rules	40	True	0.7610241820768137	0.7610241820768137	0.8695652173913043	0.0	0.225	0.7
+evidence	dummy_most_frequent	40	False	0.2433862433862433	0.2433862433862433	0.3333333333333333	0.425	0.0	1.0
+evidence	logistic	40	False	0.6839291465378422	0.6839291465378422	0.6898550724637681	0.075	0.1	0.675
+evidence	random_forest	40	False	0.6266666666666666	0.6266666666666666	0.6666666666666666	0.1	0.025	0.675
+evidence	hist_gradient_boosting	40	False	0.6137123745819398	0.6137123745819398	0.6388888888888888	0.15	0.0	0.725

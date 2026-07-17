@@ -1,0 +1,4 @@
+metric	definition	denominator
+false_e_promotion	predicted E rank exceeds truth E rank; includes E0->E1, E0->E2, and E1->E2	all shifted-audit packets
+false_e_demotion	predicted E rank is below truth E rank; includes E2->E1, E2->E0, and E1->E0	all shifted-audit packets
+non_e0_call_fraction	fraction assigned E1 or E2; this is not selective-prediction coverage	all shifted-audit packets

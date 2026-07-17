@@ -1,0 +1,71 @@
+version: 1
+name: dynamic_pathway_event_grammar_standardization
+purpose: >
+  Convert pathway/module score curves and TED event outputs into a common
+  pathway-event grammar table.
+
+required_core_fields:
+  - dataset
+  - pathway
+  - event_type
+  - event_FDR
+  - event_FDR_available
+  - event_FDR_reason_if_missing
+  - robustness_score
+  - validation_status
+  - claim_boundary
+  - supported_interpretation
+  - unsupported_interpretation
+
+event_types:
+  onset:
+    required_evidence:
+      - ordered coordinate or branch/spatial window
+      - activation_onset or suppression_onset estimate
+      - event_FDR or window-level support
+    unsupported_escalation: causal initiation mechanism
+  peak:
+    required_evidence:
+      - peak_time or best_dynamic_window
+      - peak effect or dynamic gain
+      - null or baseline comparison when available
+    unsupported_escalation: mechanism from curve maximum alone
+  shutdown:
+    required_evidence:
+      - suppression_onset, trough, persistent loss, or event-loss family
+      - direction and robustness support
+    unsupported_escalation: irreversible termination without validation
+  branch-specific:
+    required_evidence:
+      - branch/fate/lineage or genotype scaffold
+      - branch-specific effect or expected-program support
+      - null or held-out support when available
+    unsupported_escalation: fate-determining causal mechanism
+  spatial-localized:
+    required_evidence:
+      - spatial region, bin, section, or spatial trajectory window
+      - dynamic signal stronger than static or matched control
+      - spatial/null support
+    unsupported_escalation: direct spatial or hormonal causality
+  rescued-extension:
+    required_evidence:
+      - matched intervention or rescue contrast
+      - reversal toward reference
+      - negative controls below primary axis
+    unsupported_escalation: primary-system causality if rescue is public or unmatched
+  failed-rescue-extension:
+    required_evidence:
+      - predicted rescue axis or failed public gate
+      - explicit missing rescue/intervention evidence
+    unsupported_escalation: completed rescue validation
+
+robustness_score:
+  scale: 0_to_1
+  components:
+    - event_FDR_support
+    - block_or_section_or_branch_stability
+    - negative_control_margin
+    - absolute_event_effect
+  note: >
+    The score is a compact display summary. Component gates remain the auditable
+    evidence fields and should not be replaced by the aggregate score.

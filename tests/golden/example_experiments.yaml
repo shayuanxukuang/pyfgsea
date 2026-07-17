@@ -1,0 +1,68 @@
+schema_version: "0.1"
+design_model:
+  lambda_claim: 1.0
+  gamma_falsification: 0.6
+  cost_weight: 0.15
+  risk_weight: 0.25
+experiments:
+  - experiment_id: A1_GATA1_FL_D7_rescue
+    label: Full-length GATA1 rescue at D7
+    description: Restore full-length GATA1 before the predicted regulatory defect.
+    cost: 0.70
+    risk: 0.40
+    claim_upgrade_evidence: direct_rescue
+    claim_level_if_success: 4
+    supports_hypotheses:
+      - H3_GATA1_regulatory
+    readouts:
+      - D9_regulatory_module
+      - D11_maturation_module
+      - D11_hemoglobinization
+      - TED_event_score
+    distinguishes:
+      - H3_GATA1_regulatory
+      - H4_downstream_heme
+      - H5_T21_chromatin_interaction
+    expected_patterns:
+      H3_GATA1_regulatory:
+        D9_regulatory_module: strong_rescue
+        D11_maturation_module: partial_rescue
+        D11_hemoglobinization: partial_to_strong_rescue
+      H4_downstream_heme:
+        D9_regulatory_module: weak_rescue
+        D11_hemoglobinization: strong_rescue
+      H5_T21_chromatin_interaction:
+        D9_regulatory_module: partial_rescue
+        chromatin_linked_targets: incomplete_rescue
+    falsifiers:
+      - hypothesis: H3_GATA1_regulatory
+        rule: If full-length GATA1 is restored but D9 regulatory module and TED event score do not rescue, H3 should drop substantially.
+  - experiment_id: A4_hemin_rescue
+    label: Hemin rescue
+    description: Test a downstream heme bottleneck.
+    cost: 0.25
+    risk: 0.20
+    claim_level_if_success: 3.5
+    supports_hypotheses:
+      - H4_downstream_heme
+    readouts:
+      - D11_hemoglobinization
+      - D11_maturation_module
+      - D9_regulatory_module
+    distinguishes:
+      - H3_GATA1_regulatory
+      - H4_downstream_heme
+      - H5_T21_chromatin_interaction
+    expected_patterns:
+      H3_GATA1_regulatory:
+        D9_regulatory_module: weak_rescue
+        D11_hemoglobinization: partial_late_improvement
+      H4_downstream_heme:
+        D11_hemoglobinization: strong_rescue
+        D11_maturation_module: strong_rescue
+      H5_T21_chromatin_interaction:
+        D11_hemoglobinization: partial_rescue
+        chromatin_linked_targets: no_rescue
+    falsifiers:
+      - hypothesis: H4_downstream_heme
+        rule: If heme readouts do not improve despite adequate exposure, H4 loses support.

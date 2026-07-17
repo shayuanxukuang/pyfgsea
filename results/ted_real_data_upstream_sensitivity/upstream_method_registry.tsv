@@ -1,0 +1,13 @@
+dataset_id	scoring_method	trajectory_input	implementation	native_external_package_executed
+GSE126085_real_time	pyfgsea_rolling	true_time	PyFgsea rolling-window core	True
+GSE126085_real_time	pyfgsea_rolling	dpt_pseudotime	PyFgsea rolling-window core	True
+GSE126085_real_time	rank_auc	true_time	internal score-then-smooth implementation; native external package not claimed	False
+GSE126085_real_time	rank_auc	dpt_pseudotime	internal score-then-smooth implementation; native external package not claimed	False
+GSE126085_real_time	mean_zscore	true_time	internal score-then-smooth implementation; native external package not claimed	False
+GSE126085_real_time	mean_zscore	dpt_pseudotime	internal score-then-smooth implementation; native external package not claimed	False
+GSE126085_real_time	ssgsea_bridge	true_time	internal score-then-smooth implementation; native external package not claimed	False
+GSE126085_real_time	ssgsea_bridge	dpt_pseudotime	internal score-then-smooth implementation; native external package not claimed	False
+Nestorowa_trajectory	pyfgsea_rolling	dpt_pseudotime	PyFgsea rolling-window core	True
+Nestorowa_trajectory	rank_auc	dpt_pseudotime	internal score-then-smooth implementation; native external package not claimed	False
+Nestorowa_trajectory	mean_zscore	dpt_pseudotime	internal score-then-smooth implementation; native external package not claimed	False
+Nestorowa_trajectory	ssgsea_bridge	dpt_pseudotime	internal score-then-smooth implementation; native external package not claimed	False

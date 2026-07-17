@@ -1,0 +1,4 @@
+method	packet_class_f1	artifact_f1	false_e_promotion	false_e_demotion	non_e0_call_fraction	reason_codes
+TED	0.741	0.615	0.000	0.225	0.700	Yes
+Logistic	0.873	0.889	0.075	0.100	0.675	No
+Random forest	0.850	1.000	0.100	0.025	0.675	No

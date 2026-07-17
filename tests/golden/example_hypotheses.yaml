@@ -1,0 +1,58 @@
+schema_version: "0.1"
+model:
+  base_likelihood_ratio: 2.0
+  dependency_aggregation: mean
+  max_family_abs_log_lr: 2.5
+hypotheses:
+  - hypothesis_id: H0_noise_batch
+    label: noise/batch artifact
+    prior: 0.12
+    description: The event is a batch or family artifact.
+    expected_evidence:
+      family_block_robustness: negative
+    falsifiers:
+      - The event survives family-block analysis.
+  - hypothesis_id: H1_state_composition
+    label: state/composition artifact
+    prior: 0.13
+    description: The event is explained by shifted cell-state composition.
+    expected_evidence:
+      counterfactual_ot: negative
+    falsifiers:
+      - The event persists after state matching.
+  - hypothesis_id: H2_proliferation_confounded
+    label: proliferation-confounded mechanism
+    prior: 0.15
+    description: The event is mainly driven by proliferation or cell cycle.
+    expected_evidence:
+      proliferation_adjusted_mediation: negative
+    falsifiers:
+      - The event persists after proliferation adjustment.
+  - hypothesis_id: H3_GATA1_regulatory
+    label: GATA1 regulatory impairment
+    prior: 0.35
+    description: Early GATA1 regulatory impairment precedes erythroid maturation failure.
+    expected_evidence:
+      family_block_robustness: positive
+      proliferation_adjusted_mediation: positive
+      counterfactual_ot: positive
+      day_stratified_timing: positive
+      external_GATA1_KD: positive
+    falsifiers:
+      - GATA1 rescue restores expression but not the regulatory module.
+  - hypothesis_id: H4_downstream_heme
+    label: downstream heme/maturation mechanism
+    prior: 0.15
+    description: The primary defect is downstream heme or hemoglobinization failure.
+    expected_evidence:
+      day_stratified_timing: negative
+    falsifiers:
+      - Heme rescue fails to improve hemoglobinization.
+  - hypothesis_id: H5_T21_chromatin_interaction
+    label: T21-specific chromatin/GATA1 interaction
+    prior: 0.10
+    description: T21 background changes GATA1 regulatory accessibility.
+    expected_evidence:
+      external_T21_multiome: positive
+    falsifiers:
+      - GATA1 rescue fully restores chromatin-linked targets.

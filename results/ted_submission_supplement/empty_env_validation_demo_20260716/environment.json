@@ -1,0 +1,27 @@
+{
+  "verification_date": "2026-07-16",
+  "python_version": "3.11.15",
+  "python_executable": "G:\\pyfgsea\\tmp\\ted_empty_env_20260716\\Scripts\\python.exe",
+  "isolated_mode": true,
+  "import_location": "G:\\pyfgsea\\tmp\\ted_empty_env_20260716\\Lib\\site-packages\\pyfgsea\\__init__.py",
+  "installed_distribution": "pyfgsea 0.1.4",
+  "wheel": "results/ted_submission_supplement/wheel_dist_ev_v2/pyfgsea-0.1.4-cp38-abi3-win_amd64.whl",
+  "wheel_sha256": "94eef654d76d92d91e14234abfe71c587404b8c460e8423f9ebaac99c6bb5db5",
+  "event_v2_schema_sha256": "ad4382783b7a71ed9f8589a4f92a3c31e1910f86d3c6fa2f5e2ba04e82f09489",
+  "commands": [
+    "python -I scripts/run_ted_validation_demo.py --outdir results/ted_submission_supplement/empty_env_validation_demo_20260716",
+    "ted validate results/ted_submission_supplement/empty_env_validation_demo_20260716/demo_activity.tsv --kind activity --schema-version v1 --report results/ted_submission_supplement/empty_env_validation_demo_20260716/cli_activity_validation.tsv",
+    "ted validate results/ted_submission_supplement/empty_env_validation_demo_20260716/demo_events_v2.tsv --kind event --schema-version v2 --report results/ted_submission_supplement/empty_env_validation_demo_20260716/cli_event_v2_validation.tsv"
+  ],
+  "outputs": {
+    "cli_activity_validation.tsv": "4a8206433e62f5b934a9d018e6ad0dcddeb28440053194a246f1e7ec2a9a7524",
+    "cli_event_v2_validation.tsv": "263829b5e8c7ab0ecf57e6ade1b5caa681460cbb67027285cd80edd6e221e7d6",
+    "demo_activity.tsv": "10080b101ce8ac8a104f588eb0cb318e9a840b9c05495041272fa1a294b44534",
+    "demo_events.tsv": "6402bfa64e56361881df9141811400f3a9654663d3cdf29f989d938bda2a1357",
+    "demo_events_v2.tsv": "6402bfa64e56361881df9141811400f3a9654663d3cdf29f989d938bda2a1357",
+    "demo_manifest.json": "af73d6fbecbbf9f1d260de52c5d6e39aef35dda56ec5c108cc9c6f5a13ba899e",
+    "demo_report.html": "4248a2dbfdead2b53f6bc8b8d06e18510103b27a1bacf754e39eb4bbd98d6094",
+    "demo_validation.tsv": "25d98bf83215be3fc02e01db47b1f3d53caae7fc5f72698231dba7491c21a53b"
+  },
+  "scope": "Fresh isolated-environment software-contract validation only; synthetic V0 evidence and no external biological validation."
+}

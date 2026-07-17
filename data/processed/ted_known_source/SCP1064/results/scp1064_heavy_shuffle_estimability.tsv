@@ -1,0 +1,6 @@
+requested_control	status	n_units	reason
+guide_labels_within_batch	completed_using_perturbation_block	195303	perturbation_2 is the only varying source block
+leave_one_library_or_batch_out	not_estimable	1	library_preparation_protocol is constant (10X 3' v3 sequencing); no batch label is available
+leave_one_guide_out	completed	4	guide-level effects refit after removing each guide
+leave_one_target_out	completed	4	target-level effects refit after removing each target
+leave_one_perturbation_block_out	completed	3	full-cell RNA-protein correlations recomputed after excluding each perturbation block

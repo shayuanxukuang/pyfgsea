@@ -1,7 +1,10 @@
 import numpy as np
 import pandas as pd
+import pytest
 
 import pyfgsea
+
+pytestmark = pytest.mark.slow
 
 
 def test_ted_time_reports_real_and_pseudotime_onsets():

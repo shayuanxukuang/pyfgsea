@@ -1,0 +1,14 @@
+check	status	detail	artifact_or_command
+targeted_pytest	pass	68 passed and 10 warnings in 12.16 s	C:/ProgramData/anaconda3/python.exe -m pytest tests/test_calibration.py tests/test_ted_schema.py tests/test_ted_evidence.py tests/test_ted_perturbation.py tests/test_ted_developmental.py -q
+complete_tests_directory	timeout	Prior CPU-active run exceeded 3601 s; no final pytest summary or failure traceback was emitted, so a complete-suite pass is not claimed	linbridge-cinemaot python -m pytest tests -q -p no:cacheprovider
+adaptive_window_benchmark	pass	36 scenarios, 696 profile replicates, full search rerun inside every permutation	results/ted_adaptive_window_multiplicity
+python_compile	pass	all revised TED supplement modules and scripts compiled	python -m py_compile ...
+mypy	pass	no issues in pyfgsea/ted_schema.py and pyfgsea/cli/main.py	mypy ... --ignore-missing-imports
+ruff_local	not_run	local ruff executable unavailable; CI installs and runs ruff	.github/workflows/ci.yml
+release_wheel	pass_with_warning	SHA256 3D309912D3442BBAB5D12AFBE38DAB1C971F3620919AB71B8465216E51E673D8; pyo3 non-local impl warning remains	results/ted_submission_supplement/wheel_dist_ev_v2/pyfgsea-0.1.4-cp38-abi3-win_amd64.whl
+wheel_schema_smoke	pass	fresh isolated environment imported pyfgsea 0.1.4 from site-packages and passed activity-v1 plus event-v2 validation	results/ted_submission_supplement/empty_env_validation_demo_20260716
+main_pdf	pass	25 pages; SHA256 1B5B3141094B548E876EA6EC6D0FFB44F7B92BD26447BBEB7A2B072ED971124C; no overfull/errors/Type3	GenomeBiology_known_source_submission_package/06_latex_source/TED_GenomeBiology_Main_Manuscript_Only/main.pdf
+supplement_pdf	pass	24 pages; SHA256 B5839431B90E668FD727EB46FF2E56BA8DEB9A7529E156DC96800C8E722A4F72; no overfull/errors/Type3	GenomeBiology_known_source_submission_package/06_latex_source/TED_GenomeBiology_LaTeX_submission/supplementary_files/supplementary_information.pdf
+docker_image	pass	image sha256:20c2dee04eab327aa42d5f70760687156d0df2b75ccdcf100f82b5a0ba1640cd; size 1542441023 bytes	ted-external-baselines:20260715
+docker_native_baselines	pass	tradeSeq 1.24.0, GSVA 2.4.4, AUCell 1.32.0 and POT 0.9.6.post1 executed	results/ted_submission_supplement/direct_external_baselines_docker/direct_external_baseline_metric_table.tsv
+git_diff_check	known_line_ending_findings	The dirty tree retains pre-existing broad changes; git diff --check reports CRLF-as-trailing-whitespace throughout the already expanded pyfgsea/__init__.py, so no repository-wide clean-diff claim is made	git diff --check; git status --short

@@ -1,0 +1,18 @@
+panel	element_type	element	definition
+A	input	upstream_signal	trajectory, time, perturbation or pathway activity
+A	target	biological_event_mode	activation; suppression; developmental delay; persistent loss; fate redirection
+A	target	artifact_class	none; composition; stress
+A	target	identifiability	identifiable; ambiguous; not identifiable
+A	target	event_support	E0; E1; E2
+A	target	validation_provenance	outcome; reversal; rescue; replication tags
+C	test_status	not_run	event_q is null and a stable missing reason is required
+C	test_status	run_not_supported	event_q is numeric but the event is E0
+C	test_status	run_supported	event_q is numeric and the event is E1 or E2
+C	E0	label	unsupported, non-estimable or artifact-dominated
+C	E1	label	statistically supported
+C	E2	label	robust and mode-identifiable
+D	E0_reason	E0_not_supported	declared event gate fails
+D	E0_reason	E0_not_estimable	event q cannot be estimated
+D	E0_reason	E0_not_identifiable	design does not identify event mode
+D	E0_reason	E0_artifact_dominated	composition, stress or other artifact dominates
+D	E0_reason	E0_missing_required_design	mandatory design information is absent

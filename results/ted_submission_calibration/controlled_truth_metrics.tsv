@@ -1,0 +1,7 @@
+metric	value
+ted_vs_truth_packet_class_macro_f1	0.7597152707855602
+ted_vs_truth_packet_class_balanced_accuracy	0.7875
+tier_weighted_kappa_vs_truth	0.9047619047619048
+tier_mean_absolute_error_vs_truth	0.184375
+false_upgrade_rate	0.05625
+false_downgrade_rate	0.125

@@ -1,0 +1,4 @@
+day	n_family_members	mean_delta_auc_day	all_negative
+D7	5	-0.2796956807374954	True
+D9	5	-0.31526425480842585	True
+D11	5	-0.3979512095451355	True

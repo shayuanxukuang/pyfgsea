@@ -1,0 +1,11 @@
+truth_packet_class	activation	suppression	developmental_delay	true_loss	fate_redirection	composition_artifact	stress_dominated	not_identifiable	outcome_supported	reversal_supported
+activation	16	0	0	0	0	0	0	0	0	0
+suppression	0	1	0	15	0	0	0	0	0	0
+developmental_delay	0	0	16	0	0	0	0	0	0	0
+true_loss	0	0	0	16	0	0	0	0	0	0
+fate_redirection	0	0	0	1	15	0	0	0	0	0
+composition_artifact	0	0	0	0	0	5	0	11	0	0
+stress_dominated	0	0	0	0	0	0	11	5	0	0
+not_identifiable	0	0	0	0	0	1	0	15	0	0
+outcome_supported	1	0	0	0	0	0	0	0	15	0
+reversal_supported	0	0	0	0	0	0	0	0	0	16

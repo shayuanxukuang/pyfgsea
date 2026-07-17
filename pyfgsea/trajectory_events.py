@@ -48,6 +48,85 @@ def _stable_onset(
     return math.nan
 
 
+def stable_event_timing(
+    time: np.ndarray,
+    values: np.ndarray,
+    significant: np.ndarray,
+    *,
+    min_consecutive: int = 2,
+) -> dict[str, float]:
+    """Return the production consecutive-window onset and duration estimands."""
+    time_array = np.asarray(time, dtype=float)
+    value_array = np.asarray(values, dtype=float)
+    significant_array = np.asarray(significant, dtype=bool)
+    if (
+        time_array.ndim != 1
+        or value_array.shape != time_array.shape
+        or significant_array.shape != time_array.shape
+        or len(time_array) < 1
+        or not np.isfinite(time_array).all()
+        or not np.isfinite(value_array).all()
+        or int(min_consecutive) < 1
+    ):
+        raise ValueError("Stable event-timing arrays are invalid")
+    return {
+        "activation_onset": _stable_onset(
+            time_array,
+            value_array,
+            significant_array,
+            direction=1,
+            min_consecutive=int(min_consecutive),
+        ),
+        "suppression_onset": _stable_onset(
+            time_array,
+            value_array,
+            significant_array,
+            direction=-1,
+            min_consecutive=int(min_consecutive),
+        ),
+        "duration": _center_duration(time_array, significant_array),
+    }
+
+
+def estimate_half_rise_onset(
+    time: np.ndarray, values: np.ndarray
+) -> float:
+    """Estimate adjusted-group onset by the monotone half-rise crossing.
+
+    This is the frozen quantitative shift estimand for T21 adjusted control and
+    case curves. Event-call onset remains the consecutive-window estimand above.
+    """
+    grid = np.asarray(time, dtype=float)
+    curve = np.asarray(values, dtype=float)
+    if (
+        grid.ndim != 1
+        or curve.shape != grid.shape
+        or len(grid) < 2
+        or not np.isfinite(grid).all()
+        or not np.isfinite(curve).all()
+        or not np.all(np.diff(grid) > 0)
+    ):
+        return math.nan
+    monotone = np.maximum.accumulate(curve)
+    edge = max(1, len(curve) // 5)
+    low = float(np.mean(monotone[:edge]))
+    high = float(np.mean(monotone[-edge:]))
+    if high - low <= np.finfo(float).eps:
+        return math.nan
+    target = low + 0.5 * (high - low)
+    reached = np.flatnonzero(monotone >= target)
+    if not len(reached):
+        return math.nan
+    index = int(reached[0])
+    if index == 0:
+        return float(grid[0])
+    x0, x1 = float(grid[index - 1]), float(grid[index])
+    y0, y1 = float(monotone[index - 1]), float(monotone[index])
+    if y1 <= y0:
+        return x1
+    return float(x0 + (target - y0) * (x1 - x0) / (y1 - y0))
+
+
 def _first_direction_switch(time: np.ndarray, values: np.ndarray) -> tuple[float, int]:
     switches = []
     for idx in range(1, len(values)):
@@ -303,12 +382,14 @@ def summarize_events(
         else:
             duration = _center_duration(time, significant)
 
-        activation_onset = _stable_onset(
-            time, values, significant, direction=1, min_consecutive=min_consecutive
+        timing = stable_event_timing(
+            time,
+            values,
+            significant,
+            min_consecutive=min_consecutive,
         )
-        suppression_onset = _stable_onset(
-            time, values, significant, direction=-1, min_consecutive=min_consecutive
-        )
+        activation_onset = timing["activation_onset"]
+        suppression_onset = timing["suppression_onset"]
         switch_time, switch_count = _first_direction_switch(time, values)
 
         auc = _trapz(values, time)

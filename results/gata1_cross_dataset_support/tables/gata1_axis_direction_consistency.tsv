@@ -1,0 +1,19 @@
+dataset	condition_a	condition_b	axis	source_axis	direction_expected	direction_observed	effect_size	p_value	q_value	support_status	claim_ceiling
+GSE238115	case	reference	heme_iron_axis	heme_metabolism	down	down	-1.067			support	external_count_level_T21_GATA1s_directional_support;not_rescue;below_Level_4
+GSE238115	case	reference	erythroid_output_axis	erythroid_output	down	down	-1.513			support	external_count_level_T21_GATA1s_directional_support;not_rescue;below_Level_4
+GSE238115	case	reference	apoptosis	apoptosis	context_dependent	down	-0.05			support	external_count_level_T21_GATA1s_directional_support;not_rescue;below_Level_4
+GSE36787	case	reference	heme_iron_axis	heme_metabolism	down	down	-0.681			support	direct_human_iPSC_T21_GATA1s_proxy;not_independent_rescue;Level_3_directional_support_if_passes
+GSE36787	case	reference	erythroid_output_axis	erythroid_output	down	down	-0.667			support	direct_human_iPSC_T21_GATA1s_proxy;not_independent_rescue;Level_3_directional_support_if_passes
+GSE62879+GSE14980	case	reference	heme_iron_axis	heme_metabolism	down	down	-0.882			support	isoform-level erythroid-output support;not_T21_specific;not_Level_4
+GSE62879+GSE14980	case	reference	erythroid_output_axis	erythroid_output	down	down	-0.969			support	isoform-level erythroid-output support;not_T21_specific;not_Level_4
+GSE130156	case	reference	heme_iron_axis	heme_metabolism	down	down	-0.927			support	mouse_N_terminus_mechanism_support;not_human_T21_rescue
+GSE130156	case	reference	erythroid_output_axis	erythroid_output	down	down	-0.653			support	mouse_N_terminus_mechanism_support;not_human_T21_rescue
+GSE130156	case	reference	regulatory_axis	immature_regulatory	context_dependent	up	0.609			support	mouse_N_terminus_mechanism_support;not_human_T21_rescue
+GSE315981	case	reference	heme_iron_axis	heme_metabolism	down	down	-1.582			support	human_HUDEP1_GATA1_N_terminus_bulk_support;not_T21_specific;not_rescue
+GSE315981	case	reference	erythroid_output_axis	erythroid_output	down	down	-1.498			support	human_HUDEP1_GATA1_N_terminus_bulk_support;not_T21_specific;not_rescue
+GSE315981	case	reference	metabolic_context_axis	glycolysis	up	up	0.687			support	human_HUDEP1_GATA1_N_terminus_bulk_support;not_T21_specific;not_rescue
+GSE298761	GATA1s	WT_or_GATA1FL_adjacent	erythroid_output_axis	erythroid_output_axis	down	down	-0.4080295165379843			support	cross_dataset_mechanistic_support_not_Level4
+GSE298761	GATA1s	WT_or_GATA1FL_adjacent	heme_iron_axis	heme_iron_axis	down	down	-0.501149445772171			support	cross_dataset_mechanistic_support_not_Level4
+GSE298761	GATA1s	WT_or_GATA1FL_adjacent	maturation_axis	maturation_membrane_axis	down	down	-0.3019953171412148			support	cross_dataset_mechanistic_support_not_Level4
+GSE298761	GATA1s	WT_or_GATA1FL_adjacent	metabolic_context_axis	glycolysis_axis	up	up	0.730335921049118			support	cross_dataset_mechanistic_support_not_Level4
+GSE298761	GATA1s	WT_or_GATA1FL_adjacent	regulatory_axis	immature_progenitor_axis	context_dependent	up	0.0735687514146169			support	cross_dataset_mechanistic_support_not_Level4

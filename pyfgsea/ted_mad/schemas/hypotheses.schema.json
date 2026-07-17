@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pyfgsea.local/ted-mad/hypotheses.schema.json",
+  "title": "TED-MAD hypotheses",
+  "type": "object",
+  "required": ["hypotheses"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "type": "string"
+    },
+    "model": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "hypotheses": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "object",
+        "required": [
+          "hypothesis_id",
+          "label",
+          "prior",
+          "description",
+          "expected_evidence",
+          "falsifiers"
+        ],
+        "additionalProperties": true,
+        "properties": {
+          "hypothesis_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z][A-Za-z0-9_]*$"
+          },
+          "label": {
+            "type": "string",
+            "minLength": 1
+          },
+          "prior": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "description": {
+            "type": "string",
+            "minLength": 1
+          },
+          "expected_evidence": {
+            "type": "object",
+            "minProperties": 1,
+            "additionalProperties": {
+              "type": "string",
+              "enum": ["positive", "negative", "neutral", "not_expected", "unknown"]
+            }
+          },
+          "falsifiers": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        }
+      }
+    }
+  }
+}

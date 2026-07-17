@@ -1,0 +1,9 @@
+{
+  "seed": 20260715,
+  "event_schema": "ted_event_report_v2",
+  "input": "demo_activity.tsv",
+  "event_report": "demo_events_v2.tsv",
+  "compatibility_alias": "demo_events.tsv",
+  "html_report": "demo_report.html",
+  "evidence_boundary": "Synthetic demo evidence is computational only (V0); no external validation is implied."
+}

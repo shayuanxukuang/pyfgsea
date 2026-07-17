@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pyfgsea.local/schemas/ted_activity_table_v1.schema.json",
+  "title": "TED activity table row v1",
+  "type": "object",
+  "required": ["dataset_id", "block_id", "time", "pathway", "activity"],
+  "properties": {
+    "dataset_id": {"type": "string", "minLength": 1},
+    "block_id": {"type": "string", "minLength": 1},
+    "condition": {"type": ["string", "null"]},
+    "trajectory": {"type": ["string", "null"]},
+    "time": {"type": "number"},
+    "pathway": {"type": "string", "minLength": 1},
+    "activity": {"type": "number"},
+    "weight": {"type": ["number", "null"], "minimum": 0}
+  },
+  "additionalProperties": true
+}

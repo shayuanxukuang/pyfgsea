@@ -1,0 +1,11 @@
+metric	value
+n_axis_dataset_rows	18
+overall_direction_consistency	1.0
+independent_dataset_direction_consistency	1.0
+level4_matched_rescue_available	False
+apoptosis_support_fraction	1.0
+erythroid_output_axis_support_fraction	1.0
+heme_iron_axis_support_fraction	1.0
+maturation_axis_support_fraction	1.0
+metabolic_context_axis_support_fraction	1.0
+regulatory_axis_support_fraction	1.0

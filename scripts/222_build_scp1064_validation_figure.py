@@ -10,6 +10,9 @@ import pandas as pd
 from scp1064_utils import GLOBAL_FIGURES, GLOBAL_TABLES, RESULTS
 
 
+plt.rcParams.update({"pdf.fonttype": 42, "ps.fonttype": 42})
+
+
 def read_tsv(path: Path) -> pd.DataFrame:
     if not path.exists():
         return pd.DataFrame()
@@ -39,25 +42,24 @@ def draw_card(ax, xy, width, height, title, body, face, edge="#4c5a65", title_co
 def main() -> None:
     outcome = read_tsv(RESULTS / "scp1064_outcome_alignment_summary.tsv")
     author = read_tsv(RESULTS / "scp1064_author_effect_summary.tsv")
-    claim = read_tsv(RESULTS / "scp1064_claim_boundary.tsv")
-    fig, axes = plt.subplots(1, 2, figsize=(10, 4))
+    plt.rcParams.update({"font.size": 10, "axes.titlesize": 12, "axes.labelsize": 10, "xtick.labelsize": 9, "ytick.labelsize": 9})
+    fig, axes = plt.subplots(1, 2, figsize=(11.5, 5.0))
     ax = axes[0]
     if not outcome.empty and "spearman" in outcome:
         plot = outcome.dropna(subset=["spearman"]).copy()
-        plot["label"] = plot["level"].astype(str) + ":" + plot["axis"].astype(str)
+        plot["label"] = (plot["level"].astype(str) + ": " + plot["axis"].map(clean_label)).map(lambda value: fill(value, 42))
         ax.barh(plot["label"].head(18), plot["spearman"].head(18), color="#4C78A8")
     ax.axvline(0, color="black", linewidth=0.7)
     ax.set_xlabel("RNA event/protein Spearman")
     ax.set_title("SCP1064 outcome alignment")
     ax = axes[1]
     if not author.empty and "max_abs_spearman" in author:
-        ax.barh(author["axis"], author["max_abs_spearman"], color="#F58518")
+        author_labels = author["axis"].map(clean_label).map(lambda value: fill(value, 34))
+        ax.barh(author_labels, author["max_abs_spearman"], color="#F58518")
     ax.set_xlabel("Author reference max |rho|")
     ax.set_title("Author effect concordance")
-    title = "SCP1064 validation"
-    if not claim.empty:
-        title += f": {claim.iloc[0]['claim_boundary']}"
-    fig.suptitle(title)
+    fig.suptitle("SCP1064 validation: E1-V1 partial", fontsize=14, fontweight="bold")
+    fig.tight_layout(rect=(0, 0, 1, 0.92), w_pad=2.5)
     GLOBAL_FIGURES.mkdir(parents=True, exist_ok=True)
     fig.savefig(GLOBAL_FIGURES / "supplementary_figure_scp1064.png", dpi=180, bbox_inches="tight")
     fig.savefig(GLOBAL_FIGURES / "supplementary_figure_scp1064.pdf", bbox_inches="tight")
@@ -171,7 +173,7 @@ def main() -> None:
     ax.axvline(0, color="black", linewidth=0.7)
     ax.set_xlabel("RNA event / protein Spearman rho")
     ax.set_title("D. SCP1064 source-to-protein readouts", loc="left", fontweight="bold")
-    fig.suptitle("Public known-source benchmarks validate outcome and reversal boundaries", fontsize=16, fontweight="bold", x=0.02, ha="left")
+    fig.suptitle("Public known-source benchmarks validated outcome and reversal boundaries", fontsize=16, fontweight="bold", x=0.02, ha="left")
     fig.tight_layout(rect=(0, 0, 1, 0.95))
     fig.savefig(GLOBAL_FIGURES / "figure2_known_source_validation.png", dpi=180, bbox_inches="tight")
     fig.savefig(GLOBAL_FIGURES / "figure2_known_source_validation.pdf", bbox_inches="tight")

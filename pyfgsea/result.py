@@ -7,10 +7,16 @@ import json
 import os
 from pathlib import Path
 import subprocess
-from typing import Any, Optional
+from typing import Any, Mapping, Optional
 
 import numpy as np
 import pandas as pd
+
+from .trajpathmix_scope import (
+    annotate_timing_scope,
+    evaluate_timing_activation,
+    project_primary_effect_output,
+)
 
 
 def _empty_df() -> pd.DataFrame:
@@ -329,6 +335,8 @@ class TrajectoryEventResult:
         baselines: Optional[pd.DataFrame] = None,
         diagnostics: Optional[pd.DataFrame] = None,
         metadata: Optional[dict[str, Any]] = None,
+        timing_gate_evidence: Optional[Mapping[str, bool]] = None,
+        timing_context: str = "dataset_specific",
         adata=None,
         gmt_path=None,
         **metadata_kwargs,
@@ -378,15 +386,27 @@ class TrajectoryEventResult:
             diagnostics=built_diagnostics,
         )
         merged_metadata["calibration_status"] = status
+        timing_decision = evaluate_timing_activation(
+            timing_gate_evidence,
+            context=timing_context,
+        )
+        merged_metadata["timing_scope"] = timing_decision.to_dict()
         evidence_layers = {
             "window_level": "NES/window_q support local visualization only",
-            "event_level": "event summaries and event_q support trajectory event discovery",
+            "event_level": (
+                "curve magnitude and event_q support functional-effect inference; "
+                "timing attributes remain conditional on the timing_scope gates"
+            ),
             "robustness_level": "bootstrap, consensus, replicate, leading-edge, and baseline diagnostics support interpretation",
         }
         return cls(
             windows=windows,
             results=results,
-            events=events.copy() if events is not None else pd.DataFrame(),
+            events=(
+                annotate_timing_scope(events, timing_decision)
+                if events is not None
+                else pd.DataFrame()
+            ),
             event_fdr=event_fdr.copy() if event_fdr is not None else pd.DataFrame(),
             bootstrap=bootstrap.copy() if bootstrap is not None else pd.DataFrame(),
             consensus=consensus.copy() if consensus is not None else pd.DataFrame(),
@@ -402,11 +422,31 @@ class TrajectoryEventResult:
     def calibration_status(self) -> str:
         return str(self.metadata.get("calibration_status", "exploratory_only"))
 
-    def to_tables(self) -> dict[str, pd.DataFrame]:
+    @property
+    def timing_status(self) -> str:
+        return str(
+            self.metadata.get("timing_scope", {}).get(
+                "status", "conditional_only"
+            )
+        )
+
+    def to_tables(
+        self, *, include_conditional_timing: bool = False
+    ) -> dict[str, pd.DataFrame]:
+        timing_scope = self.metadata.get("timing_scope", {})
+        decision = evaluate_timing_activation(
+            timing_scope.get("gate_evidence"),
+            context=str(timing_scope.get("context", "dataset_specific")),
+        )
+        events = (
+            self.events.copy()
+            if include_conditional_timing
+            else project_primary_effect_output(self.events, decision)
+        )
         return {
             "windows": self.windows,
             "results": self.results,
-            "events": self.events,
+            "events": events,
             "event_fdr": self.event_fdr,
             "bootstrap": self.bootstrap,
             "consensus": self.consensus,
@@ -431,4 +471,3 @@ class TrajectoryEventResult:
 
 def make_trajectory_event_result(**kwargs) -> TrajectoryEventResult:
     return TrajectoryEventResult.from_tables(**kwargs)
-

@@ -1,0 +1,22 @@
+{
+  "leading_hypothesis": "H3_GATA1_regulatory",
+  "leading_hypothesis_label": "GATA1 regulatory impairment",
+  "leading_posterior": 0.944294540831718,
+  "current_level_numeric": 3.5,
+  "current_level": "L3.5 mechanism-prioritized event",
+  "current_claim": "computationally adjudicated, rescue-ready mechanism model",
+  "present_evidence_categories": [
+    "any_supportive_evidence",
+    "counterfactual_ot",
+    "external_support",
+    "family_block_robustness",
+    "mediation",
+    "negative_controls",
+    "proliferation_adjustment",
+    "timing"
+  ],
+  "missing_evidence_for_next_level": [
+    "pre-registered matched rescue result"
+  ],
+  "reason_claim_cannot_exceed_current_level": "Claim cannot exceed this level because the next level still needs: pre-registered matched rescue result"
+}

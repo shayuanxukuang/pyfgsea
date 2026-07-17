@@ -1,0 +1,10 @@
+dataset	onset	peak	shutdown	branch-specific	spatial-localized	"failed-rescue
+prediction-only"
+"GSE123013
+Arabidopsis root"	0	0	0	4	0	0
+"GSE271399
+erythroid"	0	0	3	0	0	4
+"Paul15
+branch"	8	8	7	10	0	0
+"Bombyx
+Stereo-seq"	0	6	0	0	6	0

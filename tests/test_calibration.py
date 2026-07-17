@@ -5,7 +5,7 @@ import pyfgsea
 import pyfgsea.trajectory as traj
 
 
-def test_calibrate_events_uses_max_stat_null():
+def test_calibrate_events_uses_per_event_window_max_then_bh_by_default():
     observed = pd.DataFrame(
         {
             "Pathway": ["Strong", "Weak"],
@@ -18,7 +18,7 @@ def test_calibrate_events_uses_max_stat_null():
     )
     null = pd.DataFrame(
         {
-            "Pathway": ["A", "B", "A", "B"],
+            "Pathway": ["Strong", "Weak", "Strong", "Weak"],
             "perm_id": [0, 0, 1, 1],
             "peak_NES": [2.0, 1.5, 2.5, 1.0],
             "trough_NES": [0.0, 0.0, 0.0, 0.0],
@@ -34,7 +34,66 @@ def test_calibrate_events_uses_max_stat_null():
         calibrated.columns
     )
     assert calibrated.loc[0, "event_p"] < calibrated.loc[1, "event_p"]
-    assert calibrated.attrs["calibration"]["global_null"] is True
+    assert calibrated.attrs["calibration"]["global_null"] is False
+    assert set(calibrated["multiplicity_method"]) == {"per_event_max_window_bh"}
+    assert set(calibrated["across_event_adjustment"]) == {"BH"}
+    assert calibrated["event_q"].notna().all()
+
+
+def test_calibrate_events_family_max_is_fwer_without_bh():
+    observed = pd.DataFrame(
+        {
+            "Pathway": ["A", "B"],
+            "peak_NES": [3.0, 1.0],
+            "trough_NES": [0.0, 0.0],
+            "AUC": [1.0, 0.2],
+            "AUC_abs": [1.0, 0.2],
+            "duration": [0.2, 0.1],
+        }
+    )
+    null = pd.DataFrame(
+        {
+            "Pathway": ["A", "B", "A", "B"],
+            "perm_id": [0, 0, 1, 1],
+            "peak_NES": [2.0, 1.5, 2.5, 1.0],
+            "trough_NES": [0.0, 0.0, 0.0, 0.0],
+            "AUC": [0.5, 0.4, 0.6, 0.2],
+            "AUC_abs": [0.5, 0.4, 0.6, 0.2],
+            "duration": [0.1, 0.1, 0.1, 0.1],
+        }
+    )
+    calibrated = pyfgsea.calibrate_events(observed, null, global_null=True)
+    assert calibrated["event_q"].isna().all()
+    assert calibrated["event_fdr"].isna().all()
+    assert calibrated["family_fwer_p"].notna().all()
+    assert set(calibrated["across_event_adjustment"]) == {"none"}
+
+
+def test_selected_window_calibration_separates_three_targets():
+    observed = np.array([[4.0, 0.0], [0.0, 2.0]])
+    permuted = np.array(
+        [
+            [[1.0, 3.0], [1.0, 1.0]],
+            [[2.0, 1.0], [0.5, 2.5]],
+            [[0.5, 0.5], [1.5, 0.5]],
+        ]
+    )
+    table = pyfgsea.calibrate_selected_window_statistics(
+        observed, permuted, event_ids=["a", "b"]
+    )
+    assert list(table["selected_window_index"]) == [0, 1]
+    assert (table["naive_selected_window_p"] <= table["event_p"]).all()
+    assert (table["event_p"] <= table["family_fwer_p"]).all()
+    assert set(table["across_event_adjustment"]) == {"BH"}
+
+
+def test_selected_window_calibration_counts_floating_point_ties():
+    observed = np.array([[100.0, 2.0]])
+    # The first null draw is the theoretical identity permutation but differs
+    # by ordinary matrix-reduction roundoff.
+    permuted = np.array([[[100.0 - 5e-9, 1.0]], [[3.0, 2.0]]])
+    table = pyfgsea.calibrate_selected_window_statistics(observed, permuted)
+    assert table.loc[0, "event_p"] >= 2.0 / 3.0
 
 
 def test_calibrate_comparison_uses_group_label_null():

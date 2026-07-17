@@ -1,0 +1,2 @@
+dataset	analysis_status	n_cells	n_replicates	n_perturbations_tested	n_formal_e2_perturbations	n_posthoc_e2_eligible_perturbations	posthoc_e2_eligible_perturbations	dataset_evidence_descriptor	validation_basis	qualification
+GSE153056	post_hoc_revision_block_audit	20729	3	25	0	1	STAT1	E1-V1	PD-L1 protein outcome	Formal E1-V1. STAT1 is E2-eligible only under a retrospective q-and-CI block sensitivity rule that was added during revision and did not execute the complete locked E2 contract.

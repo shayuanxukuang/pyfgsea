@@ -1,0 +1,676 @@
+packet_id	variant	predicted_biological_mode	predicted_top_mode	predicted_artifact_class	predicted_identifiability	predicted_event_support_code	predicted_e0_reason_code	ambiguity_returned	collapsed_ladder_overstatement	predicted_v_tag	truth_biological_mode	truth_artifact_class	truth_identifiability	truth_n_blocks	truth_event_support_code	truth_e0_reason_code	truth_v_outcome	truth_v_reversal	truth_v_rescue	truth_v_replication	truth_v_tag
+F0001	full_ted	activation	activation	none	identifiable	E0	E0_not_estimable	False	False	none	activation	none	identifiable	2	E0	E0_not_estimable	False	False	False	False	none
+F0002	full_ted	activation	activation	none	identifiable	E0	E0_not_estimable	False	False	outcome	activation	none	identifiable	2	E0	E0_not_estimable	True	False	False	False	outcome
+F0003	full_ted	activation	activation	none	identifiable	E0	E0_not_estimable	False	False	reversal	activation	none	identifiable	2	E0	E0_not_estimable	False	True	False	False	reversal
+F0004	full_ted	activation	activation	none	identifiable	E0	E0_not_estimable	False	False	rescue	activation	none	identifiable	2	E0	E0_not_estimable	False	False	True	False	rescue
+F0005	full_ted	activation	activation	none	identifiable	E0	E0_not_estimable	False	False	replication	activation	none	identifiable	2	E0	E0_not_estimable	False	False	False	True	replication
+F0006	full_ted	activation	activation	none	identifiable	E1		False	False	none	activation	none	identifiable	3	E1		False	False	False	False	none
+F0007	full_ted	activation	activation	none	identifiable	E1		False	False	outcome	activation	none	identifiable	3	E1		True	False	False	False	outcome
+F0008	full_ted	activation	activation	none	identifiable	E1		False	False	reversal	activation	none	identifiable	3	E1		False	True	False	False	reversal
+F0009	full_ted	activation	activation	none	identifiable	E1		False	False	rescue	activation	none	identifiable	3	E1		False	False	True	False	rescue
+F0010	full_ted	activation	activation	none	identifiable	E1		False	False	replication	activation	none	identifiable	3	E1		False	False	False	True	replication
+F0011	full_ted	activation	activation	none	identifiable	E2		False	False	none	activation	none	identifiable	5	E2		False	False	False	False	none
+F0012	full_ted	activation	activation	none	identifiable	E2		False	False	outcome	activation	none	identifiable	5	E2		True	False	False	False	outcome
+F0013	full_ted	activation	activation	none	identifiable	E2		False	False	reversal	activation	none	identifiable	5	E2		False	True	False	False	reversal
+F0014	full_ted	activation	activation	none	identifiable	E2		False	False	rescue	activation	none	identifiable	5	E2		False	False	True	False	rescue
+F0015	full_ted	activation	activation	none	identifiable	E2		False	False	replication	activation	none	identifiable	5	E2		False	False	False	True	replication
+F0016	full_ted	ambiguous	activation	none	ambiguous	E0	E0_not_estimable	True	False	none	activation	none	ambiguous	2	E0	E0_not_estimable	False	False	False	False	none
+F0017	full_ted	ambiguous	activation	none	ambiguous	E0	E0_not_estimable	True	False	outcome	activation	none	ambiguous	2	E0	E0_not_estimable	True	False	False	False	outcome
+F0018	full_ted	ambiguous	activation	none	ambiguous	E0	E0_not_estimable	True	False	reversal	activation	none	ambiguous	2	E0	E0_not_estimable	False	True	False	False	reversal
+F0019	full_ted	ambiguous	activation	none	ambiguous	E0	E0_not_estimable	True	False	rescue	activation	none	ambiguous	2	E0	E0_not_estimable	False	False	True	False	rescue
+F0020	full_ted	ambiguous	activation	none	ambiguous	E0	E0_not_estimable	True	False	replication	activation	none	ambiguous	2	E0	E0_not_estimable	False	False	False	True	replication
+F0021	full_ted	ambiguous	activation	none	ambiguous	E1		True	False	none	activation	none	ambiguous	3	E1		False	False	False	False	none
+F0022	full_ted	ambiguous	activation	none	ambiguous	E1		True	False	outcome	activation	none	ambiguous	3	E1		True	False	False	False	outcome
+F0023	full_ted	ambiguous	activation	none	ambiguous	E1		True	False	reversal	activation	none	ambiguous	3	E1		False	True	False	False	reversal
+F0024	full_ted	ambiguous	activation	none	ambiguous	E1		True	False	rescue	activation	none	ambiguous	3	E1		False	False	True	False	rescue
+F0025	full_ted	ambiguous	activation	none	ambiguous	E1		True	False	replication	activation	none	ambiguous	3	E1		False	False	False	True	replication
+F0026	full_ted	ambiguous	activation	none	ambiguous	E1		True	False	none	activation	none	ambiguous	5	E1		False	False	False	False	none
+F0027	full_ted	ambiguous	activation	none	ambiguous	E1		True	False	outcome	activation	none	ambiguous	5	E1		True	False	False	False	outcome
+F0028	full_ted	ambiguous	activation	none	ambiguous	E1		True	False	reversal	activation	none	ambiguous	5	E1		False	True	False	False	reversal
+F0029	full_ted	ambiguous	activation	none	ambiguous	E1		True	False	rescue	activation	none	ambiguous	5	E1		False	False	True	False	rescue
+F0030	full_ted	ambiguous	activation	none	ambiguous	E1		True	False	replication	activation	none	ambiguous	5	E1		False	False	False	True	replication
+F0031	full_ted	ambiguous	activation	none	not_identifiable	E0	E0_not_estimable	True	False	none	activation	none	not_identifiable	2	E0	E0_not_estimable	False	False	False	False	none
+F0032	full_ted	ambiguous	activation	none	not_identifiable	E0	E0_not_estimable	True	False	outcome	activation	none	not_identifiable	2	E0	E0_not_estimable	True	False	False	False	outcome
+F0033	full_ted	ambiguous	activation	none	not_identifiable	E0	E0_not_estimable	True	False	reversal	activation	none	not_identifiable	2	E0	E0_not_estimable	False	True	False	False	reversal
+F0034	full_ted	ambiguous	activation	none	not_identifiable	E0	E0_not_estimable	True	False	rescue	activation	none	not_identifiable	2	E0	E0_not_estimable	False	False	True	False	rescue
+F0035	full_ted	ambiguous	activation	none	not_identifiable	E0	E0_not_estimable	True	False	replication	activation	none	not_identifiable	2	E0	E0_not_estimable	False	False	False	True	replication
+F0036	full_ted	ambiguous	activation	none	not_identifiable	E0	E0_not_identifiable	True	False	none	activation	none	not_identifiable	3	E0	E0_not_identifiable	False	False	False	False	none
+F0037	full_ted	ambiguous	activation	none	not_identifiable	E0	E0_not_identifiable	True	False	outcome	activation	none	not_identifiable	3	E0	E0_not_identifiable	True	False	False	False	outcome
+F0038	full_ted	ambiguous	activation	none	not_identifiable	E0	E0_not_identifiable	True	False	reversal	activation	none	not_identifiable	3	E0	E0_not_identifiable	False	True	False	False	reversal
+F0039	full_ted	ambiguous	activation	none	not_identifiable	E0	E0_not_identifiable	True	False	rescue	activation	none	not_identifiable	3	E0	E0_not_identifiable	False	False	True	False	rescue
+F0040	full_ted	ambiguous	activation	none	not_identifiable	E0	E0_not_identifiable	True	False	replication	activation	none	not_identifiable	3	E0	E0_not_identifiable	False	False	False	True	replication
+F0041	full_ted	ambiguous	activation	none	not_identifiable	E0	E0_not_identifiable	True	False	none	activation	none	not_identifiable	5	E0	E0_not_identifiable	False	False	False	False	none
+F0042	full_ted	ambiguous	activation	none	not_identifiable	E0	E0_not_identifiable	True	False	outcome	activation	none	not_identifiable	5	E0	E0_not_identifiable	True	False	False	False	outcome
+F0043	full_ted	ambiguous	activation	none	not_identifiable	E0	E0_not_identifiable	True	False	reversal	activation	none	not_identifiable	5	E0	E0_not_identifiable	False	True	False	False	reversal
+F0044	full_ted	ambiguous	activation	none	not_identifiable	E0	E0_not_identifiable	True	False	rescue	activation	none	not_identifiable	5	E0	E0_not_identifiable	False	False	True	False	rescue
+F0045	full_ted	ambiguous	activation	none	not_identifiable	E0	E0_not_identifiable	True	False	replication	activation	none	not_identifiable	5	E0	E0_not_identifiable	False	False	False	True	replication
+F0046	full_ted	ambiguous	activation	composition	identifiable	E0	E0_not_estimable	True	False	none	activation	composition	identifiable	2	E0	E0_not_estimable	False	False	False	False	none
+F0047	full_ted	ambiguous	activation	composition	identifiable	E0	E0_not_estimable	True	False	outcome	activation	composition	identifiable	2	E0	E0_not_estimable	True	False	False	False	outcome
+F0048	full_ted	ambiguous	activation	composition	identifiable	E0	E0_not_estimable	True	False	reversal	activation	composition	identifiable	2	E0	E0_not_estimable	False	True	False	False	reversal
+F0049	full_ted	ambiguous	activation	composition	identifiable	E0	E0_not_estimable	True	False	rescue	activation	composition	identifiable	2	E0	E0_not_estimable	False	False	True	False	rescue
+F0050	full_ted	ambiguous	activation	composition	identifiable	E0	E0_not_estimable	True	False	replication	activation	composition	identifiable	2	E0	E0_not_estimable	False	False	False	True	replication
+F0051	full_ted	ambiguous	activation	composition	identifiable	E0	E0_artifact_dominated	True	False	none	activation	composition	identifiable	3	E0	E0_artifact_dominated	False	False	False	False	none
+F0052	full_ted	ambiguous	activation	composition	identifiable	E0	E0_artifact_dominated	True	False	outcome	activation	composition	identifiable	3	E0	E0_artifact_dominated	True	False	False	False	outcome
+F0053	full_ted	ambiguous	activation	composition	identifiable	E0	E0_artifact_dominated	True	False	reversal	activation	composition	identifiable	3	E0	E0_artifact_dominated	False	True	False	False	reversal
+F0054	full_ted	ambiguous	activation	composition	identifiable	E0	E0_artifact_dominated	True	False	rescue	activation	composition	identifiable	3	E0	E0_artifact_dominated	False	False	True	False	rescue
+F0055	full_ted	ambiguous	activation	composition	identifiable	E0	E0_artifact_dominated	True	False	replication	activation	composition	identifiable	3	E0	E0_artifact_dominated	False	False	False	True	replication
+F0056	full_ted	ambiguous	activation	composition	identifiable	E0	E0_artifact_dominated	True	False	none	activation	composition	identifiable	5	E0	E0_artifact_dominated	False	False	False	False	none
+F0057	full_ted	ambiguous	activation	composition	identifiable	E0	E0_artifact_dominated	True	False	outcome	activation	composition	identifiable	5	E0	E0_artifact_dominated	True	False	False	False	outcome
+F0058	full_ted	ambiguous	activation	composition	identifiable	E0	E0_artifact_dominated	True	False	reversal	activation	composition	identifiable	5	E0	E0_artifact_dominated	False	True	False	False	reversal
+F0059	full_ted	ambiguous	activation	composition	identifiable	E0	E0_artifact_dominated	True	False	rescue	activation	composition	identifiable	5	E0	E0_artifact_dominated	False	False	True	False	rescue
+F0060	full_ted	ambiguous	activation	composition	identifiable	E0	E0_artifact_dominated	True	False	replication	activation	composition	identifiable	5	E0	E0_artifact_dominated	False	False	False	True	replication
+F0061	full_ted	ambiguous	activation	composition	ambiguous	E0	E0_not_estimable	True	False	none	activation	composition	ambiguous	2	E0	E0_not_estimable	False	False	False	False	none
+F0062	full_ted	ambiguous	activation	composition	ambiguous	E0	E0_not_estimable	True	False	outcome	activation	composition	ambiguous	2	E0	E0_not_estimable	True	False	False	False	outcome
+F0063	full_ted	ambiguous	activation	composition	ambiguous	E0	E0_not_estimable	True	False	reversal	activation	composition	ambiguous	2	E0	E0_not_estimable	False	True	False	False	reversal
+F0064	full_ted	ambiguous	activation	composition	ambiguous	E0	E0_not_estimable	True	False	rescue	activation	composition	ambiguous	2	E0	E0_not_estimable	False	False	True	False	rescue
+F0065	full_ted	ambiguous	activation	composition	ambiguous	E0	E0_not_estimable	True	False	replication	activation	composition	ambiguous	2	E0	E0_not_estimable	False	False	False	True	replication
+F0066	full_ted	ambiguous	activation	composition	ambiguous	E0	E0_artifact_dominated	True	False	none	activation	composition	ambiguous	3	E0	E0_artifact_dominated	False	False	False	False	none
+F0067	full_ted	ambiguous	activation	composition	ambiguous	E0	E0_artifact_dominated	True	False	outcome	activation	composition	ambiguous	3	E0	E0_artifact_dominated	True	False	False	False	outcome
+F0068	full_ted	ambiguous	activation	composition	ambiguous	E0	E0_artifact_dominated	True	False	reversal	activation	composition	ambiguous	3	E0	E0_artifact_dominated	False	True	False	False	reversal
+F0069	full_ted	ambiguous	activation	composition	ambiguous	E0	E0_artifact_dominated	True	False	rescue	activation	composition	ambiguous	3	E0	E0_artifact_dominated	False	False	True	False	rescue
+F0070	full_ted	ambiguous	activation	composition	ambiguous	E0	E0_artifact_dominated	True	False	replication	activation	composition	ambiguous	3	E0	E0_artifact_dominated	False	False	False	True	replication
+F0071	full_ted	ambiguous	activation	composition	ambiguous	E0	E0_artifact_dominated	True	False	none	activation	composition	ambiguous	5	E0	E0_artifact_dominated	False	False	False	False	none
+F0072	full_ted	ambiguous	activation	composition	ambiguous	E0	E0_artifact_dominated	True	False	outcome	activation	composition	ambiguous	5	E0	E0_artifact_dominated	True	False	False	False	outcome
+F0073	full_ted	ambiguous	activation	composition	ambiguous	E0	E0_artifact_dominated	True	False	reversal	activation	composition	ambiguous	5	E0	E0_artifact_dominated	False	True	False	False	reversal
+F0074	full_ted	ambiguous	activation	composition	ambiguous	E0	E0_artifact_dominated	True	False	rescue	activation	composition	ambiguous	5	E0	E0_artifact_dominated	False	False	True	False	rescue
+F0075	full_ted	ambiguous	activation	composition	ambiguous	E0	E0_artifact_dominated	True	False	replication	activation	composition	ambiguous	5	E0	E0_artifact_dominated	False	False	False	True	replication
+F0076	full_ted	ambiguous	activation	composition	not_identifiable	E0	E0_not_estimable	True	False	none	activation	composition	not_identifiable	2	E0	E0_not_estimable	False	False	False	False	none
+F0077	full_ted	ambiguous	activation	composition	not_identifiable	E0	E0_not_estimable	True	False	outcome	activation	composition	not_identifiable	2	E0	E0_not_estimable	True	False	False	False	outcome
+F0078	full_ted	ambiguous	activation	composition	not_identifiable	E0	E0_not_estimable	True	False	reversal	activation	composition	not_identifiable	2	E0	E0_not_estimable	False	True	False	False	reversal
+F0079	full_ted	ambiguous	activation	composition	not_identifiable	E0	E0_not_estimable	True	False	rescue	activation	composition	not_identifiable	2	E0	E0_not_estimable	False	False	True	False	rescue
+F0080	full_ted	ambiguous	activation	composition	not_identifiable	E0	E0_not_estimable	True	False	replication	activation	composition	not_identifiable	2	E0	E0_not_estimable	False	False	False	True	replication
+F0081	full_ted	ambiguous	activation	composition	not_identifiable	E0	E0_not_identifiable	True	False	none	activation	composition	not_identifiable	3	E0	E0_not_identifiable	False	False	False	False	none
+F0082	full_ted	ambiguous	activation	composition	not_identifiable	E0	E0_not_identifiable	True	False	outcome	activation	composition	not_identifiable	3	E0	E0_not_identifiable	True	False	False	False	outcome
+F0083	full_ted	ambiguous	activation	composition	not_identifiable	E0	E0_not_identifiable	True	False	reversal	activation	composition	not_identifiable	3	E0	E0_not_identifiable	False	True	False	False	reversal
+F0084	full_ted	ambiguous	activation	composition	not_identifiable	E0	E0_not_identifiable	True	False	rescue	activation	composition	not_identifiable	3	E0	E0_not_identifiable	False	False	True	False	rescue
+F0085	full_ted	ambiguous	activation	composition	not_identifiable	E0	E0_not_identifiable	True	False	replication	activation	composition	not_identifiable	3	E0	E0_not_identifiable	False	False	False	True	replication
+F0086	full_ted	ambiguous	activation	composition	not_identifiable	E0	E0_not_identifiable	True	False	none	activation	composition	not_identifiable	5	E0	E0_not_identifiable	False	False	False	False	none
+F0087	full_ted	ambiguous	activation	composition	not_identifiable	E0	E0_not_identifiable	True	False	outcome	activation	composition	not_identifiable	5	E0	E0_not_identifiable	True	False	False	False	outcome
+F0088	full_ted	ambiguous	activation	composition	not_identifiable	E0	E0_not_identifiable	True	False	reversal	activation	composition	not_identifiable	5	E0	E0_not_identifiable	False	True	False	False	reversal
+F0089	full_ted	ambiguous	activation	composition	not_identifiable	E0	E0_not_identifiable	True	False	rescue	activation	composition	not_identifiable	5	E0	E0_not_identifiable	False	False	True	False	rescue
+F0090	full_ted	ambiguous	activation	composition	not_identifiable	E0	E0_not_identifiable	True	False	replication	activation	composition	not_identifiable	5	E0	E0_not_identifiable	False	False	False	True	replication
+F0091	full_ted	ambiguous	activation	stress	identifiable	E0	E0_not_estimable	True	False	none	activation	stress	identifiable	2	E0	E0_not_estimable	False	False	False	False	none
+F0092	full_ted	ambiguous	activation	stress	identifiable	E0	E0_not_estimable	True	False	outcome	activation	stress	identifiable	2	E0	E0_not_estimable	True	False	False	False	outcome
+F0093	full_ted	ambiguous	activation	stress	identifiable	E0	E0_not_estimable	True	False	reversal	activation	stress	identifiable	2	E0	E0_not_estimable	False	True	False	False	reversal
+F0094	full_ted	ambiguous	activation	stress	identifiable	E0	E0_not_estimable	True	False	rescue	activation	stress	identifiable	2	E0	E0_not_estimable	False	False	True	False	rescue
+F0095	full_ted	ambiguous	activation	stress	identifiable	E0	E0_not_estimable	True	False	replication	activation	stress	identifiable	2	E0	E0_not_estimable	False	False	False	True	replication
+F0096	full_ted	ambiguous	activation	stress	identifiable	E0	E0_artifact_dominated	True	False	none	activation	stress	identifiable	3	E0	E0_artifact_dominated	False	False	False	False	none
+F0097	full_ted	ambiguous	activation	stress	identifiable	E0	E0_artifact_dominated	True	False	outcome	activation	stress	identifiable	3	E0	E0_artifact_dominated	True	False	False	False	outcome
+F0098	full_ted	ambiguous	activation	stress	identifiable	E0	E0_artifact_dominated	True	False	reversal	activation	stress	identifiable	3	E0	E0_artifact_dominated	False	True	False	False	reversal
+F0099	full_ted	ambiguous	activation	stress	identifiable	E0	E0_artifact_dominated	True	False	rescue	activation	stress	identifiable	3	E0	E0_artifact_dominated	False	False	True	False	rescue
+F0100	full_ted	ambiguous	activation	stress	identifiable	E0	E0_artifact_dominated	True	False	replication	activation	stress	identifiable	3	E0	E0_artifact_dominated	False	False	False	True	replication
+F0101	full_ted	ambiguous	activation	stress	identifiable	E0	E0_artifact_dominated	True	False	none	activation	stress	identifiable	5	E0	E0_artifact_dominated	False	False	False	False	none
+F0102	full_ted	ambiguous	activation	stress	identifiable	E0	E0_artifact_dominated	True	False	outcome	activation	stress	identifiable	5	E0	E0_artifact_dominated	True	False	False	False	outcome
+F0103	full_ted	ambiguous	activation	stress	identifiable	E0	E0_artifact_dominated	True	False	reversal	activation	stress	identifiable	5	E0	E0_artifact_dominated	False	True	False	False	reversal
+F0104	full_ted	ambiguous	activation	stress	identifiable	E0	E0_artifact_dominated	True	False	rescue	activation	stress	identifiable	5	E0	E0_artifact_dominated	False	False	True	False	rescue
+F0105	full_ted	ambiguous	activation	stress	identifiable	E0	E0_artifact_dominated	True	False	replication	activation	stress	identifiable	5	E0	E0_artifact_dominated	False	False	False	True	replication
+F0106	full_ted	ambiguous	activation	stress	ambiguous	E0	E0_not_estimable	True	False	none	activation	stress	ambiguous	2	E0	E0_not_estimable	False	False	False	False	none
+F0107	full_ted	ambiguous	activation	stress	ambiguous	E0	E0_not_estimable	True	False	outcome	activation	stress	ambiguous	2	E0	E0_not_estimable	True	False	False	False	outcome
+F0108	full_ted	ambiguous	activation	stress	ambiguous	E0	E0_not_estimable	True	False	reversal	activation	stress	ambiguous	2	E0	E0_not_estimable	False	True	False	False	reversal
+F0109	full_ted	ambiguous	activation	stress	ambiguous	E0	E0_not_estimable	True	False	rescue	activation	stress	ambiguous	2	E0	E0_not_estimable	False	False	True	False	rescue
+F0110	full_ted	ambiguous	activation	stress	ambiguous	E0	E0_not_estimable	True	False	replication	activation	stress	ambiguous	2	E0	E0_not_estimable	False	False	False	True	replication
+F0111	full_ted	ambiguous	activation	stress	ambiguous	E0	E0_artifact_dominated	True	False	none	activation	stress	ambiguous	3	E0	E0_artifact_dominated	False	False	False	False	none
+F0112	full_ted	ambiguous	activation	stress	ambiguous	E0	E0_artifact_dominated	True	False	outcome	activation	stress	ambiguous	3	E0	E0_artifact_dominated	True	False	False	False	outcome
+F0113	full_ted	ambiguous	activation	stress	ambiguous	E0	E0_artifact_dominated	True	False	reversal	activation	stress	ambiguous	3	E0	E0_artifact_dominated	False	True	False	False	reversal
+F0114	full_ted	ambiguous	activation	stress	ambiguous	E0	E0_artifact_dominated	True	False	rescue	activation	stress	ambiguous	3	E0	E0_artifact_dominated	False	False	True	False	rescue
+F0115	full_ted	ambiguous	activation	stress	ambiguous	E0	E0_artifact_dominated	True	False	replication	activation	stress	ambiguous	3	E0	E0_artifact_dominated	False	False	False	True	replication
+F0116	full_ted	ambiguous	activation	stress	ambiguous	E0	E0_artifact_dominated	True	False	none	activation	stress	ambiguous	5	E0	E0_artifact_dominated	False	False	False	False	none
+F0117	full_ted	ambiguous	activation	stress	ambiguous	E0	E0_artifact_dominated	True	False	outcome	activation	stress	ambiguous	5	E0	E0_artifact_dominated	True	False	False	False	outcome
+F0118	full_ted	ambiguous	activation	stress	ambiguous	E0	E0_artifact_dominated	True	False	reversal	activation	stress	ambiguous	5	E0	E0_artifact_dominated	False	True	False	False	reversal
+F0119	full_ted	ambiguous	activation	stress	ambiguous	E0	E0_artifact_dominated	True	False	rescue	activation	stress	ambiguous	5	E0	E0_artifact_dominated	False	False	True	False	rescue
+F0120	full_ted	ambiguous	activation	stress	ambiguous	E0	E0_artifact_dominated	True	False	replication	activation	stress	ambiguous	5	E0	E0_artifact_dominated	False	False	False	True	replication
+F0121	full_ted	ambiguous	activation	none	not_identifiable	E0	E0_not_estimable	True	False	none	activation	stress	not_identifiable	2	E0	E0_not_estimable	False	False	False	False	none
+F0122	full_ted	ambiguous	activation	stress	not_identifiable	E0	E0_not_estimable	True	False	outcome	activation	stress	not_identifiable	2	E0	E0_not_estimable	True	False	False	False	outcome
+F0123	full_ted	ambiguous	activation	none	not_identifiable	E0	E0_not_estimable	True	False	reversal	activation	stress	not_identifiable	2	E0	E0_not_estimable	False	True	False	False	reversal
+F0124	full_ted	ambiguous	activation	none	not_identifiable	E0	E0_not_estimable	True	False	rescue	activation	stress	not_identifiable	2	E0	E0_not_estimable	False	False	True	False	rescue
+F0125	full_ted	ambiguous	activation	none	not_identifiable	E0	E0_not_estimable	True	False	replication	activation	stress	not_identifiable	2	E0	E0_not_estimable	False	False	False	True	replication
+F0126	full_ted	ambiguous	activation	stress	not_identifiable	E0	E0_not_identifiable	True	False	none	activation	stress	not_identifiable	3	E0	E0_not_identifiable	False	False	False	False	none
+F0127	full_ted	ambiguous	activation	none	not_identifiable	E0	E0_not_identifiable	True	False	outcome	activation	stress	not_identifiable	3	E0	E0_not_identifiable	True	False	False	False	outcome
+F0128	full_ted	ambiguous	activation	stress	not_identifiable	E0	E0_not_identifiable	True	False	reversal	activation	stress	not_identifiable	3	E0	E0_not_identifiable	False	True	False	False	reversal
+F0129	full_ted	ambiguous	activation	none	not_identifiable	E0	E0_not_identifiable	True	False	rescue	activation	stress	not_identifiable	3	E0	E0_not_identifiable	False	False	True	False	rescue
+F0130	full_ted	ambiguous	activation	stress	not_identifiable	E0	E0_not_identifiable	True	False	replication	activation	stress	not_identifiable	3	E0	E0_not_identifiable	False	False	False	True	replication
+F0131	full_ted	ambiguous	activation	stress	not_identifiable	E0	E0_not_identifiable	True	False	none	activation	stress	not_identifiable	5	E0	E0_not_identifiable	False	False	False	False	none
+F0132	full_ted	ambiguous	activation	stress	not_identifiable	E0	E0_not_identifiable	True	False	outcome	activation	stress	not_identifiable	5	E0	E0_not_identifiable	True	False	False	False	outcome
+F0133	full_ted	ambiguous	activation	none	not_identifiable	E0	E0_not_identifiable	True	False	reversal	activation	stress	not_identifiable	5	E0	E0_not_identifiable	False	True	False	False	reversal
+F0134	full_ted	ambiguous	activation	stress	not_identifiable	E0	E0_not_identifiable	True	False	rescue	activation	stress	not_identifiable	5	E0	E0_not_identifiable	False	False	True	False	rescue
+F0135	full_ted	ambiguous	activation	stress	not_identifiable	E0	E0_not_identifiable	True	False	replication	activation	stress	not_identifiable	5	E0	E0_not_identifiable	False	False	False	True	replication
+F0136	full_ted	ambiguous	suppression	none	ambiguous	E0	E0_not_estimable	True	False	none	suppression	none	identifiable	2	E0	E0_not_estimable	False	False	False	False	none
+F0137	full_ted	ambiguous	suppression	none	ambiguous	E0	E0_not_estimable	True	False	outcome	suppression	none	identifiable	2	E0	E0_not_estimable	True	False	False	False	outcome
+F0138	full_ted	ambiguous	suppression	none	ambiguous	E0	E0_not_estimable	True	False	reversal	suppression	none	identifiable	2	E0	E0_not_estimable	False	True	False	False	reversal
+F0139	full_ted	ambiguous	suppression	none	ambiguous	E0	E0_not_estimable	True	False	rescue	suppression	none	identifiable	2	E0	E0_not_estimable	False	False	True	False	rescue
+F0140	full_ted	ambiguous	suppression	none	ambiguous	E0	E0_not_estimable	True	False	replication	suppression	none	identifiable	2	E0	E0_not_estimable	False	False	False	True	replication
+F0141	full_ted	ambiguous	suppression	none	ambiguous	E1		True	False	none	suppression	none	identifiable	3	E1		False	False	False	False	none
+F0142	full_ted	ambiguous	suppression	none	ambiguous	E1		True	False	outcome	suppression	none	identifiable	3	E1		True	False	False	False	outcome
+F0143	full_ted	ambiguous	suppression	none	ambiguous	E1		True	False	reversal	suppression	none	identifiable	3	E1		False	True	False	False	reversal
+F0144	full_ted	ambiguous	suppression	none	ambiguous	E1		True	False	rescue	suppression	none	identifiable	3	E1		False	False	True	False	rescue
+F0145	full_ted	ambiguous	suppression	none	ambiguous	E1		True	False	replication	suppression	none	identifiable	3	E1		False	False	False	True	replication
+F0146	full_ted	ambiguous	suppression	none	ambiguous	E1		True	False	none	suppression	none	identifiable	5	E2		False	False	False	False	none
+F0147	full_ted	ambiguous	suppression	none	ambiguous	E1		True	False	outcome	suppression	none	identifiable	5	E2		True	False	False	False	outcome
+F0148	full_ted	ambiguous	suppression	none	ambiguous	E1		True	False	reversal	suppression	none	identifiable	5	E2		False	True	False	False	reversal
+F0149	full_ted	ambiguous	suppression	none	ambiguous	E1		True	False	rescue	suppression	none	identifiable	5	E2		False	False	True	False	rescue
+F0150	full_ted	suppression	suppression	none	identifiable	E2		False	False	replication	suppression	none	identifiable	5	E2		False	False	False	True	replication
+F0151	full_ted	ambiguous	suppression	none	ambiguous	E0	E0_not_estimable	True	False	none	suppression	none	ambiguous	2	E0	E0_not_estimable	False	False	False	False	none
+F0152	full_ted	ambiguous	suppression	none	ambiguous	E0	E0_not_estimable	True	False	outcome	suppression	none	ambiguous	2	E0	E0_not_estimable	True	False	False	False	outcome
+F0153	full_ted	ambiguous	suppression	none	ambiguous	E0	E0_not_estimable	True	False	reversal	suppression	none	ambiguous	2	E0	E0_not_estimable	False	True	False	False	reversal
+F0154	full_ted	ambiguous	suppression	none	ambiguous	E0	E0_not_estimable	True	False	rescue	suppression	none	ambiguous	2	E0	E0_not_estimable	False	False	True	False	rescue
+F0155	full_ted	ambiguous	suppression	none	ambiguous	E0	E0_not_estimable	True	False	replication	suppression	none	ambiguous	2	E0	E0_not_estimable	False	False	False	True	replication
+F0156	full_ted	ambiguous	suppression	none	ambiguous	E1		True	False	none	suppression	none	ambiguous	3	E1		False	False	False	False	none
+F0157	full_ted	ambiguous	suppression	none	ambiguous	E1		True	False	outcome	suppression	none	ambiguous	3	E1		True	False	False	False	outcome
+F0158	full_ted	ambiguous	suppression	none	ambiguous	E1		True	False	reversal	suppression	none	ambiguous	3	E1		False	True	False	False	reversal
+F0159	full_ted	ambiguous	suppression	none	ambiguous	E1		True	False	rescue	suppression	none	ambiguous	3	E1		False	False	True	False	rescue
+F0160	full_ted	ambiguous	suppression	none	ambiguous	E1		True	False	replication	suppression	none	ambiguous	3	E1		False	False	False	True	replication
+F0161	full_ted	ambiguous	suppression	none	ambiguous	E1		True	False	none	suppression	none	ambiguous	5	E1		False	False	False	False	none
+F0162	full_ted	ambiguous	suppression	none	ambiguous	E1		True	False	outcome	suppression	none	ambiguous	5	E1		True	False	False	False	outcome
+F0163	full_ted	ambiguous	suppression	none	ambiguous	E1		True	False	reversal	suppression	none	ambiguous	5	E1		False	True	False	False	reversal
+F0164	full_ted	ambiguous	suppression	none	ambiguous	E1		True	False	rescue	suppression	none	ambiguous	5	E1		False	False	True	False	rescue
+F0165	full_ted	ambiguous	suppression	none	ambiguous	E1		True	False	replication	suppression	none	ambiguous	5	E1		False	False	False	True	replication
+F0166	full_ted	ambiguous	suppression	none	not_identifiable	E0	E0_not_estimable	True	False	none	suppression	none	not_identifiable	2	E0	E0_not_estimable	False	False	False	False	none
+F0167	full_ted	ambiguous	suppression	none	not_identifiable	E0	E0_not_estimable	True	False	outcome	suppression	none	not_identifiable	2	E0	E0_not_estimable	True	False	False	False	outcome
+F0168	full_ted	ambiguous	suppression	none	not_identifiable	E0	E0_not_estimable	True	False	reversal	suppression	none	not_identifiable	2	E0	E0_not_estimable	False	True	False	False	reversal
+F0169	full_ted	ambiguous	suppression	none	not_identifiable	E0	E0_not_estimable	True	False	rescue	suppression	none	not_identifiable	2	E0	E0_not_estimable	False	False	True	False	rescue
+F0170	full_ted	ambiguous	suppression	none	not_identifiable	E0	E0_not_estimable	True	False	replication	suppression	none	not_identifiable	2	E0	E0_not_estimable	False	False	False	True	replication
+F0171	full_ted	ambiguous	suppression	none	not_identifiable	E0	E0_not_identifiable	True	False	none	suppression	none	not_identifiable	3	E0	E0_not_identifiable	False	False	False	False	none
+F0172	full_ted	ambiguous	suppression	none	not_identifiable	E0	E0_not_identifiable	True	False	outcome	suppression	none	not_identifiable	3	E0	E0_not_identifiable	True	False	False	False	outcome
+F0173	full_ted	ambiguous	suppression	none	not_identifiable	E0	E0_not_identifiable	True	False	reversal	suppression	none	not_identifiable	3	E0	E0_not_identifiable	False	True	False	False	reversal
+F0174	full_ted	ambiguous	suppression	none	not_identifiable	E0	E0_not_identifiable	True	False	rescue	suppression	none	not_identifiable	3	E0	E0_not_identifiable	False	False	True	False	rescue
+F0175	full_ted	ambiguous	suppression	none	not_identifiable	E0	E0_not_identifiable	True	False	replication	suppression	none	not_identifiable	3	E0	E0_not_identifiable	False	False	False	True	replication
+F0176	full_ted	ambiguous	suppression	none	not_identifiable	E0	E0_not_identifiable	True	False	none	suppression	none	not_identifiable	5	E0	E0_not_identifiable	False	False	False	False	none
+F0177	full_ted	ambiguous	suppression	none	not_identifiable	E0	E0_not_identifiable	True	False	outcome	suppression	none	not_identifiable	5	E0	E0_not_identifiable	True	False	False	False	outcome
+F0178	full_ted	ambiguous	suppression	none	not_identifiable	E0	E0_not_identifiable	True	False	reversal	suppression	none	not_identifiable	5	E0	E0_not_identifiable	False	True	False	False	reversal
+F0179	full_ted	ambiguous	suppression	none	not_identifiable	E0	E0_not_identifiable	True	False	rescue	suppression	none	not_identifiable	5	E0	E0_not_identifiable	False	False	True	False	rescue
+F0180	full_ted	ambiguous	suppression	none	not_identifiable	E0	E0_not_identifiable	True	False	replication	suppression	none	not_identifiable	5	E0	E0_not_identifiable	False	False	False	True	replication
+F0181	full_ted	ambiguous	suppression	composition	ambiguous	E0	E0_not_estimable	True	False	none	suppression	composition	identifiable	2	E0	E0_not_estimable	False	False	False	False	none
+F0182	full_ted	ambiguous	suppression	composition	ambiguous	E0	E0_not_estimable	True	False	outcome	suppression	composition	identifiable	2	E0	E0_not_estimable	True	False	False	False	outcome
+F0183	full_ted	ambiguous	suppression	composition	ambiguous	E0	E0_not_estimable	True	False	reversal	suppression	composition	identifiable	2	E0	E0_not_estimable	False	True	False	False	reversal
+F0184	full_ted	ambiguous	suppression	composition	ambiguous	E0	E0_not_estimable	True	False	rescue	suppression	composition	identifiable	2	E0	E0_not_estimable	False	False	True	False	rescue
+F0185	full_ted	ambiguous	suppression	composition	ambiguous	E0	E0_not_estimable	True	False	replication	suppression	composition	identifiable	2	E0	E0_not_estimable	False	False	False	True	replication
+F0186	full_ted	ambiguous	suppression	composition	ambiguous	E0	E0_artifact_dominated	True	False	none	suppression	composition	identifiable	3	E0	E0_artifact_dominated	False	False	False	False	none
+F0187	full_ted	ambiguous	persistent_loss	composition	ambiguous	E0	E0_artifact_dominated	True	False	outcome	suppression	composition	identifiable	3	E0	E0_artifact_dominated	True	False	False	False	outcome
+F0188	full_ted	ambiguous	suppression	composition	ambiguous	E0	E0_artifact_dominated	True	False	reversal	suppression	composition	identifiable	3	E0	E0_artifact_dominated	False	True	False	False	reversal
+F0189	full_ted	ambiguous	suppression	composition	ambiguous	E0	E0_artifact_dominated	True	False	rescue	suppression	composition	identifiable	3	E0	E0_artifact_dominated	False	False	True	False	rescue
+F0190	full_ted	ambiguous	suppression	composition	ambiguous	E0	E0_artifact_dominated	True	False	replication	suppression	composition	identifiable	3	E0	E0_artifact_dominated	False	False	False	True	replication
+F0191	full_ted	ambiguous	suppression	composition	ambiguous	E0	E0_artifact_dominated	True	False	none	suppression	composition	identifiable	5	E0	E0_artifact_dominated	False	False	False	False	none
+F0192	full_ted	ambiguous	suppression	composition	ambiguous	E0	E0_artifact_dominated	True	False	outcome	suppression	composition	identifiable	5	E0	E0_artifact_dominated	True	False	False	False	outcome
+F0193	full_ted	ambiguous	suppression	composition	ambiguous	E0	E0_artifact_dominated	True	False	reversal	suppression	composition	identifiable	5	E0	E0_artifact_dominated	False	True	False	False	reversal
+F0194	full_ted	ambiguous	persistent_loss	composition	ambiguous	E0	E0_artifact_dominated	True	False	rescue	suppression	composition	identifiable	5	E0	E0_artifact_dominated	False	False	True	False	rescue
+F0195	full_ted	ambiguous	suppression	composition	ambiguous	E0	E0_artifact_dominated	True	False	replication	suppression	composition	identifiable	5	E0	E0_artifact_dominated	False	False	False	True	replication
+F0196	full_ted	ambiguous	persistent_loss	composition	ambiguous	E0	E0_not_estimable	True	False	none	suppression	composition	ambiguous	2	E0	E0_not_estimable	False	False	False	False	none
+F0197	full_ted	ambiguous	persistent_loss	composition	ambiguous	E0	E0_not_estimable	True	False	outcome	suppression	composition	ambiguous	2	E0	E0_not_estimable	True	False	False	False	outcome
+F0198	full_ted	ambiguous	persistent_loss	composition	ambiguous	E0	E0_not_estimable	True	False	reversal	suppression	composition	ambiguous	2	E0	E0_not_estimable	False	True	False	False	reversal
+F0199	full_ted	ambiguous	persistent_loss	composition	ambiguous	E0	E0_not_estimable	True	False	rescue	suppression	composition	ambiguous	2	E0	E0_not_estimable	False	False	True	False	rescue
+F0200	full_ted	ambiguous	suppression	composition	ambiguous	E0	E0_not_estimable	True	False	replication	suppression	composition	ambiguous	2	E0	E0_not_estimable	False	False	False	True	replication
+F0201	full_ted	ambiguous	persistent_loss	composition	ambiguous	E0	E0_artifact_dominated	True	False	none	suppression	composition	ambiguous	3	E0	E0_artifact_dominated	False	False	False	False	none
+F0202	full_ted	ambiguous	suppression	composition	ambiguous	E0	E0_artifact_dominated	True	False	outcome	suppression	composition	ambiguous	3	E0	E0_artifact_dominated	True	False	False	False	outcome
+F0203	full_ted	ambiguous	suppression	composition	ambiguous	E0	E0_artifact_dominated	True	False	reversal	suppression	composition	ambiguous	3	E0	E0_artifact_dominated	False	True	False	False	reversal
+F0204	full_ted	ambiguous	persistent_loss	composition	ambiguous	E0	E0_artifact_dominated	True	False	rescue	suppression	composition	ambiguous	3	E0	E0_artifact_dominated	False	False	True	False	rescue
+F0205	full_ted	ambiguous	suppression	composition	ambiguous	E0	E0_artifact_dominated	True	False	replication	suppression	composition	ambiguous	3	E0	E0_artifact_dominated	False	False	False	True	replication
+F0206	full_ted	ambiguous	suppression	composition	ambiguous	E0	E0_artifact_dominated	True	False	none	suppression	composition	ambiguous	5	E0	E0_artifact_dominated	False	False	False	False	none
+F0207	full_ted	ambiguous	suppression	composition	ambiguous	E0	E0_artifact_dominated	True	False	outcome	suppression	composition	ambiguous	5	E0	E0_artifact_dominated	True	False	False	False	outcome
+F0208	full_ted	ambiguous	suppression	composition	ambiguous	E0	E0_artifact_dominated	True	False	reversal	suppression	composition	ambiguous	5	E0	E0_artifact_dominated	False	True	False	False	reversal
+F0209	full_ted	ambiguous	suppression	composition	ambiguous	E0	E0_artifact_dominated	True	False	rescue	suppression	composition	ambiguous	5	E0	E0_artifact_dominated	False	False	True	False	rescue
+F0210	full_ted	ambiguous	suppression	composition	ambiguous	E0	E0_artifact_dominated	True	False	replication	suppression	composition	ambiguous	5	E0	E0_artifact_dominated	False	False	False	True	replication
+F0211	full_ted	ambiguous	redirection	composition	not_identifiable	E0	E0_not_estimable	True	False	none	suppression	composition	not_identifiable	2	E0	E0_not_estimable	False	False	False	False	none
+F0212	full_ted	ambiguous	persistent_loss	composition	not_identifiable	E0	E0_not_estimable	True	False	outcome	suppression	composition	not_identifiable	2	E0	E0_not_estimable	True	False	False	False	outcome
+F0213	full_ted	ambiguous	redirection	composition	not_identifiable	E0	E0_not_estimable	True	False	reversal	suppression	composition	not_identifiable	2	E0	E0_not_estimable	False	True	False	False	reversal
+F0214	full_ted	ambiguous	suppression	composition	not_identifiable	E0	E0_not_estimable	True	False	rescue	suppression	composition	not_identifiable	2	E0	E0_not_estimable	False	False	True	False	rescue
+F0215	full_ted	ambiguous	suppression	composition	not_identifiable	E0	E0_not_estimable	True	False	replication	suppression	composition	not_identifiable	2	E0	E0_not_estimable	False	False	False	True	replication
+F0216	full_ted	ambiguous	persistent_loss	composition	not_identifiable	E0	E0_not_identifiable	True	False	none	suppression	composition	not_identifiable	3	E0	E0_not_identifiable	False	False	False	False	none
+F0217	full_ted	ambiguous	persistent_loss	composition	not_identifiable	E0	E0_not_identifiable	True	False	outcome	suppression	composition	not_identifiable	3	E0	E0_not_identifiable	True	False	False	False	outcome
+F0218	full_ted	ambiguous	suppression	composition	not_identifiable	E0	E0_not_identifiable	True	False	reversal	suppression	composition	not_identifiable	3	E0	E0_not_identifiable	False	True	False	False	reversal
+F0219	full_ted	ambiguous	delay	composition	not_identifiable	E0	E0_not_identifiable	True	False	rescue	suppression	composition	not_identifiable	3	E0	E0_not_identifiable	False	False	True	False	rescue
+F0220	full_ted	ambiguous	suppression	composition	not_identifiable	E0	E0_not_identifiable	True	False	replication	suppression	composition	not_identifiable	3	E0	E0_not_identifiable	False	False	False	True	replication
+F0221	full_ted	ambiguous	persistent_loss	composition	not_identifiable	E0	E0_not_identifiable	True	False	none	suppression	composition	not_identifiable	5	E0	E0_not_identifiable	False	False	False	False	none
+F0222	full_ted	ambiguous	suppression	composition	not_identifiable	E0	E0_not_identifiable	True	False	outcome	suppression	composition	not_identifiable	5	E0	E0_not_identifiable	True	False	False	False	outcome
+F0223	full_ted	ambiguous	persistent_loss	composition	not_identifiable	E0	E0_not_identifiable	True	False	reversal	suppression	composition	not_identifiable	5	E0	E0_not_identifiable	False	True	False	False	reversal
+F0224	full_ted	ambiguous	suppression	composition	not_identifiable	E0	E0_not_identifiable	True	False	rescue	suppression	composition	not_identifiable	5	E0	E0_not_identifiable	False	False	True	False	rescue
+F0225	full_ted	ambiguous	suppression	composition	not_identifiable	E0	E0_not_identifiable	True	False	replication	suppression	composition	not_identifiable	5	E0	E0_not_identifiable	False	False	False	True	replication
+F0226	full_ted	ambiguous	persistent_loss	stress	ambiguous	E0	E0_not_estimable	True	False	none	suppression	stress	identifiable	2	E0	E0_not_estimable	False	False	False	False	none
+F0227	full_ted	ambiguous	persistent_loss	stress	identifiable	E0	E0_not_estimable	True	False	outcome	suppression	stress	identifiable	2	E0	E0_not_estimable	True	False	False	False	outcome
+F0228	full_ted	ambiguous	persistent_loss	stress	identifiable	E0	E0_not_estimable	True	False	reversal	suppression	stress	identifiable	2	E0	E0_not_estimable	False	True	False	False	reversal
+F0229	full_ted	ambiguous	persistent_loss	stress	identifiable	E0	E0_not_estimable	True	False	rescue	suppression	stress	identifiable	2	E0	E0_not_estimable	False	False	True	False	rescue
+F0230	full_ted	ambiguous	persistent_loss	stress	identifiable	E0	E0_not_estimable	True	False	replication	suppression	stress	identifiable	2	E0	E0_not_estimable	False	False	False	True	replication
+F0231	full_ted	ambiguous	persistent_loss	stress	identifiable	E0	E0_artifact_dominated	True	False	none	suppression	stress	identifiable	3	E0	E0_artifact_dominated	False	False	False	False	none
+F0232	full_ted	ambiguous	persistent_loss	stress	ambiguous	E0	E0_artifact_dominated	True	False	outcome	suppression	stress	identifiable	3	E0	E0_artifact_dominated	True	False	False	False	outcome
+F0233	full_ted	ambiguous	persistent_loss	stress	identifiable	E0	E0_artifact_dominated	True	False	reversal	suppression	stress	identifiable	3	E0	E0_artifact_dominated	False	True	False	False	reversal
+F0234	full_ted	ambiguous	persistent_loss	stress	identifiable	E0	E0_artifact_dominated	True	False	rescue	suppression	stress	identifiable	3	E0	E0_artifact_dominated	False	False	True	False	rescue
+F0235	full_ted	ambiguous	persistent_loss	stress	identifiable	E0	E0_artifact_dominated	True	False	replication	suppression	stress	identifiable	3	E0	E0_artifact_dominated	False	False	False	True	replication
+F0236	full_ted	ambiguous	persistent_loss	stress	identifiable	E0	E0_artifact_dominated	True	False	none	suppression	stress	identifiable	5	E0	E0_artifact_dominated	False	False	False	False	none
+F0237	full_ted	ambiguous	persistent_loss	stress	identifiable	E0	E0_artifact_dominated	True	False	outcome	suppression	stress	identifiable	5	E0	E0_artifact_dominated	True	False	False	False	outcome
+F0238	full_ted	ambiguous	persistent_loss	stress	identifiable	E0	E0_artifact_dominated	True	False	reversal	suppression	stress	identifiable	5	E0	E0_artifact_dominated	False	True	False	False	reversal
+F0239	full_ted	ambiguous	persistent_loss	stress	identifiable	E0	E0_artifact_dominated	True	False	rescue	suppression	stress	identifiable	5	E0	E0_artifact_dominated	False	False	True	False	rescue
+F0240	full_ted	ambiguous	persistent_loss	stress	identifiable	E0	E0_artifact_dominated	True	False	replication	suppression	stress	identifiable	5	E0	E0_artifact_dominated	False	False	False	True	replication
+F0241	full_ted	ambiguous	persistent_loss	stress	ambiguous	E0	E0_not_estimable	True	False	none	suppression	stress	ambiguous	2	E0	E0_not_estimable	False	False	False	False	none
+F0242	full_ted	ambiguous	persistent_loss	stress	ambiguous	E0	E0_not_estimable	True	False	outcome	suppression	stress	ambiguous	2	E0	E0_not_estimable	True	False	False	False	outcome
+F0243	full_ted	ambiguous	persistent_loss	stress	ambiguous	E0	E0_not_estimable	True	False	reversal	suppression	stress	ambiguous	2	E0	E0_not_estimable	False	True	False	False	reversal
+F0244	full_ted	ambiguous	persistent_loss	stress	ambiguous	E0	E0_not_estimable	True	False	rescue	suppression	stress	ambiguous	2	E0	E0_not_estimable	False	False	True	False	rescue
+F0245	full_ted	ambiguous	persistent_loss	stress	ambiguous	E0	E0_not_estimable	True	False	replication	suppression	stress	ambiguous	2	E0	E0_not_estimable	False	False	False	True	replication
+F0246	full_ted	ambiguous	persistent_loss	stress	ambiguous	E0	E0_artifact_dominated	True	False	none	suppression	stress	ambiguous	3	E0	E0_artifact_dominated	False	False	False	False	none
+F0247	full_ted	ambiguous	persistent_loss	stress	ambiguous	E0	E0_artifact_dominated	True	False	outcome	suppression	stress	ambiguous	3	E0	E0_artifact_dominated	True	False	False	False	outcome
+F0248	full_ted	ambiguous	persistent_loss	stress	ambiguous	E0	E0_artifact_dominated	True	False	reversal	suppression	stress	ambiguous	3	E0	E0_artifact_dominated	False	True	False	False	reversal
+F0249	full_ted	ambiguous	persistent_loss	stress	ambiguous	E0	E0_artifact_dominated	True	False	rescue	suppression	stress	ambiguous	3	E0	E0_artifact_dominated	False	False	True	False	rescue
+F0250	full_ted	ambiguous	persistent_loss	stress	ambiguous	E0	E0_artifact_dominated	True	False	replication	suppression	stress	ambiguous	3	E0	E0_artifact_dominated	False	False	False	True	replication
+F0251	full_ted	ambiguous	persistent_loss	stress	ambiguous	E0	E0_artifact_dominated	True	False	none	suppression	stress	ambiguous	5	E0	E0_artifact_dominated	False	False	False	False	none
+F0252	full_ted	ambiguous	persistent_loss	stress	ambiguous	E0	E0_artifact_dominated	True	False	outcome	suppression	stress	ambiguous	5	E0	E0_artifact_dominated	True	False	False	False	outcome
+F0253	full_ted	ambiguous	persistent_loss	stress	ambiguous	E0	E0_artifact_dominated	True	False	reversal	suppression	stress	ambiguous	5	E0	E0_artifact_dominated	False	True	False	False	reversal
+F0254	full_ted	ambiguous	persistent_loss	stress	ambiguous	E0	E0_artifact_dominated	True	False	rescue	suppression	stress	ambiguous	5	E0	E0_artifact_dominated	False	False	True	False	rescue
+F0255	full_ted	ambiguous	persistent_loss	stress	ambiguous	E0	E0_artifact_dominated	True	False	replication	suppression	stress	ambiguous	5	E0	E0_artifact_dominated	False	False	False	True	replication
+F0256	full_ted	ambiguous	suppression	none	not_identifiable	E0	E0_not_estimable	True	False	none	suppression	stress	not_identifiable	2	E0	E0_not_estimable	False	False	False	False	none
+F0257	full_ted	ambiguous	persistent_loss	stress	not_identifiable	E0	E0_not_estimable	True	False	outcome	suppression	stress	not_identifiable	2	E0	E0_not_estimable	True	False	False	False	outcome
+F0258	full_ted	ambiguous	persistent_loss	none	not_identifiable	E0	E0_not_estimable	True	False	reversal	suppression	stress	not_identifiable	2	E0	E0_not_estimable	False	True	False	False	reversal
+F0259	full_ted	ambiguous	redirection	stress	not_identifiable	E0	E0_not_estimable	True	False	rescue	suppression	stress	not_identifiable	2	E0	E0_not_estimable	False	False	True	False	rescue
+F0260	full_ted	ambiguous	persistent_loss	none	not_identifiable	E0	E0_not_estimable	True	False	replication	suppression	stress	not_identifiable	2	E0	E0_not_estimable	False	False	False	True	replication
+F0261	full_ted	ambiguous	suppression	stress	not_identifiable	E0	E0_not_identifiable	True	False	none	suppression	stress	not_identifiable	3	E0	E0_not_identifiable	False	False	False	False	none
+F0262	full_ted	ambiguous	persistent_loss	stress	not_identifiable	E0	E0_not_identifiable	True	False	outcome	suppression	stress	not_identifiable	3	E0	E0_not_identifiable	True	False	False	False	outcome
+F0263	full_ted	ambiguous	persistent_loss	none	not_identifiable	E0	E0_not_identifiable	True	False	reversal	suppression	stress	not_identifiable	3	E0	E0_not_identifiable	False	True	False	False	reversal
+F0264	full_ted	ambiguous	persistent_loss	none	not_identifiable	E0	E0_not_identifiable	True	False	rescue	suppression	stress	not_identifiable	3	E0	E0_not_identifiable	False	False	True	False	rescue
+F0265	full_ted	ambiguous	persistent_loss	none	not_identifiable	E0	E0_not_identifiable	True	False	replication	suppression	stress	not_identifiable	3	E0	E0_not_identifiable	False	False	False	True	replication
+F0266	full_ted	ambiguous	redirection	stress	not_identifiable	E0	E0_not_identifiable	True	False	none	suppression	stress	not_identifiable	5	E0	E0_not_identifiable	False	False	False	False	none
+F0267	full_ted	ambiguous	persistent_loss	stress	not_identifiable	E0	E0_not_identifiable	True	False	outcome	suppression	stress	not_identifiable	5	E0	E0_not_identifiable	True	False	False	False	outcome
+F0268	full_ted	ambiguous	persistent_loss	stress	not_identifiable	E0	E0_not_identifiable	True	False	reversal	suppression	stress	not_identifiable	5	E0	E0_not_identifiable	False	True	False	False	reversal
+F0269	full_ted	ambiguous	persistent_loss	stress	not_identifiable	E0	E0_not_identifiable	True	False	rescue	suppression	stress	not_identifiable	5	E0	E0_not_identifiable	False	False	True	False	rescue
+F0270	full_ted	ambiguous	persistent_loss	stress	not_identifiable	E0	E0_not_identifiable	True	False	replication	suppression	stress	not_identifiable	5	E0	E0_not_identifiable	False	False	False	True	replication
+F0271	full_ted	delay	delay	none	identifiable	E0	E0_not_estimable	False	False	none	delay	none	identifiable	2	E0	E0_not_estimable	False	False	False	False	none
+F0272	full_ted	delay	delay	none	identifiable	E0	E0_not_estimable	False	False	outcome	delay	none	identifiable	2	E0	E0_not_estimable	True	False	False	False	outcome
+F0273	full_ted	delay	delay	none	identifiable	E0	E0_not_estimable	False	False	reversal	delay	none	identifiable	2	E0	E0_not_estimable	False	True	False	False	reversal
+F0274	full_ted	delay	delay	none	identifiable	E0	E0_not_estimable	False	False	rescue	delay	none	identifiable	2	E0	E0_not_estimable	False	False	True	False	rescue
+F0275	full_ted	delay	delay	none	identifiable	E0	E0_not_estimable	False	False	replication	delay	none	identifiable	2	E0	E0_not_estimable	False	False	False	True	replication
+F0276	full_ted	delay	delay	none	identifiable	E1		False	False	none	delay	none	identifiable	3	E1		False	False	False	False	none
+F0277	full_ted	delay	delay	none	identifiable	E1		False	False	outcome	delay	none	identifiable	3	E1		True	False	False	False	outcome
+F0278	full_ted	delay	delay	none	identifiable	E1		False	False	reversal	delay	none	identifiable	3	E1		False	True	False	False	reversal
+F0279	full_ted	delay	delay	none	identifiable	E1		False	False	rescue	delay	none	identifiable	3	E1		False	False	True	False	rescue
+F0280	full_ted	delay	delay	none	identifiable	E1		False	False	replication	delay	none	identifiable	3	E1		False	False	False	True	replication
+F0281	full_ted	delay	delay	none	identifiable	E2		False	False	none	delay	none	identifiable	5	E2		False	False	False	False	none
+F0282	full_ted	delay	delay	none	identifiable	E2		False	False	outcome	delay	none	identifiable	5	E2		True	False	False	False	outcome
+F0283	full_ted	delay	delay	none	identifiable	E2		False	False	reversal	delay	none	identifiable	5	E2		False	True	False	False	reversal
+F0284	full_ted	delay	delay	none	identifiable	E2		False	False	rescue	delay	none	identifiable	5	E2		False	False	True	False	rescue
+F0285	full_ted	delay	delay	none	identifiable	E2		False	False	replication	delay	none	identifiable	5	E2		False	False	False	True	replication
+F0286	full_ted	ambiguous	delay	none	ambiguous	E0	E0_not_estimable	True	False	none	delay	none	ambiguous	2	E0	E0_not_estimable	False	False	False	False	none
+F0287	full_ted	ambiguous	delay	none	ambiguous	E0	E0_not_estimable	True	False	outcome	delay	none	ambiguous	2	E0	E0_not_estimable	True	False	False	False	outcome
+F0288	full_ted	ambiguous	delay	none	ambiguous	E0	E0_not_estimable	True	False	reversal	delay	none	ambiguous	2	E0	E0_not_estimable	False	True	False	False	reversal
+F0289	full_ted	delay	delay	none	identifiable	E0	E0_not_estimable	False	False	rescue	delay	none	ambiguous	2	E0	E0_not_estimable	False	False	True	False	rescue
+F0290	full_ted	ambiguous	delay	none	ambiguous	E0	E0_not_estimable	True	False	replication	delay	none	ambiguous	2	E0	E0_not_estimable	False	False	False	True	replication
+F0291	full_ted	ambiguous	delay	none	ambiguous	E1		True	False	none	delay	none	ambiguous	3	E1		False	False	False	False	none
+F0292	full_ted	ambiguous	delay	none	ambiguous	E1		True	False	outcome	delay	none	ambiguous	3	E1		True	False	False	False	outcome
+F0293	full_ted	ambiguous	delay	none	ambiguous	E1		True	False	reversal	delay	none	ambiguous	3	E1		False	True	False	False	reversal
+F0294	full_ted	ambiguous	delay	none	ambiguous	E1		True	False	rescue	delay	none	ambiguous	3	E1		False	False	True	False	rescue
+F0295	full_ted	ambiguous	delay	none	ambiguous	E1		True	False	replication	delay	none	ambiguous	3	E1		False	False	False	True	replication
+F0296	full_ted	ambiguous	delay	none	ambiguous	E1		True	False	none	delay	none	ambiguous	5	E1		False	False	False	False	none
+F0297	full_ted	ambiguous	delay	none	ambiguous	E1		True	False	outcome	delay	none	ambiguous	5	E1		True	False	False	False	outcome
+F0298	full_ted	ambiguous	delay	none	ambiguous	E1		True	False	reversal	delay	none	ambiguous	5	E1		False	True	False	False	reversal
+F0299	full_ted	ambiguous	delay	none	ambiguous	E1		True	False	rescue	delay	none	ambiguous	5	E1		False	False	True	False	rescue
+F0300	full_ted	ambiguous	delay	none	ambiguous	E1		True	False	replication	delay	none	ambiguous	5	E1		False	False	False	True	replication
+F0301	full_ted	ambiguous	delay	none	not_identifiable	E0	E0_not_estimable	True	False	none	delay	none	not_identifiable	2	E0	E0_not_estimable	False	False	False	False	none
+F0302	full_ted	ambiguous	delay	none	not_identifiable	E0	E0_not_estimable	True	False	outcome	delay	none	not_identifiable	2	E0	E0_not_estimable	True	False	False	False	outcome
+F0303	full_ted	ambiguous	delay	none	not_identifiable	E0	E0_not_estimable	True	False	reversal	delay	none	not_identifiable	2	E0	E0_not_estimable	False	True	False	False	reversal
+F0304	full_ted	ambiguous	delay	none	not_identifiable	E0	E0_not_estimable	True	False	rescue	delay	none	not_identifiable	2	E0	E0_not_estimable	False	False	True	False	rescue
+F0305	full_ted	ambiguous	delay	none	not_identifiable	E0	E0_not_estimable	True	False	replication	delay	none	not_identifiable	2	E0	E0_not_estimable	False	False	False	True	replication
+F0306	full_ted	ambiguous	delay	none	not_identifiable	E0	E0_not_identifiable	True	False	none	delay	none	not_identifiable	3	E0	E0_not_identifiable	False	False	False	False	none
+F0307	full_ted	ambiguous	delay	none	not_identifiable	E0	E0_not_identifiable	True	False	outcome	delay	none	not_identifiable	3	E0	E0_not_identifiable	True	False	False	False	outcome
+F0308	full_ted	ambiguous	delay	none	not_identifiable	E0	E0_not_identifiable	True	False	reversal	delay	none	not_identifiable	3	E0	E0_not_identifiable	False	True	False	False	reversal
+F0309	full_ted	ambiguous	delay	none	not_identifiable	E0	E0_not_identifiable	True	False	rescue	delay	none	not_identifiable	3	E0	E0_not_identifiable	False	False	True	False	rescue
+F0310	full_ted	ambiguous	delay	none	not_identifiable	E0	E0_not_identifiable	True	False	replication	delay	none	not_identifiable	3	E0	E0_not_identifiable	False	False	False	True	replication
+F0311	full_ted	ambiguous	delay	none	not_identifiable	E0	E0_not_identifiable	True	False	none	delay	none	not_identifiable	5	E0	E0_not_identifiable	False	False	False	False	none
+F0312	full_ted	ambiguous	delay	none	not_identifiable	E0	E0_not_identifiable	True	False	outcome	delay	none	not_identifiable	5	E0	E0_not_identifiable	True	False	False	False	outcome
+F0313	full_ted	ambiguous	delay	none	not_identifiable	E0	E0_not_identifiable	True	False	reversal	delay	none	not_identifiable	5	E0	E0_not_identifiable	False	True	False	False	reversal
+F0314	full_ted	ambiguous	delay	none	not_identifiable	E0	E0_not_identifiable	True	False	rescue	delay	none	not_identifiable	5	E0	E0_not_identifiable	False	False	True	False	rescue
+F0315	full_ted	ambiguous	delay	none	not_identifiable	E0	E0_not_identifiable	True	False	replication	delay	none	not_identifiable	5	E0	E0_not_identifiable	False	False	False	True	replication
+F0316	full_ted	ambiguous	delay	composition	identifiable	E0	E0_not_estimable	True	False	none	delay	composition	identifiable	2	E0	E0_not_estimable	False	False	False	False	none
+F0317	full_ted	ambiguous	delay	composition	identifiable	E0	E0_not_estimable	True	False	outcome	delay	composition	identifiable	2	E0	E0_not_estimable	True	False	False	False	outcome
+F0318	full_ted	ambiguous	delay	composition	identifiable	E0	E0_not_estimable	True	False	reversal	delay	composition	identifiable	2	E0	E0_not_estimable	False	True	False	False	reversal
+F0319	full_ted	ambiguous	delay	composition	identifiable	E0	E0_not_estimable	True	False	rescue	delay	composition	identifiable	2	E0	E0_not_estimable	False	False	True	False	rescue
+F0320	full_ted	ambiguous	delay	composition	identifiable	E0	E0_not_estimable	True	False	replication	delay	composition	identifiable	2	E0	E0_not_estimable	False	False	False	True	replication
+F0321	full_ted	ambiguous	delay	composition	identifiable	E0	E0_artifact_dominated	True	False	none	delay	composition	identifiable	3	E0	E0_artifact_dominated	False	False	False	False	none
+F0322	full_ted	ambiguous	delay	composition	identifiable	E0	E0_artifact_dominated	True	False	outcome	delay	composition	identifiable	3	E0	E0_artifact_dominated	True	False	False	False	outcome
+F0323	full_ted	ambiguous	delay	composition	identifiable	E0	E0_artifact_dominated	True	False	reversal	delay	composition	identifiable	3	E0	E0_artifact_dominated	False	True	False	False	reversal
+F0324	full_ted	ambiguous	delay	composition	identifiable	E0	E0_artifact_dominated	True	False	rescue	delay	composition	identifiable	3	E0	E0_artifact_dominated	False	False	True	False	rescue
+F0325	full_ted	ambiguous	delay	composition	identifiable	E0	E0_artifact_dominated	True	False	replication	delay	composition	identifiable	3	E0	E0_artifact_dominated	False	False	False	True	replication
+F0326	full_ted	ambiguous	delay	composition	identifiable	E0	E0_artifact_dominated	True	False	none	delay	composition	identifiable	5	E0	E0_artifact_dominated	False	False	False	False	none
+F0327	full_ted	ambiguous	delay	composition	identifiable	E0	E0_artifact_dominated	True	False	outcome	delay	composition	identifiable	5	E0	E0_artifact_dominated	True	False	False	False	outcome
+F0328	full_ted	ambiguous	delay	composition	identifiable	E0	E0_artifact_dominated	True	False	reversal	delay	composition	identifiable	5	E0	E0_artifact_dominated	False	True	False	False	reversal
+F0329	full_ted	ambiguous	delay	composition	identifiable	E0	E0_artifact_dominated	True	False	rescue	delay	composition	identifiable	5	E0	E0_artifact_dominated	False	False	True	False	rescue
+F0330	full_ted	ambiguous	delay	composition	identifiable	E0	E0_artifact_dominated	True	False	replication	delay	composition	identifiable	5	E0	E0_artifact_dominated	False	False	False	True	replication
+F0331	full_ted	ambiguous	delay	composition	ambiguous	E0	E0_not_estimable	True	False	none	delay	composition	ambiguous	2	E0	E0_not_estimable	False	False	False	False	none
+F0332	full_ted	ambiguous	delay	composition	ambiguous	E0	E0_not_estimable	True	False	outcome	delay	composition	ambiguous	2	E0	E0_not_estimable	True	False	False	False	outcome
+F0333	full_ted	ambiguous	delay	composition	ambiguous	E0	E0_not_estimable	True	False	reversal	delay	composition	ambiguous	2	E0	E0_not_estimable	False	True	False	False	reversal
+F0334	full_ted	ambiguous	delay	composition	ambiguous	E0	E0_not_estimable	True	False	rescue	delay	composition	ambiguous	2	E0	E0_not_estimable	False	False	True	False	rescue
+F0335	full_ted	ambiguous	delay	composition	ambiguous	E0	E0_not_estimable	True	False	replication	delay	composition	ambiguous	2	E0	E0_not_estimable	False	False	False	True	replication
+F0336	full_ted	ambiguous	delay	composition	ambiguous	E0	E0_artifact_dominated	True	False	none	delay	composition	ambiguous	3	E0	E0_artifact_dominated	False	False	False	False	none
+F0337	full_ted	ambiguous	delay	composition	ambiguous	E0	E0_artifact_dominated	True	False	outcome	delay	composition	ambiguous	3	E0	E0_artifact_dominated	True	False	False	False	outcome
+F0338	full_ted	ambiguous	delay	composition	ambiguous	E0	E0_artifact_dominated	True	False	reversal	delay	composition	ambiguous	3	E0	E0_artifact_dominated	False	True	False	False	reversal
+F0339	full_ted	ambiguous	delay	composition	ambiguous	E0	E0_artifact_dominated	True	False	rescue	delay	composition	ambiguous	3	E0	E0_artifact_dominated	False	False	True	False	rescue
+F0340	full_ted	ambiguous	delay	composition	ambiguous	E0	E0_artifact_dominated	True	False	replication	delay	composition	ambiguous	3	E0	E0_artifact_dominated	False	False	False	True	replication
+F0341	full_ted	ambiguous	delay	composition	ambiguous	E0	E0_artifact_dominated	True	False	none	delay	composition	ambiguous	5	E0	E0_artifact_dominated	False	False	False	False	none
+F0342	full_ted	ambiguous	delay	composition	ambiguous	E0	E0_artifact_dominated	True	False	outcome	delay	composition	ambiguous	5	E0	E0_artifact_dominated	True	False	False	False	outcome
+F0343	full_ted	ambiguous	delay	composition	ambiguous	E0	E0_artifact_dominated	True	False	reversal	delay	composition	ambiguous	5	E0	E0_artifact_dominated	False	True	False	False	reversal
+F0344	full_ted	ambiguous	delay	composition	ambiguous	E0	E0_artifact_dominated	True	False	rescue	delay	composition	ambiguous	5	E0	E0_artifact_dominated	False	False	True	False	rescue
+F0345	full_ted	ambiguous	delay	composition	ambiguous	E0	E0_artifact_dominated	True	False	replication	delay	composition	ambiguous	5	E0	E0_artifact_dominated	False	False	False	True	replication
+F0346	full_ted	ambiguous	delay	composition	not_identifiable	E0	E0_not_estimable	True	False	none	delay	composition	not_identifiable	2	E0	E0_not_estimable	False	False	False	False	none
+F0347	full_ted	ambiguous	delay	composition	not_identifiable	E0	E0_not_estimable	True	False	outcome	delay	composition	not_identifiable	2	E0	E0_not_estimable	True	False	False	False	outcome
+F0348	full_ted	ambiguous	delay	composition	not_identifiable	E0	E0_not_estimable	True	False	reversal	delay	composition	not_identifiable	2	E0	E0_not_estimable	False	True	False	False	reversal
+F0349	full_ted	ambiguous	delay	composition	not_identifiable	E0	E0_not_estimable	True	False	rescue	delay	composition	not_identifiable	2	E0	E0_not_estimable	False	False	True	False	rescue
+F0350	full_ted	ambiguous	activation	composition	not_identifiable	E0	E0_not_estimable	True	False	replication	delay	composition	not_identifiable	2	E0	E0_not_estimable	False	False	False	True	replication
+F0351	full_ted	ambiguous	activation	composition	not_identifiable	E0	E0_not_identifiable	True	False	none	delay	composition	not_identifiable	3	E0	E0_not_identifiable	False	False	False	False	none
+F0352	full_ted	ambiguous	activation	composition	not_identifiable	E0	E0_not_identifiable	True	False	outcome	delay	composition	not_identifiable	3	E0	E0_not_identifiable	True	False	False	False	outcome
+F0353	full_ted	ambiguous	delay	composition	not_identifiable	E0	E0_not_identifiable	True	False	reversal	delay	composition	not_identifiable	3	E0	E0_not_identifiable	False	True	False	False	reversal
+F0354	full_ted	ambiguous	delay	composition	not_identifiable	E0	E0_not_identifiable	True	False	rescue	delay	composition	not_identifiable	3	E0	E0_not_identifiable	False	False	True	False	rescue
+F0355	full_ted	ambiguous	delay	composition	not_identifiable	E0	E0_not_identifiable	True	False	replication	delay	composition	not_identifiable	3	E0	E0_not_identifiable	False	False	False	True	replication
+F0356	full_ted	ambiguous	delay	composition	not_identifiable	E0	E0_not_identifiable	True	False	none	delay	composition	not_identifiable	5	E0	E0_not_identifiable	False	False	False	False	none
+F0357	full_ted	ambiguous	activation	composition	not_identifiable	E0	E0_not_identifiable	True	False	outcome	delay	composition	not_identifiable	5	E0	E0_not_identifiable	True	False	False	False	outcome
+F0358	full_ted	ambiguous	delay	composition	not_identifiable	E0	E0_not_identifiable	True	False	reversal	delay	composition	not_identifiable	5	E0	E0_not_identifiable	False	True	False	False	reversal
+F0359	full_ted	ambiguous	activation	composition	not_identifiable	E0	E0_not_identifiable	True	False	rescue	delay	composition	not_identifiable	5	E0	E0_not_identifiable	False	False	True	False	rescue
+F0360	full_ted	ambiguous	delay	composition	not_identifiable	E0	E0_not_identifiable	True	False	replication	delay	composition	not_identifiable	5	E0	E0_not_identifiable	False	False	False	True	replication
+F0361	full_ted	ambiguous	delay	stress	identifiable	E0	E0_not_estimable	True	False	none	delay	stress	identifiable	2	E0	E0_not_estimable	False	False	False	False	none
+F0362	full_ted	ambiguous	delay	stress	identifiable	E0	E0_not_estimable	True	False	outcome	delay	stress	identifiable	2	E0	E0_not_estimable	True	False	False	False	outcome
+F0363	full_ted	ambiguous	delay	stress	identifiable	E0	E0_not_estimable	True	False	reversal	delay	stress	identifiable	2	E0	E0_not_estimable	False	True	False	False	reversal
+F0364	full_ted	ambiguous	delay	stress	identifiable	E0	E0_not_estimable	True	False	rescue	delay	stress	identifiable	2	E0	E0_not_estimable	False	False	True	False	rescue
+F0365	full_ted	ambiguous	delay	stress	identifiable	E0	E0_not_estimable	True	False	replication	delay	stress	identifiable	2	E0	E0_not_estimable	False	False	False	True	replication
+F0366	full_ted	ambiguous	delay	stress	identifiable	E0	E0_artifact_dominated	True	False	none	delay	stress	identifiable	3	E0	E0_artifact_dominated	False	False	False	False	none
+F0367	full_ted	ambiguous	delay	stress	identifiable	E0	E0_artifact_dominated	True	False	outcome	delay	stress	identifiable	3	E0	E0_artifact_dominated	True	False	False	False	outcome
+F0368	full_ted	ambiguous	delay	stress	identifiable	E0	E0_artifact_dominated	True	False	reversal	delay	stress	identifiable	3	E0	E0_artifact_dominated	False	True	False	False	reversal
+F0369	full_ted	ambiguous	delay	stress	identifiable	E0	E0_artifact_dominated	True	False	rescue	delay	stress	identifiable	3	E0	E0_artifact_dominated	False	False	True	False	rescue
+F0370	full_ted	ambiguous	delay	stress	identifiable	E0	E0_artifact_dominated	True	False	replication	delay	stress	identifiable	3	E0	E0_artifact_dominated	False	False	False	True	replication
+F0371	full_ted	ambiguous	delay	stress	identifiable	E0	E0_artifact_dominated	True	False	none	delay	stress	identifiable	5	E0	E0_artifact_dominated	False	False	False	False	none
+F0372	full_ted	ambiguous	delay	stress	identifiable	E0	E0_artifact_dominated	True	False	outcome	delay	stress	identifiable	5	E0	E0_artifact_dominated	True	False	False	False	outcome
+F0373	full_ted	ambiguous	delay	stress	identifiable	E0	E0_artifact_dominated	True	False	reversal	delay	stress	identifiable	5	E0	E0_artifact_dominated	False	True	False	False	reversal
+F0374	full_ted	ambiguous	delay	stress	identifiable	E0	E0_artifact_dominated	True	False	rescue	delay	stress	identifiable	5	E0	E0_artifact_dominated	False	False	True	False	rescue
+F0375	full_ted	ambiguous	delay	stress	identifiable	E0	E0_artifact_dominated	True	False	replication	delay	stress	identifiable	5	E0	E0_artifact_dominated	False	False	False	True	replication
+F0376	full_ted	ambiguous	delay	stress	ambiguous	E0	E0_not_estimable	True	False	none	delay	stress	ambiguous	2	E0	E0_not_estimable	False	False	False	False	none
+F0377	full_ted	ambiguous	delay	stress	ambiguous	E0	E0_not_estimable	True	False	outcome	delay	stress	ambiguous	2	E0	E0_not_estimable	True	False	False	False	outcome
+F0378	full_ted	ambiguous	delay	stress	ambiguous	E0	E0_not_estimable	True	False	reversal	delay	stress	ambiguous	2	E0	E0_not_estimable	False	True	False	False	reversal
+F0379	full_ted	ambiguous	delay	stress	ambiguous	E0	E0_not_estimable	True	False	rescue	delay	stress	ambiguous	2	E0	E0_not_estimable	False	False	True	False	rescue
+F0380	full_ted	ambiguous	delay	stress	ambiguous	E0	E0_not_estimable	True	False	replication	delay	stress	ambiguous	2	E0	E0_not_estimable	False	False	False	True	replication
+F0381	full_ted	ambiguous	delay	stress	ambiguous	E0	E0_artifact_dominated	True	False	none	delay	stress	ambiguous	3	E0	E0_artifact_dominated	False	False	False	False	none
+F0382	full_ted	ambiguous	delay	stress	ambiguous	E0	E0_artifact_dominated	True	False	outcome	delay	stress	ambiguous	3	E0	E0_artifact_dominated	True	False	False	False	outcome
+F0383	full_ted	ambiguous	delay	stress	ambiguous	E0	E0_artifact_dominated	True	False	reversal	delay	stress	ambiguous	3	E0	E0_artifact_dominated	False	True	False	False	reversal
+F0384	full_ted	ambiguous	delay	stress	ambiguous	E0	E0_artifact_dominated	True	False	rescue	delay	stress	ambiguous	3	E0	E0_artifact_dominated	False	False	True	False	rescue
+F0385	full_ted	ambiguous	delay	stress	ambiguous	E0	E0_artifact_dominated	True	False	replication	delay	stress	ambiguous	3	E0	E0_artifact_dominated	False	False	False	True	replication
+F0386	full_ted	ambiguous	delay	stress	ambiguous	E0	E0_artifact_dominated	True	False	none	delay	stress	ambiguous	5	E0	E0_artifact_dominated	False	False	False	False	none
+F0387	full_ted	ambiguous	delay	stress	ambiguous	E0	E0_artifact_dominated	True	False	outcome	delay	stress	ambiguous	5	E0	E0_artifact_dominated	True	False	False	False	outcome
+F0388	full_ted	ambiguous	delay	stress	ambiguous	E0	E0_artifact_dominated	True	False	reversal	delay	stress	ambiguous	5	E0	E0_artifact_dominated	False	True	False	False	reversal
+F0389	full_ted	ambiguous	delay	stress	ambiguous	E0	E0_artifact_dominated	True	False	rescue	delay	stress	ambiguous	5	E0	E0_artifact_dominated	False	False	True	False	rescue
+F0390	full_ted	ambiguous	delay	stress	ambiguous	E0	E0_artifact_dominated	True	False	replication	delay	stress	ambiguous	5	E0	E0_artifact_dominated	False	False	False	True	replication
+F0391	full_ted	ambiguous	activation	stress	not_identifiable	E0	E0_not_estimable	True	False	none	delay	stress	not_identifiable	2	E0	E0_not_estimable	False	False	False	False	none
+F0392	full_ted	ambiguous	delay	none	not_identifiable	E0	E0_not_estimable	True	False	outcome	delay	stress	not_identifiable	2	E0	E0_not_estimable	True	False	False	False	outcome
+F0393	full_ted	ambiguous	redirection	stress	not_identifiable	E0	E0_not_estimable	True	False	reversal	delay	stress	not_identifiable	2	E0	E0_not_estimable	False	True	False	False	reversal
+F0394	full_ted	ambiguous	redirection	stress	not_identifiable	E0	E0_not_estimable	True	False	rescue	delay	stress	not_identifiable	2	E0	E0_not_estimable	False	False	True	False	rescue
+F0395	full_ted	ambiguous	delay	stress	not_identifiable	E0	E0_not_estimable	True	False	replication	delay	stress	not_identifiable	2	E0	E0_not_estimable	False	False	False	True	replication
+F0396	full_ted	ambiguous	redirection	stress	not_identifiable	E0	E0_not_identifiable	True	False	none	delay	stress	not_identifiable	3	E0	E0_not_identifiable	False	False	False	False	none
+F0397	full_ted	ambiguous	delay	stress	not_identifiable	E0	E0_not_identifiable	True	False	outcome	delay	stress	not_identifiable	3	E0	E0_not_identifiable	True	False	False	False	outcome
+F0398	full_ted	ambiguous	delay	stress	not_identifiable	E0	E0_not_identifiable	True	False	reversal	delay	stress	not_identifiable	3	E0	E0_not_identifiable	False	True	False	False	reversal
+F0399	full_ted	ambiguous	delay	stress	not_identifiable	E0	E0_not_identifiable	True	False	rescue	delay	stress	not_identifiable	3	E0	E0_not_identifiable	False	False	True	False	rescue
+F0400	full_ted	ambiguous	delay	stress	not_identifiable	E0	E0_not_identifiable	True	False	replication	delay	stress	not_identifiable	3	E0	E0_not_identifiable	False	False	False	True	replication
+F0401	full_ted	ambiguous	delay	stress	not_identifiable	E0	E0_not_identifiable	True	False	none	delay	stress	not_identifiable	5	E0	E0_not_identifiable	False	False	False	False	none
+F0402	full_ted	ambiguous	delay	stress	not_identifiable	E0	E0_not_identifiable	True	False	outcome	delay	stress	not_identifiable	5	E0	E0_not_identifiable	True	False	False	False	outcome
+F0403	full_ted	ambiguous	persistent_loss	stress	not_identifiable	E0	E0_not_identifiable	True	False	reversal	delay	stress	not_identifiable	5	E0	E0_not_identifiable	False	True	False	False	reversal
+F0404	full_ted	ambiguous	delay	stress	not_identifiable	E0	E0_not_identifiable	True	False	rescue	delay	stress	not_identifiable	5	E0	E0_not_identifiable	False	False	True	False	rescue
+F0405	full_ted	ambiguous	delay	stress	not_identifiable	E0	E0_not_identifiable	True	False	replication	delay	stress	not_identifiable	5	E0	E0_not_identifiable	False	False	False	True	replication
+F0406	full_ted	ambiguous	persistent_loss	none	ambiguous	E0	E0_not_estimable	True	False	none	persistent_loss	none	identifiable	2	E0	E0_not_estimable	False	False	False	False	none
+F0407	full_ted	persistent_loss	persistent_loss	none	identifiable	E0	E0_not_estimable	False	False	outcome	persistent_loss	none	identifiable	2	E0	E0_not_estimable	True	False	False	False	outcome
+F0408	full_ted	ambiguous	persistent_loss	none	ambiguous	E0	E0_not_estimable	True	False	reversal	persistent_loss	none	identifiable	2	E0	E0_not_estimable	False	True	False	False	reversal
+F0409	full_ted	ambiguous	persistent_loss	none	ambiguous	E0	E0_not_estimable	True	False	rescue	persistent_loss	none	identifiable	2	E0	E0_not_estimable	False	False	True	False	rescue
+F0410	full_ted	ambiguous	persistent_loss	none	ambiguous	E0	E0_not_estimable	True	False	replication	persistent_loss	none	identifiable	2	E0	E0_not_estimable	False	False	False	True	replication
+F0411	full_ted	ambiguous	persistent_loss	none	ambiguous	E1		True	False	none	persistent_loss	none	identifiable	3	E1		False	False	False	False	none
+F0412	full_ted	ambiguous	persistent_loss	none	ambiguous	E1		True	False	outcome	persistent_loss	none	identifiable	3	E1		True	False	False	False	outcome
+F0413	full_ted	ambiguous	persistent_loss	none	ambiguous	E1		True	False	reversal	persistent_loss	none	identifiable	3	E1		False	True	False	False	reversal
+F0414	full_ted	ambiguous	persistent_loss	none	ambiguous	E1		True	False	rescue	persistent_loss	none	identifiable	3	E1		False	False	True	False	rescue
+F0415	full_ted	ambiguous	persistent_loss	none	ambiguous	E1		True	False	replication	persistent_loss	none	identifiable	3	E1		False	False	False	True	replication
+F0416	full_ted	ambiguous	persistent_loss	none	ambiguous	E1		True	False	none	persistent_loss	none	identifiable	5	E2		False	False	False	False	none
+F0417	full_ted	ambiguous	persistent_loss	none	ambiguous	E1		True	False	outcome	persistent_loss	none	identifiable	5	E2		True	False	False	False	outcome
+F0418	full_ted	ambiguous	persistent_loss	none	ambiguous	E1		True	False	reversal	persistent_loss	none	identifiable	5	E2		False	True	False	False	reversal
+F0419	full_ted	persistent_loss	persistent_loss	none	identifiable	E2		False	False	rescue	persistent_loss	none	identifiable	5	E2		False	False	True	False	rescue
+F0420	full_ted	ambiguous	persistent_loss	none	ambiguous	E1		True	False	replication	persistent_loss	none	identifiable	5	E2		False	False	False	True	replication
+F0421	full_ted	ambiguous	persistent_loss	none	ambiguous	E0	E0_not_estimable	True	False	none	persistent_loss	none	ambiguous	2	E0	E0_not_estimable	False	False	False	False	none
+F0422	full_ted	ambiguous	persistent_loss	none	ambiguous	E0	E0_not_estimable	True	False	outcome	persistent_loss	none	ambiguous	2	E0	E0_not_estimable	True	False	False	False	outcome
+F0423	full_ted	ambiguous	persistent_loss	none	ambiguous	E0	E0_not_estimable	True	False	reversal	persistent_loss	none	ambiguous	2	E0	E0_not_estimable	False	True	False	False	reversal
+F0424	full_ted	ambiguous	persistent_loss	none	ambiguous	E0	E0_not_estimable	True	False	rescue	persistent_loss	none	ambiguous	2	E0	E0_not_estimable	False	False	True	False	rescue
+F0425	full_ted	ambiguous	persistent_loss	none	ambiguous	E0	E0_not_estimable	True	False	replication	persistent_loss	none	ambiguous	2	E0	E0_not_estimable	False	False	False	True	replication
+F0426	full_ted	ambiguous	persistent_loss	none	ambiguous	E1		True	False	none	persistent_loss	none	ambiguous	3	E1		False	False	False	False	none
+F0427	full_ted	ambiguous	persistent_loss	none	ambiguous	E1		True	False	outcome	persistent_loss	none	ambiguous	3	E1		True	False	False	False	outcome
+F0428	full_ted	ambiguous	persistent_loss	none	ambiguous	E1		True	False	reversal	persistent_loss	none	ambiguous	3	E1		False	True	False	False	reversal
+F0429	full_ted	ambiguous	persistent_loss	none	ambiguous	E1		True	False	rescue	persistent_loss	none	ambiguous	3	E1		False	False	True	False	rescue
+F0430	full_ted	ambiguous	persistent_loss	none	ambiguous	E1		True	False	replication	persistent_loss	none	ambiguous	3	E1		False	False	False	True	replication
+F0431	full_ted	ambiguous	persistent_loss	none	ambiguous	E1		True	False	none	persistent_loss	none	ambiguous	5	E1		False	False	False	False	none
+F0432	full_ted	ambiguous	persistent_loss	none	ambiguous	E1		True	False	outcome	persistent_loss	none	ambiguous	5	E1		True	False	False	False	outcome
+F0433	full_ted	ambiguous	persistent_loss	none	ambiguous	E1		True	False	reversal	persistent_loss	none	ambiguous	5	E1		False	True	False	False	reversal
+F0434	full_ted	ambiguous	persistent_loss	none	ambiguous	E1		True	False	rescue	persistent_loss	none	ambiguous	5	E1		False	False	True	False	rescue
+F0435	full_ted	ambiguous	persistent_loss	none	ambiguous	E1		True	False	replication	persistent_loss	none	ambiguous	5	E1		False	False	False	True	replication
+F0436	full_ted	ambiguous	persistent_loss	none	not_identifiable	E0	E0_not_estimable	True	False	none	persistent_loss	none	not_identifiable	2	E0	E0_not_estimable	False	False	False	False	none
+F0437	full_ted	ambiguous	delay	none	not_identifiable	E0	E0_not_estimable	True	False	outcome	persistent_loss	none	not_identifiable	2	E0	E0_not_estimable	True	False	False	False	outcome
+F0438	full_ted	ambiguous	persistent_loss	none	not_identifiable	E0	E0_not_estimable	True	False	reversal	persistent_loss	none	not_identifiable	2	E0	E0_not_estimable	False	True	False	False	reversal
+F0439	full_ted	ambiguous	redirection	none	not_identifiable	E0	E0_not_estimable	True	False	rescue	persistent_loss	none	not_identifiable	2	E0	E0_not_estimable	False	False	True	False	rescue
+F0440	full_ted	ambiguous	persistent_loss	none	not_identifiable	E0	E0_not_estimable	True	False	replication	persistent_loss	none	not_identifiable	2	E0	E0_not_estimable	False	False	False	True	replication
+F0441	full_ted	ambiguous	persistent_loss	none	not_identifiable	E0	E0_not_identifiable	True	False	none	persistent_loss	none	not_identifiable	3	E0	E0_not_identifiable	False	False	False	False	none
+F0442	full_ted	ambiguous	persistent_loss	none	not_identifiable	E0	E0_not_identifiable	True	False	outcome	persistent_loss	none	not_identifiable	3	E0	E0_not_identifiable	True	False	False	False	outcome
+F0443	full_ted	ambiguous	persistent_loss	none	not_identifiable	E0	E0_not_identifiable	True	False	reversal	persistent_loss	none	not_identifiable	3	E0	E0_not_identifiable	False	True	False	False	reversal
+F0444	full_ted	ambiguous	suppression	none	not_identifiable	E0	E0_not_identifiable	True	False	rescue	persistent_loss	none	not_identifiable	3	E0	E0_not_identifiable	False	False	True	False	rescue
+F0445	full_ted	ambiguous	persistent_loss	none	not_identifiable	E0	E0_not_identifiable	True	False	replication	persistent_loss	none	not_identifiable	3	E0	E0_not_identifiable	False	False	False	True	replication
+F0446	full_ted	ambiguous	suppression	none	not_identifiable	E0	E0_not_identifiable	True	False	none	persistent_loss	none	not_identifiable	5	E0	E0_not_identifiable	False	False	False	False	none
+F0447	full_ted	ambiguous	suppression	none	not_identifiable	E0	E0_not_identifiable	True	False	outcome	persistent_loss	none	not_identifiable	5	E0	E0_not_identifiable	True	False	False	False	outcome
+F0448	full_ted	ambiguous	suppression	none	not_identifiable	E0	E0_not_identifiable	True	False	reversal	persistent_loss	none	not_identifiable	5	E0	E0_not_identifiable	False	True	False	False	reversal
+F0449	full_ted	ambiguous	persistent_loss	none	not_identifiable	E0	E0_not_identifiable	True	False	rescue	persistent_loss	none	not_identifiable	5	E0	E0_not_identifiable	False	False	True	False	rescue
+F0450	full_ted	ambiguous	persistent_loss	none	not_identifiable	E0	E0_not_identifiable	True	False	replication	persistent_loss	none	not_identifiable	5	E0	E0_not_identifiable	False	False	False	True	replication
+F0451	full_ted	ambiguous	persistent_loss	composition	identifiable	E0	E0_not_estimable	True	False	none	persistent_loss	composition	identifiable	2	E0	E0_not_estimable	False	False	False	False	none
+F0452	full_ted	ambiguous	persistent_loss	composition	identifiable	E0	E0_not_estimable	True	False	outcome	persistent_loss	composition	identifiable	2	E0	E0_not_estimable	True	False	False	False	outcome
+F0453	full_ted	ambiguous	persistent_loss	composition	identifiable	E0	E0_not_estimable	True	False	reversal	persistent_loss	composition	identifiable	2	E0	E0_not_estimable	False	True	False	False	reversal
+F0454	full_ted	ambiguous	persistent_loss	composition	identifiable	E0	E0_not_estimable	True	False	rescue	persistent_loss	composition	identifiable	2	E0	E0_not_estimable	False	False	True	False	rescue
+F0455	full_ted	ambiguous	persistent_loss	composition	identifiable	E0	E0_not_estimable	True	False	replication	persistent_loss	composition	identifiable	2	E0	E0_not_estimable	False	False	False	True	replication
+F0456	full_ted	ambiguous	persistent_loss	composition	identifiable	E0	E0_artifact_dominated	True	False	none	persistent_loss	composition	identifiable	3	E0	E0_artifact_dominated	False	False	False	False	none
+F0457	full_ted	ambiguous	persistent_loss	composition	identifiable	E0	E0_artifact_dominated	True	False	outcome	persistent_loss	composition	identifiable	3	E0	E0_artifact_dominated	True	False	False	False	outcome
+F0458	full_ted	ambiguous	persistent_loss	composition	identifiable	E0	E0_artifact_dominated	True	False	reversal	persistent_loss	composition	identifiable	3	E0	E0_artifact_dominated	False	True	False	False	reversal
+F0459	full_ted	ambiguous	persistent_loss	composition	identifiable	E0	E0_artifact_dominated	True	False	rescue	persistent_loss	composition	identifiable	3	E0	E0_artifact_dominated	False	False	True	False	rescue
+F0460	full_ted	ambiguous	persistent_loss	composition	identifiable	E0	E0_artifact_dominated	True	False	replication	persistent_loss	composition	identifiable	3	E0	E0_artifact_dominated	False	False	False	True	replication
+F0461	full_ted	ambiguous	persistent_loss	composition	identifiable	E0	E0_artifact_dominated	True	False	none	persistent_loss	composition	identifiable	5	E0	E0_artifact_dominated	False	False	False	False	none
+F0462	full_ted	ambiguous	persistent_loss	composition	identifiable	E0	E0_artifact_dominated	True	False	outcome	persistent_loss	composition	identifiable	5	E0	E0_artifact_dominated	True	False	False	False	outcome
+F0463	full_ted	ambiguous	persistent_loss	composition	identifiable	E0	E0_artifact_dominated	True	False	reversal	persistent_loss	composition	identifiable	5	E0	E0_artifact_dominated	False	True	False	False	reversal
+F0464	full_ted	ambiguous	persistent_loss	composition	identifiable	E0	E0_artifact_dominated	True	False	rescue	persistent_loss	composition	identifiable	5	E0	E0_artifact_dominated	False	False	True	False	rescue
+F0465	full_ted	ambiguous	persistent_loss	composition	identifiable	E0	E0_artifact_dominated	True	False	replication	persistent_loss	composition	identifiable	5	E0	E0_artifact_dominated	False	False	False	True	replication
+F0466	full_ted	ambiguous	persistent_loss	composition	ambiguous	E0	E0_not_estimable	True	False	none	persistent_loss	composition	ambiguous	2	E0	E0_not_estimable	False	False	False	False	none
+F0467	full_ted	ambiguous	persistent_loss	composition	ambiguous	E0	E0_not_estimable	True	False	outcome	persistent_loss	composition	ambiguous	2	E0	E0_not_estimable	True	False	False	False	outcome
+F0468	full_ted	ambiguous	persistent_loss	composition	ambiguous	E0	E0_not_estimable	True	False	reversal	persistent_loss	composition	ambiguous	2	E0	E0_not_estimable	False	True	False	False	reversal
+F0469	full_ted	ambiguous	persistent_loss	composition	ambiguous	E0	E0_not_estimable	True	False	rescue	persistent_loss	composition	ambiguous	2	E0	E0_not_estimable	False	False	True	False	rescue
+F0470	full_ted	ambiguous	persistent_loss	composition	ambiguous	E0	E0_not_estimable	True	False	replication	persistent_loss	composition	ambiguous	2	E0	E0_not_estimable	False	False	False	True	replication
+F0471	full_ted	ambiguous	persistent_loss	composition	ambiguous	E0	E0_artifact_dominated	True	False	none	persistent_loss	composition	ambiguous	3	E0	E0_artifact_dominated	False	False	False	False	none
+F0472	full_ted	ambiguous	persistent_loss	composition	ambiguous	E0	E0_artifact_dominated	True	False	outcome	persistent_loss	composition	ambiguous	3	E0	E0_artifact_dominated	True	False	False	False	outcome
+F0473	full_ted	ambiguous	persistent_loss	composition	ambiguous	E0	E0_artifact_dominated	True	False	reversal	persistent_loss	composition	ambiguous	3	E0	E0_artifact_dominated	False	True	False	False	reversal
+F0474	full_ted	ambiguous	persistent_loss	composition	ambiguous	E0	E0_artifact_dominated	True	False	rescue	persistent_loss	composition	ambiguous	3	E0	E0_artifact_dominated	False	False	True	False	rescue
+F0475	full_ted	ambiguous	persistent_loss	composition	ambiguous	E0	E0_artifact_dominated	True	False	replication	persistent_loss	composition	ambiguous	3	E0	E0_artifact_dominated	False	False	False	True	replication
+F0476	full_ted	ambiguous	persistent_loss	composition	ambiguous	E0	E0_artifact_dominated	True	False	none	persistent_loss	composition	ambiguous	5	E0	E0_artifact_dominated	False	False	False	False	none
+F0477	full_ted	ambiguous	persistent_loss	composition	ambiguous	E0	E0_artifact_dominated	True	False	outcome	persistent_loss	composition	ambiguous	5	E0	E0_artifact_dominated	True	False	False	False	outcome
+F0478	full_ted	ambiguous	persistent_loss	composition	ambiguous	E0	E0_artifact_dominated	True	False	reversal	persistent_loss	composition	ambiguous	5	E0	E0_artifact_dominated	False	True	False	False	reversal
+F0479	full_ted	ambiguous	persistent_loss	composition	ambiguous	E0	E0_artifact_dominated	True	False	rescue	persistent_loss	composition	ambiguous	5	E0	E0_artifact_dominated	False	False	True	False	rescue
+F0480	full_ted	ambiguous	persistent_loss	composition	ambiguous	E0	E0_artifact_dominated	True	False	replication	persistent_loss	composition	ambiguous	5	E0	E0_artifact_dominated	False	False	False	True	replication
+F0481	full_ted	ambiguous	persistent_loss	composition	not_identifiable	E0	E0_not_estimable	True	False	none	persistent_loss	composition	not_identifiable	2	E0	E0_not_estimable	False	False	False	False	none
+F0482	full_ted	ambiguous	redirection	composition	not_identifiable	E0	E0_not_estimable	True	False	outcome	persistent_loss	composition	not_identifiable	2	E0	E0_not_estimable	True	False	False	False	outcome
+F0483	full_ted	ambiguous	persistent_loss	composition	not_identifiable	E0	E0_not_estimable	True	False	reversal	persistent_loss	composition	not_identifiable	2	E0	E0_not_estimable	False	True	False	False	reversal
+F0484	full_ted	ambiguous	persistent_loss	composition	not_identifiable	E0	E0_not_estimable	True	False	rescue	persistent_loss	composition	not_identifiable	2	E0	E0_not_estimable	False	False	True	False	rescue
+F0485	full_ted	ambiguous	persistent_loss	composition	not_identifiable	E0	E0_not_estimable	True	False	replication	persistent_loss	composition	not_identifiable	2	E0	E0_not_estimable	False	False	False	True	replication
+F0486	full_ted	ambiguous	redirection	composition	not_identifiable	E0	E0_not_identifiable	True	False	none	persistent_loss	composition	not_identifiable	3	E0	E0_not_identifiable	False	False	False	False	none
+F0487	full_ted	ambiguous	persistent_loss	composition	not_identifiable	E0	E0_not_identifiable	True	False	outcome	persistent_loss	composition	not_identifiable	3	E0	E0_not_identifiable	True	False	False	False	outcome
+F0488	full_ted	ambiguous	persistent_loss	composition	not_identifiable	E0	E0_not_identifiable	True	False	reversal	persistent_loss	composition	not_identifiable	3	E0	E0_not_identifiable	False	True	False	False	reversal
+F0489	full_ted	ambiguous	persistent_loss	composition	not_identifiable	E0	E0_not_identifiable	True	False	rescue	persistent_loss	composition	not_identifiable	3	E0	E0_not_identifiable	False	False	True	False	rescue
+F0490	full_ted	ambiguous	persistent_loss	composition	not_identifiable	E0	E0_not_identifiable	True	False	replication	persistent_loss	composition	not_identifiable	3	E0	E0_not_identifiable	False	False	False	True	replication
+F0491	full_ted	ambiguous	persistent_loss	composition	not_identifiable	E0	E0_not_identifiable	True	False	none	persistent_loss	composition	not_identifiable	5	E0	E0_not_identifiable	False	False	False	False	none
+F0492	full_ted	ambiguous	persistent_loss	composition	not_identifiable	E0	E0_not_identifiable	True	False	outcome	persistent_loss	composition	not_identifiable	5	E0	E0_not_identifiable	True	False	False	False	outcome
+F0493	full_ted	ambiguous	persistent_loss	composition	not_identifiable	E0	E0_not_identifiable	True	False	reversal	persistent_loss	composition	not_identifiable	5	E0	E0_not_identifiable	False	True	False	False	reversal
+F0494	full_ted	ambiguous	persistent_loss	composition	not_identifiable	E0	E0_not_identifiable	True	False	rescue	persistent_loss	composition	not_identifiable	5	E0	E0_not_identifiable	False	False	True	False	rescue
+F0495	full_ted	ambiguous	persistent_loss	composition	not_identifiable	E0	E0_not_identifiable	True	False	replication	persistent_loss	composition	not_identifiable	5	E0	E0_not_identifiable	False	False	False	True	replication
+F0496	full_ted	ambiguous	persistent_loss	stress	identifiable	E0	E0_not_estimable	True	False	none	persistent_loss	stress	identifiable	2	E0	E0_not_estimable	False	False	False	False	none
+F0497	full_ted	ambiguous	persistent_loss	stress	identifiable	E0	E0_not_estimable	True	False	outcome	persistent_loss	stress	identifiable	2	E0	E0_not_estimable	True	False	False	False	outcome
+F0498	full_ted	ambiguous	persistent_loss	stress	identifiable	E0	E0_not_estimable	True	False	reversal	persistent_loss	stress	identifiable	2	E0	E0_not_estimable	False	True	False	False	reversal
+F0499	full_ted	ambiguous	persistent_loss	stress	ambiguous	E0	E0_not_estimable	True	False	rescue	persistent_loss	stress	identifiable	2	E0	E0_not_estimable	False	False	True	False	rescue
+F0500	full_ted	ambiguous	persistent_loss	stress	identifiable	E0	E0_not_estimable	True	False	replication	persistent_loss	stress	identifiable	2	E0	E0_not_estimable	False	False	False	True	replication
+F0501	full_ted	ambiguous	persistent_loss	stress	identifiable	E0	E0_artifact_dominated	True	False	none	persistent_loss	stress	identifiable	3	E0	E0_artifact_dominated	False	False	False	False	none
+F0502	full_ted	ambiguous	persistent_loss	stress	identifiable	E0	E0_artifact_dominated	True	False	outcome	persistent_loss	stress	identifiable	3	E0	E0_artifact_dominated	True	False	False	False	outcome
+F0503	full_ted	ambiguous	persistent_loss	stress	identifiable	E0	E0_artifact_dominated	True	False	reversal	persistent_loss	stress	identifiable	3	E0	E0_artifact_dominated	False	True	False	False	reversal
+F0504	full_ted	ambiguous	persistent_loss	stress	identifiable	E0	E0_artifact_dominated	True	False	rescue	persistent_loss	stress	identifiable	3	E0	E0_artifact_dominated	False	False	True	False	rescue
+F0505	full_ted	ambiguous	persistent_loss	stress	identifiable	E0	E0_artifact_dominated	True	False	replication	persistent_loss	stress	identifiable	3	E0	E0_artifact_dominated	False	False	False	True	replication
+F0506	full_ted	ambiguous	persistent_loss	stress	identifiable	E0	E0_artifact_dominated	True	False	none	persistent_loss	stress	identifiable	5	E0	E0_artifact_dominated	False	False	False	False	none
+F0507	full_ted	ambiguous	persistent_loss	stress	identifiable	E0	E0_artifact_dominated	True	False	outcome	persistent_loss	stress	identifiable	5	E0	E0_artifact_dominated	True	False	False	False	outcome
+F0508	full_ted	ambiguous	persistent_loss	stress	identifiable	E0	E0_artifact_dominated	True	False	reversal	persistent_loss	stress	identifiable	5	E0	E0_artifact_dominated	False	True	False	False	reversal
+F0509	full_ted	ambiguous	persistent_loss	stress	identifiable	E0	E0_artifact_dominated	True	False	rescue	persistent_loss	stress	identifiable	5	E0	E0_artifact_dominated	False	False	True	False	rescue
+F0510	full_ted	ambiguous	persistent_loss	stress	identifiable	E0	E0_artifact_dominated	True	False	replication	persistent_loss	stress	identifiable	5	E0	E0_artifact_dominated	False	False	False	True	replication
+F0511	full_ted	ambiguous	redirection	stress	ambiguous	E0	E0_not_estimable	True	False	none	persistent_loss	stress	ambiguous	2	E0	E0_not_estimable	False	False	False	False	none
+F0512	full_ted	ambiguous	redirection	stress	ambiguous	E0	E0_not_estimable	True	False	outcome	persistent_loss	stress	ambiguous	2	E0	E0_not_estimable	True	False	False	False	outcome
+F0513	full_ted	ambiguous	redirection	stress	ambiguous	E0	E0_not_estimable	True	False	reversal	persistent_loss	stress	ambiguous	2	E0	E0_not_estimable	False	True	False	False	reversal
+F0514	full_ted	ambiguous	persistent_loss	stress	ambiguous	E0	E0_not_estimable	True	False	rescue	persistent_loss	stress	ambiguous	2	E0	E0_not_estimable	False	False	True	False	rescue
+F0515	full_ted	ambiguous	redirection	stress	ambiguous	E0	E0_not_estimable	True	False	replication	persistent_loss	stress	ambiguous	2	E0	E0_not_estimable	False	False	False	True	replication
+F0516	full_ted	ambiguous	persistent_loss	stress	ambiguous	E0	E0_artifact_dominated	True	False	none	persistent_loss	stress	ambiguous	3	E0	E0_artifact_dominated	False	False	False	False	none
+F0517	full_ted	ambiguous	persistent_loss	stress	ambiguous	E0	E0_artifact_dominated	True	False	outcome	persistent_loss	stress	ambiguous	3	E0	E0_artifact_dominated	True	False	False	False	outcome
+F0518	full_ted	ambiguous	persistent_loss	stress	ambiguous	E0	E0_artifact_dominated	True	False	reversal	persistent_loss	stress	ambiguous	3	E0	E0_artifact_dominated	False	True	False	False	reversal
+F0519	full_ted	ambiguous	persistent_loss	stress	ambiguous	E0	E0_artifact_dominated	True	False	rescue	persistent_loss	stress	ambiguous	3	E0	E0_artifact_dominated	False	False	True	False	rescue
+F0520	full_ted	ambiguous	persistent_loss	stress	ambiguous	E0	E0_artifact_dominated	True	False	replication	persistent_loss	stress	ambiguous	3	E0	E0_artifact_dominated	False	False	False	True	replication
+F0521	full_ted	ambiguous	persistent_loss	stress	ambiguous	E0	E0_artifact_dominated	True	False	none	persistent_loss	stress	ambiguous	5	E0	E0_artifact_dominated	False	False	False	False	none
+F0522	full_ted	ambiguous	persistent_loss	stress	ambiguous	E0	E0_artifact_dominated	True	False	outcome	persistent_loss	stress	ambiguous	5	E0	E0_artifact_dominated	True	False	False	False	outcome
+F0523	full_ted	ambiguous	persistent_loss	stress	ambiguous	E0	E0_artifact_dominated	True	False	reversal	persistent_loss	stress	ambiguous	5	E0	E0_artifact_dominated	False	True	False	False	reversal
+F0524	full_ted	ambiguous	persistent_loss	stress	ambiguous	E0	E0_artifact_dominated	True	False	rescue	persistent_loss	stress	ambiguous	5	E0	E0_artifact_dominated	False	False	True	False	rescue
+F0525	full_ted	ambiguous	persistent_loss	stress	ambiguous	E0	E0_artifact_dominated	True	False	replication	persistent_loss	stress	ambiguous	5	E0	E0_artifact_dominated	False	False	False	True	replication
+F0526	full_ted	ambiguous	persistent_loss	none	not_identifiable	E0	E0_not_estimable	True	False	none	persistent_loss	stress	not_identifiable	2	E0	E0_not_estimable	False	False	False	False	none
+F0527	full_ted	ambiguous	activation	stress	not_identifiable	E0	E0_not_estimable	True	False	outcome	persistent_loss	stress	not_identifiable	2	E0	E0_not_estimable	True	False	False	False	outcome
+F0528	full_ted	ambiguous	redirection	stress	not_identifiable	E0	E0_not_estimable	True	False	reversal	persistent_loss	stress	not_identifiable	2	E0	E0_not_estimable	False	True	False	False	reversal
+F0529	full_ted	ambiguous	redirection	stress	not_identifiable	E0	E0_not_estimable	True	False	rescue	persistent_loss	stress	not_identifiable	2	E0	E0_not_estimable	False	False	True	False	rescue
+F0530	full_ted	ambiguous	persistent_loss	none	not_identifiable	E0	E0_not_estimable	True	False	replication	persistent_loss	stress	not_identifiable	2	E0	E0_not_estimable	False	False	False	True	replication
+F0531	full_ted	ambiguous	persistent_loss	none	not_identifiable	E0	E0_not_identifiable	True	False	none	persistent_loss	stress	not_identifiable	3	E0	E0_not_identifiable	False	False	False	False	none
+F0532	full_ted	ambiguous	persistent_loss	none	not_identifiable	E0	E0_not_identifiable	True	False	outcome	persistent_loss	stress	not_identifiable	3	E0	E0_not_identifiable	True	False	False	False	outcome
+F0533	full_ted	ambiguous	persistent_loss	stress	not_identifiable	E0	E0_not_identifiable	True	False	reversal	persistent_loss	stress	not_identifiable	3	E0	E0_not_identifiable	False	True	False	False	reversal
+F0534	full_ted	ambiguous	persistent_loss	none	not_identifiable	E0	E0_not_identifiable	True	False	rescue	persistent_loss	stress	not_identifiable	3	E0	E0_not_identifiable	False	False	True	False	rescue
+F0535	full_ted	ambiguous	persistent_loss	none	not_identifiable	E0	E0_not_identifiable	True	False	replication	persistent_loss	stress	not_identifiable	3	E0	E0_not_identifiable	False	False	False	True	replication
+F0536	full_ted	ambiguous	persistent_loss	stress	not_identifiable	E0	E0_not_identifiable	True	False	none	persistent_loss	stress	not_identifiable	5	E0	E0_not_identifiable	False	False	False	False	none
+F0537	full_ted	ambiguous	persistent_loss	stress	not_identifiable	E0	E0_not_identifiable	True	False	outcome	persistent_loss	stress	not_identifiable	5	E0	E0_not_identifiable	True	False	False	False	outcome
+F0538	full_ted	ambiguous	persistent_loss	none	not_identifiable	E0	E0_not_identifiable	True	False	reversal	persistent_loss	stress	not_identifiable	5	E0	E0_not_identifiable	False	True	False	False	reversal
+F0539	full_ted	ambiguous	redirection	stress	not_identifiable	E0	E0_not_identifiable	True	False	rescue	persistent_loss	stress	not_identifiable	5	E0	E0_not_identifiable	False	False	True	False	rescue
+F0540	full_ted	ambiguous	persistent_loss	none	not_identifiable	E0	E0_not_identifiable	True	False	replication	persistent_loss	stress	not_identifiable	5	E0	E0_not_identifiable	False	False	False	True	replication
+F0541	full_ted	redirection	redirection	none	identifiable	E0	E0_not_estimable	False	False	none	redirection	none	identifiable	2	E0	E0_not_estimable	False	False	False	False	none
+F0542	full_ted	redirection	redirection	none	identifiable	E0	E0_not_estimable	False	False	outcome	redirection	none	identifiable	2	E0	E0_not_estimable	True	False	False	False	outcome
+F0543	full_ted	redirection	redirection	none	identifiable	E0	E0_not_estimable	False	False	reversal	redirection	none	identifiable	2	E0	E0_not_estimable	False	True	False	False	reversal
+F0544	full_ted	redirection	redirection	none	identifiable	E0	E0_not_estimable	False	False	rescue	redirection	none	identifiable	2	E0	E0_not_estimable	False	False	True	False	rescue
+F0545	full_ted	redirection	redirection	none	identifiable	E0	E0_not_estimable	False	False	replication	redirection	none	identifiable	2	E0	E0_not_estimable	False	False	False	True	replication
+F0546	full_ted	redirection	redirection	none	identifiable	E1		False	False	none	redirection	none	identifiable	3	E1		False	False	False	False	none
+F0547	full_ted	redirection	redirection	none	identifiable	E1		False	False	outcome	redirection	none	identifiable	3	E1		True	False	False	False	outcome
+F0548	full_ted	redirection	redirection	none	identifiable	E1		False	False	reversal	redirection	none	identifiable	3	E1		False	True	False	False	reversal
+F0549	full_ted	redirection	redirection	none	identifiable	E1		False	False	rescue	redirection	none	identifiable	3	E1		False	False	True	False	rescue
+F0550	full_ted	redirection	redirection	none	identifiable	E1		False	False	replication	redirection	none	identifiable	3	E1		False	False	False	True	replication
+F0551	full_ted	redirection	redirection	none	identifiable	E2		False	False	none	redirection	none	identifiable	5	E2		False	False	False	False	none
+F0552	full_ted	redirection	redirection	none	identifiable	E2		False	False	outcome	redirection	none	identifiable	5	E2		True	False	False	False	outcome
+F0553	full_ted	redirection	redirection	none	identifiable	E2		False	False	reversal	redirection	none	identifiable	5	E2		False	True	False	False	reversal
+F0554	full_ted	redirection	redirection	none	identifiable	E2		False	False	rescue	redirection	none	identifiable	5	E2		False	False	True	False	rescue
+F0555	full_ted	redirection	redirection	none	identifiable	E2		False	False	replication	redirection	none	identifiable	5	E2		False	False	False	True	replication
+F0556	full_ted	ambiguous	redirection	none	ambiguous	E0	E0_not_estimable	True	False	none	redirection	none	ambiguous	2	E0	E0_not_estimable	False	False	False	False	none
+F0557	full_ted	ambiguous	redirection	none	ambiguous	E0	E0_not_estimable	True	False	outcome	redirection	none	ambiguous	2	E0	E0_not_estimable	True	False	False	False	outcome
+F0558	full_ted	ambiguous	redirection	none	ambiguous	E0	E0_not_estimable	True	False	reversal	redirection	none	ambiguous	2	E0	E0_not_estimable	False	True	False	False	reversal
+F0559	full_ted	ambiguous	redirection	none	ambiguous	E0	E0_not_estimable	True	False	rescue	redirection	none	ambiguous	2	E0	E0_not_estimable	False	False	True	False	rescue
+F0560	full_ted	redirection	redirection	none	identifiable	E0	E0_not_estimable	False	False	replication	redirection	none	ambiguous	2	E0	E0_not_estimable	False	False	False	True	replication
+F0561	full_ted	ambiguous	redirection	none	ambiguous	E1		True	False	none	redirection	none	ambiguous	3	E1		False	False	False	False	none
+F0562	full_ted	ambiguous	redirection	none	ambiguous	E1		True	False	outcome	redirection	none	ambiguous	3	E1		True	False	False	False	outcome
+F0563	full_ted	ambiguous	redirection	none	ambiguous	E1		True	False	reversal	redirection	none	ambiguous	3	E1		False	True	False	False	reversal
+F0564	full_ted	ambiguous	redirection	none	ambiguous	E1		True	False	rescue	redirection	none	ambiguous	3	E1		False	False	True	False	rescue
+F0565	full_ted	ambiguous	redirection	none	ambiguous	E1		True	False	replication	redirection	none	ambiguous	3	E1		False	False	False	True	replication
+F0566	full_ted	ambiguous	redirection	none	ambiguous	E1		True	False	none	redirection	none	ambiguous	5	E1		False	False	False	False	none
+F0567	full_ted	ambiguous	redirection	none	ambiguous	E1		True	False	outcome	redirection	none	ambiguous	5	E1		True	False	False	False	outcome
+F0568	full_ted	ambiguous	redirection	none	ambiguous	E1		True	False	reversal	redirection	none	ambiguous	5	E1		False	True	False	False	reversal
+F0569	full_ted	ambiguous	redirection	none	ambiguous	E1		True	False	rescue	redirection	none	ambiguous	5	E1		False	False	True	False	rescue
+F0570	full_ted	ambiguous	redirection	none	ambiguous	E1		True	False	replication	redirection	none	ambiguous	5	E1		False	False	False	True	replication
+F0571	full_ted	ambiguous	redirection	none	not_identifiable	E0	E0_not_estimable	True	False	none	redirection	none	not_identifiable	2	E0	E0_not_estimable	False	False	False	False	none
+F0572	full_ted	ambiguous	redirection	none	not_identifiable	E0	E0_not_estimable	True	False	outcome	redirection	none	not_identifiable	2	E0	E0_not_estimable	True	False	False	False	outcome
+F0573	full_ted	ambiguous	delay	none	not_identifiable	E0	E0_not_estimable	True	False	reversal	redirection	none	not_identifiable	2	E0	E0_not_estimable	False	True	False	False	reversal
+F0574	full_ted	ambiguous	redirection	none	not_identifiable	E0	E0_not_estimable	True	False	rescue	redirection	none	not_identifiable	2	E0	E0_not_estimable	False	False	True	False	rescue
+F0575	full_ted	ambiguous	redirection	none	not_identifiable	E0	E0_not_estimable	True	False	replication	redirection	none	not_identifiable	2	E0	E0_not_estimable	False	False	False	True	replication
+F0576	full_ted	ambiguous	redirection	none	not_identifiable	E0	E0_not_identifiable	True	False	none	redirection	none	not_identifiable	3	E0	E0_not_identifiable	False	False	False	False	none
+F0577	full_ted	ambiguous	redirection	none	not_identifiable	E0	E0_not_identifiable	True	False	outcome	redirection	none	not_identifiable	3	E0	E0_not_identifiable	True	False	False	False	outcome
+F0578	full_ted	ambiguous	redirection	none	not_identifiable	E0	E0_not_identifiable	True	False	reversal	redirection	none	not_identifiable	3	E0	E0_not_identifiable	False	True	False	False	reversal
+F0579	full_ted	ambiguous	redirection	none	not_identifiable	E0	E0_not_identifiable	True	False	rescue	redirection	none	not_identifiable	3	E0	E0_not_identifiable	False	False	True	False	rescue
+F0580	full_ted	ambiguous	redirection	none	not_identifiable	E0	E0_not_identifiable	True	False	replication	redirection	none	not_identifiable	3	E0	E0_not_identifiable	False	False	False	True	replication
+F0581	full_ted	ambiguous	redirection	none	not_identifiable	E0	E0_not_identifiable	True	False	none	redirection	none	not_identifiable	5	E0	E0_not_identifiable	False	False	False	False	none
+F0582	full_ted	ambiguous	redirection	none	not_identifiable	E0	E0_not_identifiable	True	False	outcome	redirection	none	not_identifiable	5	E0	E0_not_identifiable	True	False	False	False	outcome
+F0583	full_ted	ambiguous	redirection	none	not_identifiable	E0	E0_not_identifiable	True	False	reversal	redirection	none	not_identifiable	5	E0	E0_not_identifiable	False	True	False	False	reversal
+F0584	full_ted	ambiguous	redirection	none	not_identifiable	E0	E0_not_identifiable	True	False	rescue	redirection	none	not_identifiable	5	E0	E0_not_identifiable	False	False	True	False	rescue
+F0585	full_ted	ambiguous	redirection	none	not_identifiable	E0	E0_not_identifiable	True	False	replication	redirection	none	not_identifiable	5	E0	E0_not_identifiable	False	False	False	True	replication
+F0586	full_ted	ambiguous	redirection	composition	identifiable	E0	E0_not_estimable	True	False	none	redirection	composition	identifiable	2	E0	E0_not_estimable	False	False	False	False	none
+F0587	full_ted	ambiguous	redirection	composition	identifiable	E0	E0_not_estimable	True	False	outcome	redirection	composition	identifiable	2	E0	E0_not_estimable	True	False	False	False	outcome
+F0588	full_ted	ambiguous	redirection	composition	identifiable	E0	E0_not_estimable	True	False	reversal	redirection	composition	identifiable	2	E0	E0_not_estimable	False	True	False	False	reversal
+F0589	full_ted	ambiguous	redirection	composition	identifiable	E0	E0_not_estimable	True	False	rescue	redirection	composition	identifiable	2	E0	E0_not_estimable	False	False	True	False	rescue
+F0590	full_ted	ambiguous	redirection	composition	identifiable	E0	E0_not_estimable	True	False	replication	redirection	composition	identifiable	2	E0	E0_not_estimable	False	False	False	True	replication
+F0591	full_ted	ambiguous	redirection	composition	identifiable	E0	E0_artifact_dominated	True	False	none	redirection	composition	identifiable	3	E0	E0_artifact_dominated	False	False	False	False	none
+F0592	full_ted	ambiguous	redirection	composition	identifiable	E0	E0_artifact_dominated	True	False	outcome	redirection	composition	identifiable	3	E0	E0_artifact_dominated	True	False	False	False	outcome
+F0593	full_ted	ambiguous	redirection	composition	identifiable	E0	E0_artifact_dominated	True	False	reversal	redirection	composition	identifiable	3	E0	E0_artifact_dominated	False	True	False	False	reversal
+F0594	full_ted	ambiguous	redirection	composition	identifiable	E0	E0_artifact_dominated	True	False	rescue	redirection	composition	identifiable	3	E0	E0_artifact_dominated	False	False	True	False	rescue
+F0595	full_ted	ambiguous	redirection	composition	identifiable	E0	E0_artifact_dominated	True	False	replication	redirection	composition	identifiable	3	E0	E0_artifact_dominated	False	False	False	True	replication
+F0596	full_ted	ambiguous	redirection	composition	identifiable	E0	E0_artifact_dominated	True	False	none	redirection	composition	identifiable	5	E0	E0_artifact_dominated	False	False	False	False	none
+F0597	full_ted	ambiguous	redirection	composition	identifiable	E0	E0_artifact_dominated	True	False	outcome	redirection	composition	identifiable	5	E0	E0_artifact_dominated	True	False	False	False	outcome
+F0598	full_ted	ambiguous	redirection	composition	identifiable	E0	E0_artifact_dominated	True	False	reversal	redirection	composition	identifiable	5	E0	E0_artifact_dominated	False	True	False	False	reversal
+F0599	full_ted	ambiguous	redirection	composition	identifiable	E0	E0_artifact_dominated	True	False	rescue	redirection	composition	identifiable	5	E0	E0_artifact_dominated	False	False	True	False	rescue
+F0600	full_ted	ambiguous	redirection	composition	identifiable	E0	E0_artifact_dominated	True	False	replication	redirection	composition	identifiable	5	E0	E0_artifact_dominated	False	False	False	True	replication
+F0601	full_ted	ambiguous	redirection	composition	ambiguous	E0	E0_not_estimable	True	False	none	redirection	composition	ambiguous	2	E0	E0_not_estimable	False	False	False	False	none
+F0602	full_ted	ambiguous	redirection	composition	ambiguous	E0	E0_not_estimable	True	False	outcome	redirection	composition	ambiguous	2	E0	E0_not_estimable	True	False	False	False	outcome
+F0603	full_ted	ambiguous	redirection	composition	ambiguous	E0	E0_not_estimable	True	False	reversal	redirection	composition	ambiguous	2	E0	E0_not_estimable	False	True	False	False	reversal
+F0604	full_ted	ambiguous	redirection	composition	ambiguous	E0	E0_not_estimable	True	False	rescue	redirection	composition	ambiguous	2	E0	E0_not_estimable	False	False	True	False	rescue
+F0605	full_ted	ambiguous	redirection	composition	ambiguous	E0	E0_not_estimable	True	False	replication	redirection	composition	ambiguous	2	E0	E0_not_estimable	False	False	False	True	replication
+F0606	full_ted	ambiguous	redirection	composition	ambiguous	E0	E0_artifact_dominated	True	False	none	redirection	composition	ambiguous	3	E0	E0_artifact_dominated	False	False	False	False	none
+F0607	full_ted	ambiguous	redirection	composition	ambiguous	E0	E0_artifact_dominated	True	False	outcome	redirection	composition	ambiguous	3	E0	E0_artifact_dominated	True	False	False	False	outcome
+F0608	full_ted	ambiguous	redirection	composition	ambiguous	E0	E0_artifact_dominated	True	False	reversal	redirection	composition	ambiguous	3	E0	E0_artifact_dominated	False	True	False	False	reversal
+F0609	full_ted	ambiguous	redirection	composition	ambiguous	E0	E0_artifact_dominated	True	False	rescue	redirection	composition	ambiguous	3	E0	E0_artifact_dominated	False	False	True	False	rescue
+F0610	full_ted	ambiguous	redirection	composition	ambiguous	E0	E0_artifact_dominated	True	False	replication	redirection	composition	ambiguous	3	E0	E0_artifact_dominated	False	False	False	True	replication
+F0611	full_ted	ambiguous	redirection	composition	ambiguous	E0	E0_artifact_dominated	True	False	none	redirection	composition	ambiguous	5	E0	E0_artifact_dominated	False	False	False	False	none
+F0612	full_ted	ambiguous	redirection	composition	ambiguous	E0	E0_artifact_dominated	True	False	outcome	redirection	composition	ambiguous	5	E0	E0_artifact_dominated	True	False	False	False	outcome
+F0613	full_ted	ambiguous	redirection	composition	ambiguous	E0	E0_artifact_dominated	True	False	reversal	redirection	composition	ambiguous	5	E0	E0_artifact_dominated	False	True	False	False	reversal
+F0614	full_ted	ambiguous	redirection	composition	ambiguous	E0	E0_artifact_dominated	True	False	rescue	redirection	composition	ambiguous	5	E0	E0_artifact_dominated	False	False	True	False	rescue
+F0615	full_ted	ambiguous	redirection	composition	ambiguous	E0	E0_artifact_dominated	True	False	replication	redirection	composition	ambiguous	5	E0	E0_artifact_dominated	False	False	False	True	replication
+F0616	full_ted	ambiguous	redirection	composition	not_identifiable	E0	E0_not_estimable	True	False	none	redirection	composition	not_identifiable	2	E0	E0_not_estimable	False	False	False	False	none
+F0617	full_ted	ambiguous	redirection	composition	not_identifiable	E0	E0_not_estimable	True	False	outcome	redirection	composition	not_identifiable	2	E0	E0_not_estimable	True	False	False	False	outcome
+F0618	full_ted	ambiguous	redirection	composition	not_identifiable	E0	E0_not_estimable	True	False	reversal	redirection	composition	not_identifiable	2	E0	E0_not_estimable	False	True	False	False	reversal
+F0619	full_ted	ambiguous	redirection	composition	not_identifiable	E0	E0_not_estimable	True	False	rescue	redirection	composition	not_identifiable	2	E0	E0_not_estimable	False	False	True	False	rescue
+F0620	full_ted	ambiguous	redirection	composition	not_identifiable	E0	E0_not_estimable	True	False	replication	redirection	composition	not_identifiable	2	E0	E0_not_estimable	False	False	False	True	replication
+F0621	full_ted	ambiguous	redirection	composition	not_identifiable	E0	E0_not_identifiable	True	False	none	redirection	composition	not_identifiable	3	E0	E0_not_identifiable	False	False	False	False	none
+F0622	full_ted	ambiguous	redirection	composition	not_identifiable	E0	E0_not_identifiable	True	False	outcome	redirection	composition	not_identifiable	3	E0	E0_not_identifiable	True	False	False	False	outcome
+F0623	full_ted	ambiguous	redirection	composition	not_identifiable	E0	E0_not_identifiable	True	False	reversal	redirection	composition	not_identifiable	3	E0	E0_not_identifiable	False	True	False	False	reversal
+F0624	full_ted	ambiguous	redirection	composition	not_identifiable	E0	E0_not_identifiable	True	False	rescue	redirection	composition	not_identifiable	3	E0	E0_not_identifiable	False	False	True	False	rescue
+F0625	full_ted	ambiguous	redirection	composition	not_identifiable	E0	E0_not_identifiable	True	False	replication	redirection	composition	not_identifiable	3	E0	E0_not_identifiable	False	False	False	True	replication
+F0626	full_ted	ambiguous	redirection	composition	not_identifiable	E0	E0_not_identifiable	True	False	none	redirection	composition	not_identifiable	5	E0	E0_not_identifiable	False	False	False	False	none
+F0627	full_ted	ambiguous	redirection	composition	not_identifiable	E0	E0_not_identifiable	True	False	outcome	redirection	composition	not_identifiable	5	E0	E0_not_identifiable	True	False	False	False	outcome
+F0628	full_ted	ambiguous	redirection	composition	not_identifiable	E0	E0_not_identifiable	True	False	reversal	redirection	composition	not_identifiable	5	E0	E0_not_identifiable	False	True	False	False	reversal
+F0629	full_ted	ambiguous	redirection	composition	not_identifiable	E0	E0_not_identifiable	True	False	rescue	redirection	composition	not_identifiable	5	E0	E0_not_identifiable	False	False	True	False	rescue
+F0630	full_ted	ambiguous	redirection	composition	not_identifiable	E0	E0_not_identifiable	True	False	replication	redirection	composition	not_identifiable	5	E0	E0_not_identifiable	False	False	False	True	replication
+F0631	full_ted	ambiguous	redirection	stress	identifiable	E0	E0_not_estimable	True	False	none	redirection	stress	identifiable	2	E0	E0_not_estimable	False	False	False	False	none
+F0632	full_ted	ambiguous	redirection	stress	identifiable	E0	E0_not_estimable	True	False	outcome	redirection	stress	identifiable	2	E0	E0_not_estimable	True	False	False	False	outcome
+F0633	full_ted	ambiguous	redirection	stress	identifiable	E0	E0_not_estimable	True	False	reversal	redirection	stress	identifiable	2	E0	E0_not_estimable	False	True	False	False	reversal
+F0634	full_ted	ambiguous	redirection	stress	identifiable	E0	E0_not_estimable	True	False	rescue	redirection	stress	identifiable	2	E0	E0_not_estimable	False	False	True	False	rescue
+F0635	full_ted	ambiguous	redirection	stress	identifiable	E0	E0_not_estimable	True	False	replication	redirection	stress	identifiable	2	E0	E0_not_estimable	False	False	False	True	replication
+F0636	full_ted	ambiguous	redirection	stress	identifiable	E0	E0_artifact_dominated	True	False	none	redirection	stress	identifiable	3	E0	E0_artifact_dominated	False	False	False	False	none
+F0637	full_ted	ambiguous	redirection	stress	identifiable	E0	E0_artifact_dominated	True	False	outcome	redirection	stress	identifiable	3	E0	E0_artifact_dominated	True	False	False	False	outcome
+F0638	full_ted	redirection	redirection	none	identifiable	E1		False	False	reversal	redirection	stress	identifiable	3	E0	E0_artifact_dominated	False	True	False	False	reversal
+F0639	full_ted	ambiguous	redirection	stress	identifiable	E0	E0_artifact_dominated	True	False	rescue	redirection	stress	identifiable	3	E0	E0_artifact_dominated	False	False	True	False	rescue
+F0640	full_ted	ambiguous	redirection	stress	identifiable	E0	E0_artifact_dominated	True	False	replication	redirection	stress	identifiable	3	E0	E0_artifact_dominated	False	False	False	True	replication
+F0641	full_ted	ambiguous	redirection	stress	identifiable	E0	E0_artifact_dominated	True	False	none	redirection	stress	identifiable	5	E0	E0_artifact_dominated	False	False	False	False	none
+F0642	full_ted	ambiguous	redirection	stress	identifiable	E0	E0_artifact_dominated	True	False	outcome	redirection	stress	identifiable	5	E0	E0_artifact_dominated	True	False	False	False	outcome
+F0643	full_ted	ambiguous	redirection	stress	identifiable	E0	E0_artifact_dominated	True	False	reversal	redirection	stress	identifiable	5	E0	E0_artifact_dominated	False	True	False	False	reversal
+F0644	full_ted	ambiguous	redirection	stress	identifiable	E0	E0_artifact_dominated	True	False	rescue	redirection	stress	identifiable	5	E0	E0_artifact_dominated	False	False	True	False	rescue
+F0645	full_ted	ambiguous	redirection	stress	identifiable	E0	E0_artifact_dominated	True	False	replication	redirection	stress	identifiable	5	E0	E0_artifact_dominated	False	False	False	True	replication
+F0646	full_ted	ambiguous	redirection	none	ambiguous	E0	E0_not_estimable	True	False	none	redirection	stress	ambiguous	2	E0	E0_not_estimable	False	False	False	False	none
+F0647	full_ted	ambiguous	redirection	none	ambiguous	E0	E0_not_estimable	True	False	outcome	redirection	stress	ambiguous	2	E0	E0_not_estimable	True	False	False	False	outcome
+F0648	full_ted	ambiguous	redirection	none	ambiguous	E0	E0_not_estimable	True	False	reversal	redirection	stress	ambiguous	2	E0	E0_not_estimable	False	True	False	False	reversal
+F0649	full_ted	ambiguous	redirection	none	ambiguous	E0	E0_not_estimable	True	False	rescue	redirection	stress	ambiguous	2	E0	E0_not_estimable	False	False	True	False	rescue
+F0650	full_ted	ambiguous	redirection	none	ambiguous	E0	E0_not_estimable	True	False	replication	redirection	stress	ambiguous	2	E0	E0_not_estimable	False	False	False	True	replication
+F0651	full_ted	ambiguous	redirection	none	ambiguous	E1		True	False	none	redirection	stress	ambiguous	3	E0	E0_artifact_dominated	False	False	False	False	none
+F0652	full_ted	ambiguous	redirection	stress	ambiguous	E0	E0_artifact_dominated	True	False	outcome	redirection	stress	ambiguous	3	E0	E0_artifact_dominated	True	False	False	False	outcome
+F0653	full_ted	ambiguous	redirection	none	ambiguous	E1		True	False	reversal	redirection	stress	ambiguous	3	E0	E0_artifact_dominated	False	True	False	False	reversal
+F0654	full_ted	ambiguous	redirection	stress	ambiguous	E0	E0_artifact_dominated	True	False	rescue	redirection	stress	ambiguous	3	E0	E0_artifact_dominated	False	False	True	False	rescue
+F0655	full_ted	ambiguous	redirection	stress	ambiguous	E0	E0_artifact_dominated	True	False	replication	redirection	stress	ambiguous	3	E0	E0_artifact_dominated	False	False	False	True	replication
+F0656	full_ted	ambiguous	redirection	stress	ambiguous	E0	E0_artifact_dominated	True	False	none	redirection	stress	ambiguous	5	E0	E0_artifact_dominated	False	False	False	False	none
+F0657	full_ted	ambiguous	redirection	none	ambiguous	E1		True	False	outcome	redirection	stress	ambiguous	5	E0	E0_artifact_dominated	True	False	False	False	outcome
+F0658	full_ted	ambiguous	redirection	stress	ambiguous	E0	E0_artifact_dominated	True	False	reversal	redirection	stress	ambiguous	5	E0	E0_artifact_dominated	False	True	False	False	reversal
+F0659	full_ted	ambiguous	redirection	none	ambiguous	E1		True	False	rescue	redirection	stress	ambiguous	5	E0	E0_artifact_dominated	False	False	True	False	rescue
+F0660	full_ted	ambiguous	redirection	stress	ambiguous	E0	E0_artifact_dominated	True	False	replication	redirection	stress	ambiguous	5	E0	E0_artifact_dominated	False	False	False	True	replication
+F0661	full_ted	ambiguous	redirection	none	not_identifiable	E0	E0_not_estimable	True	False	none	redirection	stress	not_identifiable	2	E0	E0_not_estimable	False	False	False	False	none
+F0662	full_ted	ambiguous	redirection	none	not_identifiable	E0	E0_not_estimable	True	False	outcome	redirection	stress	not_identifiable	2	E0	E0_not_estimable	True	False	False	False	outcome
+F0663	full_ted	ambiguous	redirection	none	not_identifiable	E0	E0_not_estimable	True	False	reversal	redirection	stress	not_identifiable	2	E0	E0_not_estimable	False	True	False	False	reversal
+F0664	full_ted	ambiguous	redirection	none	not_identifiable	E0	E0_not_estimable	True	False	rescue	redirection	stress	not_identifiable	2	E0	E0_not_estimable	False	False	True	False	rescue
+F0665	full_ted	ambiguous	redirection	none	not_identifiable	E0	E0_not_estimable	True	False	replication	redirection	stress	not_identifiable	2	E0	E0_not_estimable	False	False	False	True	replication
+F0666	full_ted	ambiguous	redirection	none	not_identifiable	E0	E0_not_identifiable	True	False	none	redirection	stress	not_identifiable	3	E0	E0_not_identifiable	False	False	False	False	none
+F0667	full_ted	ambiguous	redirection	none	not_identifiable	E0	E0_not_identifiable	True	False	outcome	redirection	stress	not_identifiable	3	E0	E0_not_identifiable	True	False	False	False	outcome
+F0668	full_ted	ambiguous	redirection	stress	not_identifiable	E0	E0_not_identifiable	True	False	reversal	redirection	stress	not_identifiable	3	E0	E0_not_identifiable	False	True	False	False	reversal
+F0669	full_ted	ambiguous	redirection	none	not_identifiable	E0	E0_not_identifiable	True	False	rescue	redirection	stress	not_identifiable	3	E0	E0_not_identifiable	False	False	True	False	rescue
+F0670	full_ted	ambiguous	redirection	stress	not_identifiable	E0	E0_not_identifiable	True	False	replication	redirection	stress	not_identifiable	3	E0	E0_not_identifiable	False	False	False	True	replication
+F0671	full_ted	ambiguous	redirection	none	not_identifiable	E0	E0_not_identifiable	True	False	none	redirection	stress	not_identifiable	5	E0	E0_not_identifiable	False	False	False	False	none
+F0672	full_ted	ambiguous	redirection	none	not_identifiable	E0	E0_not_identifiable	True	False	outcome	redirection	stress	not_identifiable	5	E0	E0_not_identifiable	True	False	False	False	outcome
+F0673	full_ted	ambiguous	redirection	stress	not_identifiable	E0	E0_not_identifiable	True	False	reversal	redirection	stress	not_identifiable	5	E0	E0_not_identifiable	False	True	False	False	reversal
+F0674	full_ted	ambiguous	redirection	none	not_identifiable	E0	E0_not_identifiable	True	False	rescue	redirection	stress	not_identifiable	5	E0	E0_not_identifiable	False	False	True	False	rescue
+F0675	full_ted	ambiguous	redirection	none	not_identifiable	E0	E0_not_identifiable	True	False	replication	redirection	stress	not_identifiable	5	E0	E0_not_identifiable	False	False	False	True	replication

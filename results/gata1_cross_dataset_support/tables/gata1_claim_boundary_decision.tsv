@@ -1,0 +1,2 @@
+primary_event_robust	independent_dataset_direction_consistency	no_global_negative_control_failure	cross_dataset_supported_event	matched_rescue_design	same_system	level4_causal_rescue	final_claim
+True	1.0	True	True	False	False	False	Level_3.5_retained_cross_dataset_mechanistic_support_added

@@ -1,0 +1,6 @@
+dataset	axis	role	activation_score	reversal_score	reversal_fraction	reversal_class
+GSE93735	lps_proinflammatory_axis	primary_positive_reversal_axis	5.321634280081405	1.79599067843783	0.3374885578214437	partial_reversal
+GSE93735	chemokine_cytokine_axis	secondary_positive_reversal_axis	5.688824923746889	2.078645453486846	0.365391004530645	partial_reversal
+GSE93735	glucocorticoid_engagement_axis	intervention_engagement_axis	0.2342810920213058	-2.003221580072104	-8.550504706926702	weak_or_no_reversal
+GSE93735	housekeeping_negative_control	negative_control_axis	0.2416305859599319	-0.1498487561722612	-0.6201564076706321	weak_or_no_reversal
+GSE93735	ribosome_negative_control	negative_control_axis	-0.417684343058756	-0.0678148778765663	0.1623591571088093	weak_or_no_reversal

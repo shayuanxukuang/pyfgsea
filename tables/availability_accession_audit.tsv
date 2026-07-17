@@ -1,6 +1,6 @@
 resource	url	http_status	resolved_url	accessible	release_or_version	commit	license_or_note
-Zenodo version DOI	https://doi.org/10.5281/zenodo.20378158	200	https://zenodo.org/records/20378158	True	version_doi_current	version-specific DOI minted for ted-gb-rc7	
-GitHub source repository	https://github.com/shayuanxukuang/pyfgsea-TED	200	https://github.com/shayuanxukuang/pyfgsea-TED	True	ted-gb-rc7	3ffec1a1dcb4261303fc130b81ccd6b29a2fa34f	MIT
+Zenodo version DOI	https://doi.org/10.5281/zenodo.21403133	200	https://zenodo.org/records/21403133	True	version_doi_current	version-specific DOI for ted-v1.0.0	
+GitHub source repository	https://github.com/shayuanxukuang/pyfgsea-TED	200	https://github.com/shayuanxukuang/pyfgsea-TED	True	ted-v1.0.0	resolved by immutable tag	MIT
 GSE271399	https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE271399			True			
 GSE202639	https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE202639			True			
 GSE157977	https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE157977			True			

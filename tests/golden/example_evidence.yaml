@@ -1,0 +1,108 @@
+schema_version: "0.1"
+evidence:
+  - evidence_id: E1_family_block
+    evidence_family: family_block_robustness
+    dependency_group: family_block
+    target_event: erythroid_event_001
+    direction: supports
+    effect_size: 0.90
+    standard_error: 0.60
+    p_value: 0.020
+    weight: 0.9
+    assumptions:
+      - family-block sampling is adequate
+    failure_modes:
+      - hidden batch structure remains
+    supports:
+      H3_GATA1_regulatory: 0.6
+      H5_T21_chromatin_interaction: 0.3
+    weakens:
+      H0_noise_batch: 0.7
+  - evidence_id: E2_adjusted
+    evidence_family: proliferation_adjusted_mediation
+    dependency_group: adjusted_internal
+    target_event: erythroid_event_001
+    direction: supports
+    effect_size: 0.70
+    standard_error: 0.60
+    p_value: 0.030
+    weight: 0.8
+    assumptions:
+      - proliferation score captures cycling state
+    failure_modes:
+      - residual cycling state remains
+    supports:
+      H3_GATA1_regulatory: 0.7
+    weakens:
+      H2_proliferation_confounded: 0.7
+  - evidence_id: E3_ot_effect
+    evidence_family: counterfactual_ot
+    dependency_group: ot_internal
+    target_event: erythroid_event_001
+    direction: supports
+    effect_size: 0.80
+    standard_error: 0.55
+    p_value: 0.018
+    weight: 0.9
+    assumptions:
+      - state matching adequate
+    failure_modes:
+      - hidden state imbalance
+    supports:
+      H3_GATA1_regulatory: 0.7
+      H5_T21_chromatin_interaction: 0.3
+    weakens:
+      H1_state_composition: 0.7
+  - evidence_id: E4_timing
+    evidence_family: day_stratified_timing
+    dependency_group: timing_internal
+    target_event: erythroid_event_001
+    direction: supports
+    effect_size: 0.85
+    standard_error: 0.60
+    p_value: 0.020
+    weight: 0.9
+    assumptions:
+      - sampled days bracket onset
+    failure_modes:
+      - onset lies between sampled days
+    supports:
+      H3_GATA1_regulatory: 0.7
+    weakens:
+      H4_downstream_heme: 0.4
+  - evidence_id: E5_negative_controls
+    evidence_family: negative_mediator_controls
+    dependency_group: negative_controls
+    target_event: erythroid_event_001
+    direction: supports
+    effect_size: 0.65
+    standard_error: 0.60
+    p_value: 0.040
+    weight: 0.8
+    assumptions:
+      - controls represent non-mechanistic alternatives
+    failure_modes:
+      - controls miss relevant confounder
+    supports:
+      H3_GATA1_regulatory: 0.5
+    weakens:
+      H0_noise_batch: 0.4
+      H1_state_composition: 0.4
+      H2_proliferation_confounded: 0.4
+  - evidence_id: E8_external_KD
+    evidence_family: external_GATA1_KD
+    dependency_group: external_gata1
+    target_event: erythroid_event_001
+    direction: supports
+    effect_size: 0.75
+    standard_error: 0.60
+    p_value: 0.025
+    weight: 0.8
+    assumptions:
+      - external perturbation maps to this system
+    failure_modes:
+      - external context differs
+    supports:
+      H3_GATA1_regulatory: 0.7
+    weakens:
+      H4_downstream_heme: 0.3

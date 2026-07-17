@@ -1,0 +1,11 @@
+{
+  "seed": 20260716,
+  "repetitions": 12,
+  "clean_null_repetitions": 100,
+  "scenario_count": 36,
+  "target_q": 0.1,
+  "primary_method": "per_event_max_window_bh",
+  "critical_scenario_permutations": 5000,
+  "other_scenario_permutations": 1000,
+  "note": "Balanced coverage matrix, not the 6,480-cell full factorial. Every requested factor level is represented."
+}

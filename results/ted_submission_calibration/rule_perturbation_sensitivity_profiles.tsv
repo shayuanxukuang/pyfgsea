@@ -1,0 +1,6 @@
+profile_id	identifiability_threshold	artifact_threshold	outcome_threshold	packet_class_margin	tier_bias	feature_jitter_sd	seed_policy
+rule_perturbation_01	0.58	0.62	0.45	0.1	-0.1	0.025	SEED + profile_index*10000 + packet_class_index*100 + replicate_index
+rule_perturbation_02	0.52	0.7	0.5	0.08	0.05	0.025	SEED + profile_index*10000 + packet_class_index*100 + replicate_index
+rule_perturbation_03	0.62	0.58	0.4	0.12	-0.15	0.025	SEED + profile_index*10000 + packet_class_index*100 + replicate_index
+rule_perturbation_04	0.55	0.65	0.55	0.15	0.0	0.025	SEED + profile_index*10000 + packet_class_index*100 + replicate_index
+rule_perturbation_05	0.68	0.55	0.6	0.1	-0.25	0.025	SEED + profile_index*10000 + packet_class_index*100 + replicate_index

@@ -1,0 +1,16 @@
+{
+  "seed": 20260717,
+  "n_packets": 675,
+  "design": "5 biological modes x 3 artifacts x 3 identifiability states x 3 block counts x 5 V tags",
+  "generator_start": "block-level dynamic event and independent artifact-control curves",
+  "feature_level_generation": false,
+  "variants": [
+    "full_ted",
+    "without_block_gate",
+    "without_matched_state_adjustment",
+    "without_negative_controls",
+    "without_identifiability_gate",
+    "without_ambiguity_set",
+    "ev_collapsed_ladder"
+  ]
+}

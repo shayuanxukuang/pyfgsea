@@ -1,0 +1,201 @@
+pathway	direction	event_mode	event_support_code	called	ambiguous	area	dataset_id	scoring_method	trajectory_input
+Epithelial Mesenchymal Transition	up	recurrent pathway program	E2	True	False	2.2735557725512967	GSE126085_real_time	pyfgsea_rolling	true_time
+Apical Junction	up	recurrent pathway program	E2	True	False	2.705598107282633	GSE126085_real_time	pyfgsea_rolling	true_time
+Protein Secretion	up	recurrent pathway program	E2	True	False	1.9285157886702335	GSE126085_real_time	pyfgsea_rolling	true_time
+Allograft Rejection	up	recurrent pathway program	E2	True	False	2.461102834949667	GSE126085_real_time	pyfgsea_rolling	true_time
+Apoptosis	up	recurrent pathway program	E2	True	False	2.200735625094993	GSE126085_real_time	pyfgsea_rolling	true_time
+Hypoxia	up	recurrent pathway program	E2	True	False	2.103822651334638	GSE126085_real_time	pyfgsea_rolling	true_time
+PI3K/AKT/mTOR  Signaling	up	recurrent pathway program	E2	True	False	1.990072359193073	GSE126085_real_time	pyfgsea_rolling	true_time
+Fatty Acid Metabolism	up	recurrent pathway program	E2	True	False	1.8948964694206964	GSE126085_real_time	pyfgsea_rolling	true_time
+Xenobiotic Metabolism	up	recurrent pathway program	E2	True	False	1.9795936348884116	GSE126085_real_time	pyfgsea_rolling	true_time
+KRAS Signaling Up	up	recurrent pathway program	E2	True	False	2.194575818110536	GSE126085_real_time	pyfgsea_rolling	true_time
+Myogenesis	up	recurrent pathway program	E2	True	False	1.8567185701871134	GSE126085_real_time	pyfgsea_rolling	true_time
+Unfolded Protein Response	up	recurrent pathway program	E2	True	False	2.0513107025355297	GSE126085_real_time	pyfgsea_rolling	true_time
+UV Response Up	up	recurrent pathway program	E2	True	False	2.2223716014571906	GSE126085_real_time	pyfgsea_rolling	true_time
+Estrogen Response Late	up	recurrent pathway program	E1	True	False	1.937987205467135	GSE126085_real_time	pyfgsea_rolling	true_time
+UV Response Dn	up	recurrent pathway program	E1	True	False	1.831730044790496	GSE126085_real_time	pyfgsea_rolling	true_time
+Interferon Alpha Response	up	recurrent pathway program	E1	True	False	1.7656187567024806	GSE126085_real_time	pyfgsea_rolling	true_time
+DNA Repair	up	recurrent pathway program	E1	True	False	1.852551260320566	GSE126085_real_time	pyfgsea_rolling	true_time
+Estrogen Response Early	up	recurrent pathway program	E1	True	False	1.8559313660816326	GSE126085_real_time	pyfgsea_rolling	true_time
+Epithelial Mesenchymal Transition	down	recurrent pathway program	E2	True	False	-1.331686823298119	GSE126085_real_time	pyfgsea_rolling	dpt_pseudotime
+Apical Junction	down	recurrent pathway program	E2	True	False	-1.476070729528759	GSE126085_real_time	pyfgsea_rolling	dpt_pseudotime
+Allograft Rejection	down	recurrent pathway program	E2	True	False	-1.1106569836313842	GSE126085_real_time	pyfgsea_rolling	dpt_pseudotime
+Apoptosis	down	recurrent pathway program	E2	True	False	-1.5561417855933428	GSE126085_real_time	pyfgsea_rolling	dpt_pseudotime
+Protein Secretion	down	recurrent pathway program	E2	True	False	-1.35502276580553	GSE126085_real_time	pyfgsea_rolling	dpt_pseudotime
+KRAS Signaling Up	down	recurrent pathway program	E2	True	False	-0.9783535191292484	GSE126085_real_time	pyfgsea_rolling	dpt_pseudotime
+Hypoxia	down	recurrent pathway program	E2	True	False	-1.0108119033054792	GSE126085_real_time	pyfgsea_rolling	dpt_pseudotime
+Fatty Acid Metabolism	down	recurrent pathway program	E2	True	False	-1.3054149724239288	GSE126085_real_time	pyfgsea_rolling	dpt_pseudotime
+PI3K/AKT/mTOR  Signaling	down	recurrent pathway program	E2	True	False	-1.2358294690753064	GSE126085_real_time	pyfgsea_rolling	dpt_pseudotime
+Xenobiotic Metabolism	down	recurrent pathway program	E2	True	False	-1.5588231181405412	GSE126085_real_time	pyfgsea_rolling	dpt_pseudotime
+UV Response Up	down	recurrent pathway program	E2	True	False	-1.226717140195344	GSE126085_real_time	pyfgsea_rolling	dpt_pseudotime
+Unfolded Protein Response	down	recurrent pathway program	E2	True	False	-1.0729238702643118	GSE126085_real_time	pyfgsea_rolling	dpt_pseudotime
+Estrogen Response Late	down	recurrent pathway program	E2	True	False	-1.2136720226071667	GSE126085_real_time	pyfgsea_rolling	dpt_pseudotime
+Myogenesis	down	recurrent pathway program	E2	True	False	-1.2537163924083816	GSE126085_real_time	pyfgsea_rolling	dpt_pseudotime
+UV Response Dn	down	recurrent pathway program	E1	True	False	-0.9933304065662315	GSE126085_real_time	pyfgsea_rolling	dpt_pseudotime
+Estrogen Response Early	down	recurrent pathway program	E1	True	False	-1.0760701276719253	GSE126085_real_time	pyfgsea_rolling	dpt_pseudotime
+Interferon Alpha Response	down	recurrent pathway program	E1	True	False	-0.6538167954921767	GSE126085_real_time	pyfgsea_rolling	dpt_pseudotime
+DNA Repair	down	recurrent pathway program	E1	True	False	-1.1293588489443773	GSE126085_real_time	pyfgsea_rolling	dpt_pseudotime
+Allograft Rejection	up	recurrent pathway program	E1	True	False	0.5058698902919898	GSE126085_real_time	rank_auc	true_time
+Apical Junction	up	recurrent pathway program	E1	True	False	0.5012953530053158	GSE126085_real_time	rank_auc	true_time
+Apoptosis	up	recurrent pathway program	E1	True	False	0.4120364418580701	GSE126085_real_time	rank_auc	true_time
+DNA Repair	down	biphasic pathway program	E1	True	False	-0.5182648037854782	GSE126085_real_time	rank_auc	true_time
+Epithelial Mesenchymal Transition	up	recurrent pathway program	E1	True	False	0.370006343553186	GSE126085_real_time	rank_auc	true_time
+Estrogen Response Early	down	recurrent pathway program	E1	True	False	-0.29497856666740696	GSE126085_real_time	rank_auc	true_time
+Estrogen Response Late	up	recurrent pathway program	E1	True	False	0.6209881557177352	GSE126085_real_time	rank_auc	true_time
+Fatty Acid Metabolism	down	recurrent pathway program	E1	True	False	-0.6333154627741516	GSE126085_real_time	rank_auc	true_time
+Hypoxia	up	recurrent pathway program	E1	True	False	0.4260351228147593	GSE126085_real_time	rank_auc	true_time
+Interferon Alpha Response	up	recurrent pathway program	E1	True	False	0.4088544346901566	GSE126085_real_time	rank_auc	true_time
+KRAS Signaling Up	up	recurrent pathway program	E1	True	False	0.3971062909983347	GSE126085_real_time	rank_auc	true_time
+Myogenesis	down	recurrent pathway program	E1	True	False	-0.09133776754736994	GSE126085_real_time	rank_auc	true_time
+PI3K/AKT/mTOR  Signaling	up	recurrent pathway program	E1	True	False	0.47414470677782905	GSE126085_real_time	rank_auc	true_time
+Protein Secretion	up	recurrent pathway program	E1	True	False	0.2488009759265362	GSE126085_real_time	rank_auc	true_time
+UV Response Dn	up	recurrent pathway program	E1	True	False	0.14715364831805483	GSE126085_real_time	rank_auc	true_time
+UV Response Up	up	recurrent pathway program	E1	True	False	0.46962304777246566	GSE126085_real_time	rank_auc	true_time
+Unfolded Protein Response	up	recurrent pathway program	E1	True	False	0.429483596645731	GSE126085_real_time	rank_auc	true_time
+Xenobiotic Metabolism	down	recurrent pathway program	E1	True	False	-0.011460870113224164	GSE126085_real_time	rank_auc	true_time
+Allograft Rejection	down	early suppression / late recovery	E1	True	False	-0.35454018126251	GSE126085_real_time	rank_auc	dpt_pseudotime
+Apical Junction	down	recurrent pathway program	E1	True	False	-0.3201692592146064	GSE126085_real_time	rank_auc	dpt_pseudotime
+Apoptosis	down	early suppression / late recovery	E1	True	False	-0.36737404708760113	GSE126085_real_time	rank_auc	dpt_pseudotime
+DNA Repair	down	recurrent pathway program	E1	True	False	-0.26135764671562595	GSE126085_real_time	rank_auc	dpt_pseudotime
+Epithelial Mesenchymal Transition	down	early suppression / late recovery	E1	True	False	-0.36976213031810573	GSE126085_real_time	rank_auc	dpt_pseudotime
+Estrogen Response Early	up	recurrent pathway program	E1	True	False	0.429376370437387	GSE126085_real_time	rank_auc	dpt_pseudotime
+Estrogen Response Late	down	early suppression / late recovery	E1	True	False	-0.2586687095570823	GSE126085_real_time	rank_auc	dpt_pseudotime
+Fatty Acid Metabolism	down	biphasic pathway program	E1	True	False	-0.0010349997077393203	GSE126085_real_time	rank_auc	dpt_pseudotime
+Hypoxia	down	early suppression / late recovery	E1	True	False	-0.3690002017760475	GSE126085_real_time	rank_auc	dpt_pseudotime
+Interferon Alpha Response	down	early suppression / late recovery	E1	True	False	-0.40613835495399037	GSE126085_real_time	rank_auc	dpt_pseudotime
+KRAS Signaling Up	down	recurrent pathway program	E1	True	False	-0.38655126648270044	GSE126085_real_time	rank_auc	dpt_pseudotime
+Myogenesis	down	recurrent pathway program	E1	True	False	-0.3386280088953719	GSE126085_real_time	rank_auc	dpt_pseudotime
+PI3K/AKT/mTOR  Signaling	down	early suppression / late recovery	E1	True	False	-0.3407120553872249	GSE126085_real_time	rank_auc	dpt_pseudotime
+Protein Secretion	down	recurrent pathway program	E1	True	False	-0.39888091523271174	GSE126085_real_time	rank_auc	dpt_pseudotime
+UV Response Dn	down	recurrent pathway program	E1	True	False	-0.4237468428661447	GSE126085_real_time	rank_auc	dpt_pseudotime
+UV Response Up	down	early suppression / late recovery	E1	True	False	-0.3569964739419066	GSE126085_real_time	rank_auc	dpt_pseudotime
+Unfolded Protein Response	down	recurrent pathway program	E1	True	False	-0.37423867368211494	GSE126085_real_time	rank_auc	dpt_pseudotime
+Xenobiotic Metabolism	down	early suppression / late recovery	E1	True	False	-0.3104932598751669	GSE126085_real_time	rank_auc	dpt_pseudotime
+Allograft Rejection	up	recurrent pathway program	E1	True	False	0.49589715831390646	GSE126085_real_time	mean_zscore	true_time
+Apical Junction	up	recurrent pathway program	E1	True	False	0.4186902075407499	GSE126085_real_time	mean_zscore	true_time
+Apoptosis	up	recurrent pathway program	E1	True	False	0.4137103353189555	GSE126085_real_time	mean_zscore	true_time
+DNA Repair	up	recurrent pathway program	E1	True	False	0.44354051967312735	GSE126085_real_time	mean_zscore	true_time
+Epithelial Mesenchymal Transition	up	recurrent pathway program	E1	True	False	0.3654461126924935	GSE126085_real_time	mean_zscore	true_time
+Estrogen Response Early	up	recurrent pathway program	E1	True	False	0.43774610977742745	GSE126085_real_time	mean_zscore	true_time
+Estrogen Response Late	up	recurrent pathway program	E1	True	False	0.39692543252647233	GSE126085_real_time	mean_zscore	true_time
+Fatty Acid Metabolism	up	recurrent pathway program	E1	True	False	0.34916257576230575	GSE126085_real_time	mean_zscore	true_time
+Hypoxia	up	recurrent pathway program	E1	True	False	0.440592118132459	GSE126085_real_time	mean_zscore	true_time
+Interferon Alpha Response	up	recurrent pathway program	E1	True	False	0.4090211346782239	GSE126085_real_time	mean_zscore	true_time
+KRAS Signaling Up	up	recurrent pathway program	E1	True	False	0.49205273105417924	GSE126085_real_time	mean_zscore	true_time
+Myogenesis	up	recurrent pathway program	E1	True	False	0.3736794519125312	GSE126085_real_time	mean_zscore	true_time
+PI3K/AKT/mTOR  Signaling	up	recurrent pathway program	E1	True	False	0.4497852248945523	GSE126085_real_time	mean_zscore	true_time
+Protein Secretion	up	recurrent pathway program	E1	True	False	0.37605500509704537	GSE126085_real_time	mean_zscore	true_time
+UV Response Dn	up	recurrent pathway program	E1	True	False	0.4718860257631333	GSE126085_real_time	mean_zscore	true_time
+UV Response Up	up	recurrent pathway program	E1	True	False	0.46673514028384455	GSE126085_real_time	mean_zscore	true_time
+Unfolded Protein Response	up	recurrent pathway program	E1	True	False	0.4774571642244528	GSE126085_real_time	mean_zscore	true_time
+Xenobiotic Metabolism	up	recurrent pathway program	E1	True	False	0.4077588147058378	GSE126085_real_time	mean_zscore	true_time
+Allograft Rejection	down	early suppression / late recovery	E1	True	False	-0.33119822919106	GSE126085_real_time	mean_zscore	dpt_pseudotime
+Apical Junction	down	recurrent pathway program	E1	True	False	-0.3417123873299723	GSE126085_real_time	mean_zscore	dpt_pseudotime
+Apoptosis	down	early suppression / late recovery	E1	True	False	-0.34776497858082034	GSE126085_real_time	mean_zscore	dpt_pseudotime
+DNA Repair	down	recurrent pathway program	E1	True	False	-0.32414457130264085	GSE126085_real_time	mean_zscore	dpt_pseudotime
+Epithelial Mesenchymal Transition	down	early suppression / late recovery	E1	True	False	-0.35600307831375466	GSE126085_real_time	mean_zscore	dpt_pseudotime
+Estrogen Response Early	down	early suppression / late recovery	E1	True	False	-0.3195838610522219	GSE126085_real_time	mean_zscore	dpt_pseudotime
+Estrogen Response Late	down	recurrent pathway program	E1	True	False	-0.3396368246578466	GSE126085_real_time	mean_zscore	dpt_pseudotime
+Fatty Acid Metabolism	down	recurrent pathway program	E1	True	False	-0.3549195090585654	GSE126085_real_time	mean_zscore	dpt_pseudotime
+Hypoxia	down	early suppression / late recovery	E1	True	False	-0.3414591496713129	GSE126085_real_time	mean_zscore	dpt_pseudotime
+Interferon Alpha Response	down	early suppression / late recovery	E1	True	False	-0.34505245864938433	GSE126085_real_time	mean_zscore	dpt_pseudotime
+KRAS Signaling Up	down	early suppression / late recovery	E1	True	False	-0.32921726379440125	GSE126085_real_time	mean_zscore	dpt_pseudotime
+Myogenesis	down	recurrent pathway program	E1	True	False	-0.34380945768291554	GSE126085_real_time	mean_zscore	dpt_pseudotime
+PI3K/AKT/mTOR  Signaling	down	early suppression / late recovery	E1	True	False	-0.33756601703452543	GSE126085_real_time	mean_zscore	dpt_pseudotime
+Protein Secretion	down	early suppression / late recovery	E1	True	False	-0.34592149932049543	GSE126085_real_time	mean_zscore	dpt_pseudotime
+UV Response Dn	down	early suppression / late recovery	E1	True	False	-0.3141243897776907	GSE126085_real_time	mean_zscore	dpt_pseudotime
+UV Response Up	down	early suppression / late recovery	E1	True	False	-0.3269334241952957	GSE126085_real_time	mean_zscore	dpt_pseudotime
+Unfolded Protein Response	down	early suppression / late recovery	E1	True	False	-0.3291360391496979	GSE126085_real_time	mean_zscore	dpt_pseudotime
+Xenobiotic Metabolism	down	early suppression / late recovery	E1	True	False	-0.3428047327524797	GSE126085_real_time	mean_zscore	dpt_pseudotime
+Allograft Rejection	up	recurrent pathway program	E1	True	False	0.600222582628318	GSE126085_real_time	ssgsea_bridge	true_time
+Apical Junction	up	recurrent pathway program	E1	True	False	0.37486803915153644	GSE126085_real_time	ssgsea_bridge	true_time
+Apoptosis	up	recurrent pathway program	E1	True	False	0.27206632295198324	GSE126085_real_time	ssgsea_bridge	true_time
+DNA Repair	up	recurrent pathway program	E1	True	False	0.6079735581515842	GSE126085_real_time	ssgsea_bridge	true_time
+Epithelial Mesenchymal Transition	up	recurrent pathway program	E1	True	False	0.023119235876183062	GSE126085_real_time	ssgsea_bridge	true_time
+Estrogen Response Early	down	recurrent pathway program	E1	True	False	-0.6841005300496492	GSE126085_real_time	ssgsea_bridge	true_time
+Estrogen Response Late	down	recurrent pathway program	E1	True	False	-0.1304568923456401	GSE126085_real_time	ssgsea_bridge	true_time
+Fatty Acid Metabolism	up	recurrent pathway program	E1	True	False	0.22730895113422814	GSE126085_real_time	ssgsea_bridge	true_time
+Hypoxia	up	recurrent pathway program	E1	True	False	0.47490634269181786	GSE126085_real_time	ssgsea_bridge	true_time
+Interferon Alpha Response	up	recurrent pathway program	E1	True	False	0.3636238344824596	GSE126085_real_time	ssgsea_bridge	true_time
+KRAS Signaling Up	up	recurrent pathway program	E1	True	False	0.4422221146544216	GSE126085_real_time	ssgsea_bridge	true_time
+Myogenesis	down	biphasic pathway program	E1	True	False	-0.8648160898011111	GSE126085_real_time	ssgsea_bridge	true_time
+PI3K/AKT/mTOR  Signaling	up	recurrent pathway program	E1	True	False	0.5332932496400096	GSE126085_real_time	ssgsea_bridge	true_time
+Protein Secretion	up	recurrent pathway program	E1	True	False	0.48093282681781263	GSE126085_real_time	ssgsea_bridge	true_time
+UV Response Dn	up	recurrent pathway program	E1	True	False	0.8585779933567675	GSE126085_real_time	ssgsea_bridge	true_time
+UV Response Up	up	recurrent pathway program	E1	True	False	0.5463271233096603	GSE126085_real_time	ssgsea_bridge	true_time
+Unfolded Protein Response	up	recurrent pathway program	E1	True	False	0.5243312552985927	GSE126085_real_time	ssgsea_bridge	true_time
+Xenobiotic Metabolism	up	recurrent pathway program	E1	True	False	0.3342578341974786	GSE126085_real_time	ssgsea_bridge	true_time
+Allograft Rejection	down	early suppression / late recovery	E1	True	False	-0.298805375511493	GSE126085_real_time	ssgsea_bridge	dpt_pseudotime
+Apical Junction	down	recurrent pathway program	E1	True	False	-0.3526149922672099	GSE126085_real_time	ssgsea_bridge	dpt_pseudotime
+Apoptosis	down	recurrent pathway program	E1	True	False	-0.39819342500500926	GSE126085_real_time	ssgsea_bridge	dpt_pseudotime
+DNA Repair	down	early suppression / late recovery	E1	True	False	-0.17526339244911252	GSE126085_real_time	ssgsea_bridge	dpt_pseudotime
+Epithelial Mesenchymal Transition	down	early suppression / late recovery	E1	True	False	-0.44661599829344417	GSE126085_real_time	ssgsea_bridge	dpt_pseudotime
+Estrogen Response Early	up	biphasic pathway program	E1	True	False	0.2269053454071017	GSE126085_real_time	ssgsea_bridge	dpt_pseudotime
+Estrogen Response Late	down	recurrent pathway program	E1	True	False	-0.40217712439219333	GSE126085_real_time	ssgsea_bridge	dpt_pseudotime
+Fatty Acid Metabolism	down	recurrent pathway program	E1	True	False	-0.3037680737390157	GSE126085_real_time	ssgsea_bridge	dpt_pseudotime
+Hypoxia	down	early suppression / late recovery	E1	True	False	-0.3171268402253837	GSE126085_real_time	ssgsea_bridge	dpt_pseudotime
+Interferon Alpha Response	down	early suppression / late recovery	E1	True	False	-0.23367596087855744	GSE126085_real_time	ssgsea_bridge	dpt_pseudotime
+KRAS Signaling Up	down	recurrent pathway program	E1	True	False	-0.41548785290834883	GSE126085_real_time	ssgsea_bridge	dpt_pseudotime
+Myogenesis	down	biphasic pathway program	E1	True	False	-0.12423373996141	GSE126085_real_time	ssgsea_bridge	dpt_pseudotime
+PI3K/AKT/mTOR  Signaling	down	early suppression / late recovery	E1	True	False	-0.2591319841610625	GSE126085_real_time	ssgsea_bridge	dpt_pseudotime
+Protein Secretion	down	recurrent pathway program	E1	True	False	-0.25380168502444295	GSE126085_real_time	ssgsea_bridge	dpt_pseudotime
+UV Response Dn	up	early suppression / late recovery	E1	True	False	0.037778824309610035	GSE126085_real_time	ssgsea_bridge	dpt_pseudotime
+UV Response Up	down	early suppression / late recovery	E1	True	False	-0.2721565319108704	GSE126085_real_time	ssgsea_bridge	dpt_pseudotime
+Unfolded Protein Response	down	early suppression / late recovery	E1	True	False	-0.26939912347493267	GSE126085_real_time	ssgsea_bridge	dpt_pseudotime
+Xenobiotic Metabolism	down	recurrent pathway program	E1	True	False	-0.3011873970935877	GSE126085_real_time	ssgsea_bridge	dpt_pseudotime
+Panglao_Neutrophils	down	early suppression / late recovery	E2	True	False	-0.6473946937854388	Nestorowa_trajectory	pyfgsea_rolling	dpt_pseudotime
+Hallmark_Heme_Metabolism_mapped	up	biphasic pathway program	E2	True	False	0.19661953987163522	Nestorowa_trajectory	pyfgsea_rolling	dpt_pseudotime
+POSCTRL_Erythroid_core_program	down	recurrent pathway program	E2	True	False	-0.016617860118795597	Nestorowa_trajectory	pyfgsea_rolling	dpt_pseudotime
+POSCTRL_Myeloid_monocyte_program	down	mid-trajectory transient activation	E2	True	False	-0.732824847633053	Nestorowa_trajectory	pyfgsea_rolling	dpt_pseudotime
+POSCTRL_Neutrophil_granule_program	down	recurrent pathway program	E2	True	False	-1.0056445126077818	Nestorowa_trajectory	pyfgsea_rolling	dpt_pseudotime
+POSCTRL_Megakaryocyte_program	down	recurrent pathway program	E1	True	False	-0.5572085617440673	Nestorowa_trajectory	pyfgsea_rolling	dpt_pseudotime
+Panglao_Erythroid-like_And_Erythroid_Precursor_Cells	up	recurrent pathway program	E1	True	False	0.29334614085124844	Nestorowa_trajectory	pyfgsea_rolling	dpt_pseudotime
+Panglao_Dendritic_Cells	down	recurrent pathway program	E2	True	False	-0.617849188829746	Nestorowa_trajectory	pyfgsea_rolling	dpt_pseudotime
+Panglao_Monocytes	down	recurrent pathway program	E2	True	False	-0.4993343947866532	Nestorowa_trajectory	pyfgsea_rolling	dpt_pseudotime
+Panglao_Megakaryocytes	down	recurrent pathway program	E1	True	False	-0.2761237533678977	Nestorowa_trajectory	pyfgsea_rolling	dpt_pseudotime
+POSCTRL_Basophil_mast_program	down	recurrent pathway program	E1	True	False	-0.21079681433220668	Nestorowa_trajectory	pyfgsea_rolling	dpt_pseudotime
+Panglao_Hematopoietic_Stem_Cells	down	recurrent pathway program	E2	True	False	-0.10247282270746984	Nestorowa_trajectory	pyfgsea_rolling	dpt_pseudotime
+Panglao_Basophils	down	recurrent pathway program	E1	True	False	-0.08426634382259914	Nestorowa_trajectory	pyfgsea_rolling	dpt_pseudotime
+Panglao_Erythroblasts	up	recurrent pathway program	E1	True	False	0.334022258031956	Nestorowa_trajectory	pyfgsea_rolling	dpt_pseudotime
+Hallmark_Heme_Metabolism_mapped	up	biphasic pathway program	E1	True	False	0.47073189859032016	Nestorowa_trajectory	rank_auc	dpt_pseudotime
+POSCTRL_Basophil_mast_program	up	early suppression / late recovery	E1	True	False	0.15547245563067738	Nestorowa_trajectory	rank_auc	dpt_pseudotime
+POSCTRL_Erythroid_core_program	up	biphasic pathway program	E1	True	False	0.5068790571080071	Nestorowa_trajectory	rank_auc	dpt_pseudotime
+POSCTRL_Megakaryocyte_program	down	early suppression / late recovery	E1	True	False	-0.10472153454893052	Nestorowa_trajectory	rank_auc	dpt_pseudotime
+POSCTRL_Myeloid_monocyte_program	down	early suppression / late recovery	E1	True	False	-0.527091706923246	Nestorowa_trajectory	rank_auc	dpt_pseudotime
+POSCTRL_Neutrophil_granule_program	down	recurrent pathway program	E1	True	False	-0.35410262982032326	Nestorowa_trajectory	rank_auc	dpt_pseudotime
+Panglao_Basophils	down	early suppression / late recovery	E1	True	False	-0.5350701996200862	Nestorowa_trajectory	rank_auc	dpt_pseudotime
+Panglao_Dendritic_Cells	down	early suppression / late recovery	E1	True	False	-0.5675812767966222	Nestorowa_trajectory	rank_auc	dpt_pseudotime
+Panglao_Erythroblasts	up	early suppression / late recovery	E1	True	False	0.3411088185881547	Nestorowa_trajectory	rank_auc	dpt_pseudotime
+Panglao_Erythroid-like_And_Erythroid_Precursor_Cells	up	biphasic pathway program	E1	True	False	0.4587605244608092	Nestorowa_trajectory	rank_auc	dpt_pseudotime
+Panglao_Hematopoietic_Stem_Cells	down	early suppression / late recovery	E1	True	False	-0.5236297963776636	Nestorowa_trajectory	rank_auc	dpt_pseudotime
+Panglao_Megakaryocytes	down	early suppression / late recovery	E1	True	False	-0.4997619775577299	Nestorowa_trajectory	rank_auc	dpt_pseudotime
+Panglao_Monocytes	down	early suppression / late recovery	E1	True	False	-0.5952948481592925	Nestorowa_trajectory	rank_auc	dpt_pseudotime
+Panglao_Neutrophils	down	early suppression / late recovery	E1	True	False	-0.5804030825417186	Nestorowa_trajectory	rank_auc	dpt_pseudotime
+Hallmark_Heme_Metabolism_mapped	up	biphasic pathway program	E1	True	False	0.23213706977543963	Nestorowa_trajectory	mean_zscore	dpt_pseudotime
+POSCTRL_Basophil_mast_program	up	early suppression / late recovery	E1	True	False	0.0010238592080730191	Nestorowa_trajectory	mean_zscore	dpt_pseudotime
+POSCTRL_Erythroid_core_program	up	biphasic pathway program	E1	True	False	0.3105742553239842	Nestorowa_trajectory	mean_zscore	dpt_pseudotime
+POSCTRL_Megakaryocyte_program	down	early suppression / late recovery	E1	True	False	-0.14739163806920974	Nestorowa_trajectory	mean_zscore	dpt_pseudotime
+POSCTRL_Myeloid_monocyte_program	down	early suppression / late recovery	E1	True	False	-0.6758833014054769	Nestorowa_trajectory	mean_zscore	dpt_pseudotime
+POSCTRL_Neutrophil_granule_program	down	recurrent pathway program	E1	True	False	-0.7225967653294112	Nestorowa_trajectory	mean_zscore	dpt_pseudotime
+Panglao_Basophils	down	early suppression / late recovery	E1	True	False	-0.6415222489030385	Nestorowa_trajectory	mean_zscore	dpt_pseudotime
+Panglao_Dendritic_Cells	down	early suppression / late recovery	E1	True	False	-0.6859673118748942	Nestorowa_trajectory	mean_zscore	dpt_pseudotime
+Panglao_Erythroblasts	down	biphasic pathway program	E1	True	False	-0.15013384748825015	Nestorowa_trajectory	mean_zscore	dpt_pseudotime
+Panglao_Erythroid-like_And_Erythroid_Precursor_Cells	up	biphasic pathway program	E1	True	False	0.12764128420571647	Nestorowa_trajectory	mean_zscore	dpt_pseudotime
+Panglao_Hematopoietic_Stem_Cells	down	early suppression / late recovery	E1	True	False	-0.6800948578456727	Nestorowa_trajectory	mean_zscore	dpt_pseudotime
+Panglao_Megakaryocytes	down	early suppression / late recovery	E1	True	False	-0.5810718427369793	Nestorowa_trajectory	mean_zscore	dpt_pseudotime
+Panglao_Monocytes	down	early suppression / late recovery	E1	True	False	-0.7063855530673993	Nestorowa_trajectory	mean_zscore	dpt_pseudotime
+Panglao_Neutrophils	down	early suppression / late recovery	E1	True	False	-0.6983508899073463	Nestorowa_trajectory	mean_zscore	dpt_pseudotime
+Hallmark_Heme_Metabolism_mapped	up	biphasic pathway program	E1	True	False	0.5228331570406939	Nestorowa_trajectory	ssgsea_bridge	dpt_pseudotime
+POSCTRL_Basophil_mast_program	up	early suppression / late recovery	E1	True	False	0.28692132139300286	Nestorowa_trajectory	ssgsea_bridge	dpt_pseudotime
+POSCTRL_Erythroid_core_program	up	biphasic pathway program	E1	True	False	0.569740346796435	Nestorowa_trajectory	ssgsea_bridge	dpt_pseudotime
+POSCTRL_Megakaryocyte_program	up	early suppression / late recovery	E1	True	False	0.11255953902729818	Nestorowa_trajectory	ssgsea_bridge	dpt_pseudotime
+POSCTRL_Myeloid_monocyte_program	down	early suppression / late recovery	E1	True	False	-0.43409703339152395	Nestorowa_trajectory	ssgsea_bridge	dpt_pseudotime
+POSCTRL_Neutrophil_granule_program	down	early suppression / late recovery	E1	True	False	-0.3631228872430649	Nestorowa_trajectory	ssgsea_bridge	dpt_pseudotime
+Panglao_Basophils	down	early suppression / late recovery	E1	True	False	-0.340733281888333	Nestorowa_trajectory	ssgsea_bridge	dpt_pseudotime
+Panglao_Dendritic_Cells	down	early suppression / late recovery	E1	True	False	-0.42415326312063845	Nestorowa_trajectory	ssgsea_bridge	dpt_pseudotime
+Panglao_Erythroblasts	up	early suppression / late recovery	E1	True	False	0.3841689700613994	Nestorowa_trajectory	ssgsea_bridge	dpt_pseudotime
+Panglao_Erythroid-like_And_Erythroid_Precursor_Cells	up	biphasic pathway program	E1	True	False	0.6423938083128845	Nestorowa_trajectory	ssgsea_bridge	dpt_pseudotime
+Panglao_Hematopoietic_Stem_Cells	down	early suppression / late recovery	E1	True	False	-0.3918217194279239	Nestorowa_trajectory	ssgsea_bridge	dpt_pseudotime
+Panglao_Megakaryocytes	down	early suppression / late recovery	E1	True	False	-0.38988292197765795	Nestorowa_trajectory	ssgsea_bridge	dpt_pseudotime
+Panglao_Monocytes	down	early suppression / late recovery	E1	True	False	-0.4564400492155719	Nestorowa_trajectory	ssgsea_bridge	dpt_pseudotime
+Panglao_Neutrophils	down	early suppression / late recovery	E1	True	False	-0.4449952863911968	Nestorowa_trajectory	ssgsea_bridge	dpt_pseudotime

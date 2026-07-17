@@ -1,0 +1,186 @@
+protocol:
+  title: TED external validation protocol
+  version: "1.0-amended-2026-07-16"
+  freeze_date: "2026-07-15"
+  git_commit: "2b047dc557604018b28d82fa3da9ab496e1955a4"
+  pyfgsea_version: "0.1.4"
+  seed: 20260715
+  status: retrospective_freeze_for_future_no_retuning
+  interpretation: >-
+    This protocol was frozen after existing benchmark results were available. It is
+    a reproducibility and future no-retuning lock, not a claim of prospective
+    preregistration for GSE153056, GSE93735, SCP1064, ZSCAPE, or GSE271399.
+  amendment_scope: >-
+    The 2026-07-16 amendment separates controlled packet classes from biological
+    event modes and corrects conservative E/V reporting. It does not change an
+    estimator, threshold, seed, selected family, null, or generated result.
+
+global_rules:
+  inferential_unit: biological_block_or_dataset_contrast
+  cells_are_independent_replicates: false
+  primary_q_max: 0.05
+  direction_stability_min: 0.80
+  block_support_min: 0.60
+  matched_state_overlap_min: 0.50
+  require_negative_control_pass: true
+  missing_required_gate_action: fail_closed_and_downgrade
+  ambiguity_output_name: ambiguity-aware event-mode set
+  ambiguity_output_is_conformal: false
+  no_post_freeze_threshold_retuning: true
+  report_all_prespecified_failures: true
+
+event_mode_reference:
+  activation: reproducible positive activity change with block support
+  suppression: reproducible negative activity change with block support
+  developmental_delay: delayed perturbed peak with partial late recovery
+  true_loss: rising reference terminal output without perturbed recovery
+  fate_redirection: target-lineage loss with alternative-lineage gain
+artifact_reference:
+  composition_artifact: event removed or materially weakened by matched-state adjustment
+  stress_dominated: event explained by the prespecified stress axis or stress null
+identifiability_reference:
+  not_identifiable: insufficient blocks, overlap, time support, or unique mode evidence
+
+claim_ceiling:
+  level_1: descriptive trend
+  level_2: internally replicated association
+  level_3: block-robust event
+  level_3_5: cross-dataset or non-matched outcome support
+  level_4: matched same-system functional rescue
+  level_5: independently replicated causal mechanism
+  level_4_or_5_requires:
+    - matched_rescue_design
+    - same_system
+    - event_family_restoration
+    - phenotype_restoration
+    - negative_control_pass
+  gse271399_t21_gata1_maximum: 3.5
+
+datasets:
+  - id: GSE153056
+    role: known-source RNA prediction with masked protein outcome
+    inclusion: processed RNA, guide, metadata, and surface-protein matrices pass QC
+    exclusion: blocks without interpretable perturbation or protein outcome
+    biological_block: perturbation or guide-level aggregate
+    masked_during_prediction: surface PD-L1 protein
+    primary_endpoint: block-level RNA-event to PD-L1-protein direction and rank concordance
+    secondary_endpoints:
+      - leave-one-block-out direction stability
+      - positive-event precision
+      - matched negative pathways
+      - random gene-set and label permutations
+    maximum_claim: 3.5
+  - id: GSE93735
+    role: intervention reversal specificity
+    inclusion: prespecified LPS and dexamethasone contrasts with usable replicates
+    exclusion: contrasts not matching the frozen intervention design
+    biological_block: sample or replicate contrast
+    primary_endpoint: inflammatory reversal fraction minus maximum matched-negative reversal fraction
+    secondary_endpoints:
+      - non-inflammatory pathway specificity
+      - treatment-label permutation
+      - direction stability
+    maximum_claim: 3.5
+  - id: SCP1064
+    role: RNA event prediction with protein channels hidden until outcome evaluation
+    inclusion: authenticated source-labelled cells with exact RNA/protein cell alignment
+    exclusion: cells or guides failing alignment and metadata QC
+    biological_block: perturbation block; guides and targets are leave-one-unit robustness units
+    masked_during_prediction: all protein outcome channels
+    primary_endpoint: perturbation-specific RNA-event to protein-direction concordance
+    mandatory_heavy_controls:
+      - RNA-protein pairing within perturbation block
+      - guide labels within perturbation block
+      - guide-to-target assignment
+      - protein outcome columns
+      - pathway membership labels
+      - expression-and-size-matched random gene sets
+    non_estimable_if_absent:
+      - leave-one-library-out
+      - leave-one-batch-out
+    maximum_claim: 3.5
+  - id: ZSCAPE
+    role: developmental leave-one-embryo full-refit robustness
+    inclusion: embryos present in the frozen cell-type abundance activity table
+    exclusion: embryos without both genotype and time support required by the frozen event fit
+    biological_block: embryo
+    primary_endpoint: event-family Jaccard after leave-one-embryo exact refit
+    secondary_endpoints:
+      - direction agreement
+      - event-mode agreement
+      - effect-size variability
+      - claim-boundary stability
+    maximum_claim: 3.5
+  - id: GSE271399
+    role: claim-ceiling and estimability case study only
+    inclusion: frozen preregistered computational analyses
+    exclusion: primary external benchmark aggregation
+    biological_block: not_estimable_from_public_metadata
+    design_strata: day x pseudotime bin x coarse state
+    design_strata_are_independent_biological_replicates: false
+    donor_leave_out: not_estimable
+    primary_endpoint: no unsupported causal escalation
+    maximum_claim: 3.5
+
+event_fdr_calibration:
+  target_q_values: [0.01, 0.05, 0.10, 0.20]
+  pathway_family_sizes: [20, 50, 100]
+  overlap_correlations: [0.0, 0.35, 0.70]
+  report:
+    - empirical_fdp
+    - confidence_interval
+    - power
+  replicate_counts_by_q:
+    "0.01": 10000
+    "0.05": 5000
+    "0.10": 500
+    "0.20": 500
+  secondary_diagnostic: empirical_fdp_upper_ci_le_1.5_times_q
+
+external_benchmark_aggregation:
+  primary_unit: dataset_contrast
+  report_macro_and_micro: true
+  hierarchical_bootstrap: true
+  prohibit_cell_count_weighted_primary_summary: true
+  leave_one_dataset_out: true
+
+future_independent_holdout:
+  required_for_prospective_claim: true
+  minimum_biological_blocks: 3
+  requires_non_rna_outcome: true
+  gates_must_remain_unchanged: true
+  dataset_must_not_have_been_used_for_development: true
+  results_must_be_reported_even_if_failed: true
+
+frozen_inputs:
+  - pyproject.toml
+  - Dockerfile.baselines
+  - environment.baselines.yml
+  - .dockerignore
+  - config/ted_claim_boundary_rules.yml
+  - config/ted_gene_set_axes.yml
+  - config/ted_negative_control_axes.yml
+  - config/ted_upgrade_benchmark_registry.tsv
+  - config/scp1064_event_axes.yml
+  - pyfgsea/ted_schema.py
+  - pyfgsea/schemas/ted_activity_table_v1.schema.json
+  - pyfgsea/schemas/ted_event_report_v1.schema.json
+  - .github/workflows/ci.yml
+  - scripts/207_run_ted_known_source_validation.py
+  - scripts/208_run_ted_negative_controls.py
+  - scripts/220_call_scp1064_claim_boundary.py
+  - scripts/221_integrate_scp1064_into_ted_upgrade_report.py
+  - scripts/224_run_scp1064_heavy_shuffles.py
+  - scripts/run_ted_validation_demo.py
+  - scripts/run_ted_submission_calibration.py
+  - scripts/run_ted_cross_dataset_holdout_audit.py
+  - scripts/run_zscape_leave_one_embryo_full_refit.py
+  - scripts/run_ted_upstream_sensitivity.py
+  - scripts/run_ted_event_layer_scaling.py
+  - scripts/run_direct_external_baseline_suite.py
+  - scripts/baselines/run_tradeseq_baseline.R
+  - scripts/baselines/run_gsva_aucell_baseline.R
+  - scripts/baselines/run_pot_ot_baseline.py
+  - scripts/build_ted_submission_evidence_manifest.py
+  - tests/test_ted_schema.py
+  - tests/test_scp1064_claim_boundary.py

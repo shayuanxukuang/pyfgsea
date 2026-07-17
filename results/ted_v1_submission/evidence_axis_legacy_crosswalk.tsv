@@ -1,0 +1,13 @@
+legacy_level_or_status	revised_event_support	revised_validation_provenance	analysis_role_or_basis	qualification
+Level 1	E0	V0	descriptive, rejected, artifact-dominated or not-identifiable	Record the explicit status; no supported event interpretation.
+Level 2	E1	V0	statistically supported event	Does not imply block robustness or an identifiable event mode.
+Level 2.5	E0 or E1	V0	scaffold or adapter	Analysis role is not an evidence level; assign E from gates that actually pass.
+Level 3	E2	V0	block-, replicate- or time-robust event	No orthogonal outcome, intervention, rescue or replication is implied.
+Level 3.5	usually E2	usually V0; V1 only with a true orthogonal outcome	perturbation, lineage, multiome or directional context	Context can strengthen E but does not create V1 or V2 by itself.
+Level 4	E2	V1, V2 or V3 according to design	orthogonal outcome, intervention reversal or matched rescue	Only a same-system matched rescue qualifies for V3.
+Level 4B	E1 or E2	V0, V1 or V2 according to the observed contrast	public functional-style alignment	Level 4B is removed as a distinct tier and never substitutes for V3.
+Level 5	E2	V4 with replicated basis	independent replication	V4 records what was replicated and is not automatically causal.
+known_source_supported_event	E1 or E2	V0 unless an orthogonal outcome is present	known source and expected direction	Known-source support alone is not functional validation.
+outcome_supported_event	E0, E1 or E2 according to the statistical and robustness gates	V1	orthogonal outcome alignment	The V1 readout cannot override a failed E gate and is not a matched rescue.
+reversal_supported_event	E0, E1 or E2 according to the statistical and robustness gates	V2	intervention reversal above matched controls	The V2 readout cannot override a failed E gate and is not a primary-system rescue unless the design is matched.
+level4_causal_rescue	E2	V3	same-system matched rescue with predicted recovery	Public proxy or cross-dataset support alone cannot qualify.

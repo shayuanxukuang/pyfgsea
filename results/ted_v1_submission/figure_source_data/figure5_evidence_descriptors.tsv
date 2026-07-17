@@ -1,0 +1,4 @@
+dataset	event_support	validation_provenance	descriptor	basis_or_limit
+GSE153056 (STAT1)	1	1	E1-V1	independent-block q=0.0556 passes E1; protein outcome; E2 sensitivity post hoc
+SCP1064	1	1	E1-V1 partial	guide-label shuffle 1/4
+GSE271399	1	0	E1-V0	three-day direction consistency; no independent biological replicate

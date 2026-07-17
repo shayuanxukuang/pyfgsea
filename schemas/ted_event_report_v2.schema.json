@@ -1,0 +1,234 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pyfgsea.local/schemas/ted_event_report_v2.schema.json",
+  "title": "TED orthogonal E/V event report row v2",
+  "description": "Orthogonal event-support (E) and validation-provenance (V) contract. Legacy ladder fields remain optional for transition-only compatibility.",
+  "type": "object",
+  "required": [
+    "dataset_id",
+    "event_id",
+    "pathway",
+    "direction",
+    "event_mode",
+    "event_test_status",
+    "event_q",
+    "event_q_missing_reason",
+    "e0_reason_code",
+    "event_support_code",
+    "validation_provenance_code",
+    "evidence_boundary",
+    "supported_interpretation",
+    "unsupported_interpretation_current_evidence",
+    "identifiability_status",
+    "seed"
+  ],
+  "properties": {
+    "dataset_id": {"type": "string", "minLength": 1},
+    "event_id": {"type": "string", "minLength": 1},
+    "pathway": {"type": "string", "minLength": 1},
+    "direction": {"enum": ["up", "down", "flat", "mixed", "not_identifiable"]},
+    "event_mode": {"type": "string", "minLength": 1},
+    "effect_size": {"type": ["number", "null"]},
+    "event_p": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+    "event_test_status": {
+      "enum": ["not_run", "run_not_supported", "run_supported"],
+      "description": "Whether a defensible event test was not run, was run without support, or was run with support."
+    },
+    "event_q": {
+      "type": ["number", "null"],
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Null exactly when event_test_status=not_run; numeric after any valid test run."
+    },
+    "event_q_missing_reason": {
+      "enum": [
+        null,
+        "undeclared_family",
+        "no_defensible_null",
+        "insufficient_blocks",
+        "complete_confounding",
+        "insufficient_permutation_resolution",
+        "other"
+      ],
+      "description": "Required only when event_test_status=not_run; null after a valid test run."
+    },
+    "e0_reason_code": {
+      "enum": [
+        null,
+        "E0_not_supported",
+        "E0_not_estimable",
+        "E0_not_identifiable",
+        "E0_artifact_dominated",
+        "E0_missing_required_design"
+      ],
+      "description": "Required high-level failure reason for E0; null for E1/E2. Detailed gate reason_codes may also be retained."
+    },
+    "event_support_code": {
+      "enum": ["E0", "E1", "E2"],
+      "description": "E0: unsupported, non-estimable, non-identifiable, artifact-dominated or missing required design; E1: statistically supported; E2: block-robust and mode-identifiable."
+    },
+    "validation_provenance_code": {
+      "enum": ["V0", "V1", "V2", "V3", "V4"],
+      "description": "V0: computational only; V1: orthogonal outcome; V2: intervention reversal; V3: matched rescue; V4: independent replication."
+    },
+    "evidence_boundary": {
+      "type": "string",
+      "pattern": "^E[0-2](?:-|\\u2013)V[0-4]$",
+      "description": "Combined E/V label. The CLI also checks that it exactly matches the two component codes."
+    },
+    "supported_interpretation": {"type": "string", "minLength": 1},
+    "unsupported_interpretation_current_evidence": {"type": "string", "minLength": 1},
+    "identifiability_status": {"enum": ["identifiable", "limited", "not_identifiable"]},
+    "ambiguity_set": {"type": ["string", "null"]},
+    "resampling_selection_frequency": {
+      "type": ["number", "null"],
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Conservative event-selection frequency across declared resampling schemes."
+    },
+    "discovery_stability_status": {
+      "enum": [null, "stable_core", "intermediate", "unstable", "not_assessed"],
+      "description": "stable_core for frequency >=0.80, intermediate for 0.50-<0.80, unstable for <0.50."
+    },
+    "upstream_disagreement_flag": {
+      "type": ["boolean", "null"],
+      "description": "Whether prespecified reasonable upstream inputs disagree in direction or event mode."
+    },
+    "upstream_method_agreement": {
+      "type": ["number", "null"],
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Fraction of prespecified upstream inputs agreeing with the modal direction and event mode."
+    },
+    "seed": {"type": "integer"},
+
+    "evidence_tier": {
+      "type": ["number", "null"],
+      "minimum": 1,
+      "maximum": 5,
+      "description": "Deprecated v1 compatibility field; not used to validate the v2 evidence boundary."
+    },
+    "claim_ceiling": {
+      "type": ["string", "null"],
+      "pattern": "^Level\\s+(?:4B|[1-5](?:\\.5)?)(?:\\b.*)?$",
+      "description": "Deprecated v1 compatibility field; not used to validate the v2 evidence boundary."
+    },
+    "matched_functional_rescue": {
+      "type": "boolean",
+      "description": "Legacy audit field. It is required and must be true for V3 rows."
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {"event_support_code": {"const": "E0"}},
+        "required": ["event_support_code"]
+      },
+      "then": {
+        "properties": {
+          "e0_reason_code": {
+            "enum": [
+              "E0_not_supported",
+              "E0_not_estimable",
+              "E0_not_identifiable",
+              "E0_artifact_dominated",
+              "E0_missing_required_design"
+            ]
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "event_q": {"type": "number", "minimum": 0, "maximum": 1},
+          "e0_reason_code": {"type": "null"}
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {"event_test_status": {"const": "not_run"}},
+        "required": ["event_test_status"]
+      },
+      "then": {
+        "properties": {
+          "event_q": {"type": "null"},
+          "event_q_missing_reason": {
+            "enum": [
+              "undeclared_family",
+              "no_defensible_null",
+              "insufficient_blocks",
+              "complete_confounding",
+              "insufficient_permutation_resolution",
+              "other"
+            ]
+          },
+          "event_support_code": {"const": "E0"}
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {"event_test_status": {"const": "run_not_supported"}},
+        "required": ["event_test_status"]
+      },
+      "then": {
+        "properties": {
+          "event_q": {"type": "number", "minimum": 0, "maximum": 1},
+          "event_q_missing_reason": {"type": "null"},
+          "event_support_code": {"const": "E0"}
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {"event_test_status": {"const": "run_supported"}},
+        "required": ["event_test_status"]
+      },
+      "then": {
+        "properties": {
+          "event_q": {"type": "number", "minimum": 0, "maximum": 1},
+          "event_q_missing_reason": {"type": "null"},
+          "event_support_code": {"enum": ["E1", "E2"]}
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {"validation_provenance_code": {"const": "V3"}},
+        "required": ["validation_provenance_code"]
+      },
+      "then": {
+        "required": ["matched_functional_rescue"],
+        "properties": {"matched_functional_rescue": {"const": true}}
+      }
+    },
+    {
+      "if": {
+        "properties": {"event_support_code": {"const": "E2"}},
+        "required": ["event_support_code"]
+      },
+      "then": {
+        "properties": {"identifiability_status": {"const": "identifiable"}}
+      }
+    },
+    {
+      "if": {
+        "properties": {"direction": {"const": "not_identifiable"}},
+        "required": ["direction"]
+      },
+      "then": {
+        "properties": {"event_support_code": {"const": "E0"}}
+      }
+    },
+    {
+      "if": {
+        "properties": {"event_mode": {"const": "not_identifiable"}},
+        "required": ["event_mode"]
+      },
+      "then": {
+        "properties": {"event_support_code": {"const": "E0"}}
+      }
+    }
+  ],
+  "additionalProperties": true
+}

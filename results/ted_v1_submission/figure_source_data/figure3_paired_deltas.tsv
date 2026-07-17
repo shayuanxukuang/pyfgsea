@@ -1,0 +1,4 @@
+task	comparison	paired_primary_metric_delta	bootstrap_95ci_low	bootstrap_95ci_high	bootstrap_replicates
+packet_class	TED_fixed_rules-minus-random_forest	-0.1094227994227993	-0.2308279220779222	-0.0107247474747476	10000
+artifact	TED_fixed_rules-minus-logistic	-0.2735042735042734	-0.607843137254902	0.0	10000
+evidence	TED_fixed_rules-minus-random_forest	0.134357515410147	-0.0043209876543208	0.2523983952555381	10000

@@ -15,3 +15,7 @@ dependencies:
   - bioconductor-tradeseq
   - bioconductor-gsva
   - bioconductor-aucell
+  - rust
+  - maturin>=1.0,<2.0
+  - tabulate>=0.9
+  - pip

@@ -1,0 +1,11 @@
+{
+  "python": "3.11.15",
+  "platform": "Windows-10-10.0.26200-SP0",
+  "processor": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+  "logical_cpus": 32,
+  "physical_cpus": 24,
+  "total_memory_gb": 191.76784896850586,
+  "numpy": "2.4.4",
+  "omp_num_threads": "unset",
+  "mkl_num_threads": "unset"
+}

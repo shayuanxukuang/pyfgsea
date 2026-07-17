@@ -1,0 +1,7 @@
+hypothesis,label,description,prior,log_likelihood_ratio_total,posterior
+H3_GATA1_regulatory,GATA1 regulatory impairment,Early GATA1 regulatory impairment precedes erythroid maturation failure.,0.35,3.05368090842,0.944294540832
+H5_T21_chromatin_interaction,T21-specific chromatin/GATA1 interaction,T21 background changes GATA1 regulatory accessibility.,0.1,0.552942409947,0.0221300555473
+H4_downstream_heme,downstream heme/maturation mechanism,The primary defect is downstream heme or hemoglobinization failure.,0.15,-0.561449216254,0.0108917992754
+H2_proliferation_confounded,proliferation-confounded mechanism,The event is mainly driven by proliferation or cell cycle.,0.15,-0.69314718056,0.00954781356024
+H1_state_composition,state/composition artifact,The event is explained by shifted cell-state composition.,0.13,-0.875465893507,0.00689566273702
+H0_noise_batch,noise/batch artifact,The event is a batch or family artifact.,0.12,-0.895315108223,0.00624012804829

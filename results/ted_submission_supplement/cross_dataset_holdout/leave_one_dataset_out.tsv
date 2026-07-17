@@ -1,0 +1,5 @@
+left_out_dataset	n_datasets_remaining	remaining_macro_pass_fraction	threshold_retuning_used	interpretation
+GSE153056	3	0.6666666666666666	False	descriptive frozen-gate sensitivity; no model was trained across datasets
+GSE93735	3	0.6666666666666666	False	descriptive frozen-gate sensitivity; no model was trained across datasets
+SCP1064	3	1.0	False	descriptive frozen-gate sensitivity; no model was trained across datasets
+ZSCAPE	3	0.6666666666666666	False	descriptive frozen-gate sensitivity; no model was trained across datasets

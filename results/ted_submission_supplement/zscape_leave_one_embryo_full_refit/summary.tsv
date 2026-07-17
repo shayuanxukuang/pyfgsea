@@ -1,0 +1,2 @@
+n_cells_source	n_embryos_total	n_embryos_refit	n_full_events	n_full_called_events	median_event_jaccard	minimum_event_jaccard	median_direction_agreement	minimum_direction_agreement	median_event_mode_agreement	minimum_event_mode_agreement	median_event_family_jaccard	claim_boundary_stability	analysis_unit	pseudoreplication_policy
+2687135	804	804	7118	1483	0.9966352624495289	0.982620320855615	1.0	1.0	1.0	0.987012987012987	1.0	1.0	embryo	cells aggregated to embryo fractions before inference

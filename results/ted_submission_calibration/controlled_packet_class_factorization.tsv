@@ -1,0 +1,11 @@
+packet_class	biological_event_mode	artifact_class	identifiability_status	v_outcome	v_reversal	v_rescue	v_replication
+activation	activation	none	identifiable	False	False	False	False
+suppression	suppression	none	identifiable	False	False	False	False
+developmental_delay	developmental_delay	none	identifiable	False	False	False	False
+true_loss	true_loss	none	identifiable	False	False	False	False
+fate_redirection	fate_redirection	none	identifiable	False	False	False	False
+composition_artifact	not_assigned	composition	identifiable	False	False	False	False
+stress_dominated	not_assigned	stress	identifiable	False	False	False	False
+not_identifiable	not_assigned	none	not_identifiable	False	False	False	False
+outcome_supported	activation	none	identifiable	True	False	False	False
+reversal_supported	suppression	none	identifiable	False	True	False	False

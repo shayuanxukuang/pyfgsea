@@ -1,0 +1,2 @@
+n_cases	reason_code_macro_f1	reason_code_accuracy	top_level_granular_consistency	multiple_raw_candidate_fraction	conflicting_final_reason_fraction
+250	0.9522921522921524	0.952	1.0	0.2	0.0

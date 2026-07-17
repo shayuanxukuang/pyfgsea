@@ -1,9 +1,9 @@
 audit_item	description	status	detail
 repository_remote	Git remote URL is configured	pass	https://github.com/shayuanxukuang/pyfgsea-TED.git
-submission_package_version	Current manuscript package version is recorded	pass	TED-GB-known-source-2026-05-25
-archived_software_version	Version-specific GitHub/Zenodo release for formal submission	pass	ted-gb-rc7; commit 3ffec1a1dcb4261303fc130b81ccd6b29a2fa34f; DOI https://doi.org/10.5281/zenodo.20378158
-permanent_code_archive	Public Zenodo version DOI exists	available	https://doi.org/10.5281/zenodo.20378158
-permanent_processed_output_archive	Selected processed outputs, figure source data and tables are archived with the companion release	pass	https://doi.org/10.5281/zenodo.20378158
+submission_package_version	Current manuscript package version is recorded	pass	TED v1.0.0 E/V v2 release, 2026-07-17
+archived_software_version	Version-specific GitHub/Zenodo release for formal submission	pass	ted-v1.0.0; commit resolved by immutable tag; DOI https://doi.org/10.5281/zenodo.21403133
+permanent_code_archive	Public Zenodo version DOI exists	available	https://doi.org/10.5281/zenodo.21403133
+permanent_processed_output_archive	Selected processed outputs, figure source data and tables are archived with the companion release	pass	https://doi.org/10.5281/zenodo.21403133
 osi_license	OSI-compliant license is present	pass	MIT License
 main_environment	Conda environment is included	pass	environment.yml
 baseline_environment	Direct external baseline conda environment is included	pass	environment.baselines.yml

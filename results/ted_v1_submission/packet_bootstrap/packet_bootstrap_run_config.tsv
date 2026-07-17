@@ -1,0 +1,2 @@
+seed	bootstrap_replicates	n_packets	n_truth_packet_classes	sampling
+20260716	10000	160	10	nonparametric within-truth-packet-class resampling with replacement

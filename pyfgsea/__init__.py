@@ -6,7 +6,7 @@ from .wrapper import (
     get_random_es_means,
 )
 
-__version__ = "0.1.3"
+__version__ = "0.1.4"
 
 try:
     from .wrapper import run_scanpy  # type: ignore
@@ -65,7 +65,61 @@ from .trajectory_benchmark import (
     run_synthetic_truth_benchmark,
     score_synthetic_events,
 )
+from .trajectory_simulation import (
+    DonorTrajectorySimulation,
+    simulate_donor_branch_trajectory,
+)
+from .trajectory_pseudobulk import (
+    FixedGridDonorPseudobulkResult,
+    run_fixed_grid_donor_pseudobulk,
+)
+from .trajectory_covariate_pseudobulk import (
+    CovariateAdjustedDonorPseudobulkResult,
+    CovariateDesignError,
+    run_covariate_adjusted_donor_pseudobulk,
+)
+from .trajectory_covariate_simulation import (
+    CovariateAdjustedDesignSimulationResult,
+    run_covariate_adjusted_design_simulation,
+)
+from .t21_covariate_design import run_t21_formal_covariate_pseudobulk
+from .trajectory_decomposition import (
+    RegulationOccupancyFateResult,
+    run_regulation_occupancy_fate_decomposition,
+)
+from .trajectory_robustness import (
+    TrajectoryRobustnessResult,
+    summarize_trajectory_robustness,
+)
+from .trajectory_dynamic_leading_edge import (
+    DynamicLeadingEdgeResult,
+    decompose_covariate_adjusted_leading_edge,
+)
+from .trajectory_pathway_families import (
+    PathwayFamilyInferenceResult,
+    PathwayRedundancyResult,
+    cluster_exploratory_pathway_redundancy,
+    run_predeclared_pathway_family_inference,
+)
+from .t21_donor_subset_robustness import (
+    T21DonorSubsetRobustnessResult,
+    run_t21_donor_subset_robustness,
+)
+from .t21_pathway_universe import (
+    T21PathwayUniverseResult,
+    T21PathwayUniverseValidationError,
+    build_t21_pathway_universe,
+    publish_t21_pathway_universe,
+    validate_t21_pathway_universe_outputs,
+)
+from .t21_pathway_decomposition import (
+    T21Chr21EffectComponents,
+    T21Chr21PathwayDecomposition,
+    build_t21_chr21_pathway_decomposition,
+    reconstruct_t21_chr21_effect_components,
+)
 from .calibration import (
+    calibrate_selected_window_statistics,
     calibrate_comparison,
     calibrate_events,
     estimate_event_fdr,
@@ -82,6 +136,14 @@ from .result import (
     TrajectoryEventResult,
     build_metadata,
     make_trajectory_event_result,
+)
+from .trajpathmix_scope import (
+    CONDITIONAL_TIMING_CAPABILITIES,
+    CORE_CAPABILITIES,
+    REQUIRED_TIMING_GATES,
+    TimingActivationDecision,
+    evaluate_timing_activation,
+    project_primary_effect_output,
 )
 from .ted_perturbation import PerturbationEventResult, run_ted_perturbation
 from .ted_mad import (
@@ -168,9 +230,41 @@ __all__ = [
     "make_synthetic_trajectory_truth",
     "run_synthetic_truth_benchmark",
     "score_synthetic_events",
+    "DonorTrajectorySimulation",
+    "simulate_donor_branch_trajectory",
+    "FixedGridDonorPseudobulkResult",
+    "run_fixed_grid_donor_pseudobulk",
+    "CovariateAdjustedDonorPseudobulkResult",
+    "CovariateDesignError",
+    "run_covariate_adjusted_donor_pseudobulk",
+    "run_t21_formal_covariate_pseudobulk",
+    "CovariateAdjustedDesignSimulationResult",
+    "run_covariate_adjusted_design_simulation",
+    "RegulationOccupancyFateResult",
+    "run_regulation_occupancy_fate_decomposition",
+    "TrajectoryRobustnessResult",
+    "summarize_trajectory_robustness",
+    "DynamicLeadingEdgeResult",
+    "decompose_covariate_adjusted_leading_edge",
+    "PathwayFamilyInferenceResult",
+    "PathwayRedundancyResult",
+    "run_predeclared_pathway_family_inference",
+    "cluster_exploratory_pathway_redundancy",
+    "T21DonorSubsetRobustnessResult",
+    "run_t21_donor_subset_robustness",
+    "T21PathwayUniverseResult",
+    "T21PathwayUniverseValidationError",
+    "build_t21_pathway_universe",
+    "publish_t21_pathway_universe",
+    "validate_t21_pathway_universe_outputs",
+    "T21Chr21EffectComponents",
+    "T21Chr21PathwayDecomposition",
+    "build_t21_chr21_pathway_decomposition",
+    "reconstruct_t21_chr21_effect_components",
     "run_score_then_smooth_baseline",
     "bootstrap_trajectory_gsea",
     "calibrate_comparison",
+    "calibrate_selected_window_statistics",
     "calibrate_events",
     "estimate_event_fdr",
     "event_fdr_power_report",
@@ -185,6 +279,12 @@ __all__ = [
     "TrajectoryEventResult",
     "build_metadata",
     "make_trajectory_event_result",
+    "CONDITIONAL_TIMING_CAPABILITIES",
+    "CORE_CAPABILITIES",
+    "REQUIRED_TIMING_GATES",
+    "TimingActivationDecision",
+    "evaluate_timing_activation",
+    "project_primary_effect_output",
     "PerturbationEventResult",
     "run_ted_perturbation",
     "adjudicate_mechanism",

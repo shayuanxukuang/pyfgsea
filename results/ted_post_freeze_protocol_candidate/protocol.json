@@ -1,0 +1,55 @@
+{
+  "protocol_id": "ted_post_freeze_external_validation_v1_candidate",
+  "status": "DRAFT_NOT_ACTIVATED",
+  "post_freeze_claim_allowed": false,
+  "local_preparation_date": "2026-07-16",
+  "local_git_head_for_provenance_only": "2b047dc557604018b28d82fa3da9ab496e1955a4",
+  "ted_immutable_commit": "PENDING_IMMUTABLE_RELEASE_COMMIT",
+  "external_timestamp": {
+    "service": "PENDING_ZENODO_OR_OSF",
+    "doi_or_url": null,
+    "timestamp_utc": null
+  },
+  "dataset": {
+    "accession": "PENDING_METADATA_ONLY_SELECTION",
+    "prior_ted_use": "must_be_none",
+    "minimum_independent_biological_blocks": 3,
+    "preferred_independent_biological_blocks": 5,
+    "requires_explicit_perturbation_or_real_time": true,
+    "requires_non_rna_outcome": true,
+    "outcome_must_remain_masked_until_ted_outputs_frozen": true
+  },
+  "locked_analysis_fields": {
+    "event_family_registry": "PENDING_BEFORE_ACTIVATION",
+    "gene_set_files_and_sha256": "PENDING_BEFORE_ACTIVATION",
+    "biological_block_definition": "PENDING_BEFORE_ACTIVATION",
+    "primary_contrast": "PENDING_BEFORE_ACTIVATION",
+    "event_q_threshold": 0.1,
+    "multiplicity_procedure": "per-event max-over-candidate-windows permutation p, then BH across declared events",
+    "negative_controls": "at_least_one_matched_negative_family_and_one_artifact_sensitive_family",
+    "external_outcome": "PENDING_BEFORE_ACTIVATION",
+    "exclusion_criteria": "see reporting_and_exclusion_rules.tsv",
+    "failure_reporting": "all prespecified events and gates, including failures"
+  },
+  "e_assignment": {
+    "E0": "unsupported, non-estimable, non-identifiable, artifact-dominated or missing required design, with one stable reason code",
+    "E1": "valid event test supports the event but block robustness/mode/stability gates for E2 are not all met",
+    "E2": "valid event support plus independent-block robustness, identifiable mode, required controls and no upstream-disagreement gate",
+    "resampling_gate": "events with discovery_stability_status=unstable cannot receive unconditional E2"
+  },
+  "v_assignment": {
+    "V0": "computational only",
+    "V1": "prespecified orthogonal outcome",
+    "V2": "prespecified intervention reversal",
+    "V3": "matched rescue",
+    "V4": "independent replication"
+  },
+  "unmasking_rule": "outcome may be opened only after RNA/activity outputs, E/mode/artifact calls, reason codes, manifest and checksums are frozen",
+  "activation_blockers": [
+    "immutable TED release commit missing",
+    "dataset accession not yet locked",
+    "gene-set hashes and event families not yet locked",
+    "external timestamp missing",
+    "outcome custodian or cryptographic masking procedure not yet recorded"
+  ]
+}

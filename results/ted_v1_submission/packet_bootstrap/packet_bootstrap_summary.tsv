@@ -1,0 +1,7 @@
+metric	estimate	ci95_low	ci95_high	bootstrap_replicates	bootstrap_unit	qualification
+packet_class_macro_f1	0.7597152707855602	0.7102142601683127	0.8055898362962057	10000	packet stratified by controlled truth packet class	controlled synthetic packet benchmark
+packet_class_balanced_accuracy	0.7875	0.75	0.825	10000	packet stratified by controlled truth packet class	controlled synthetic packet benchmark
+legacy_tier_weighted_kappa	0.9047619047619048	0.8705882352941177	0.931791221826809	10000	packet stratified by controlled truth packet class	legacy_tier metrics use the version-1 single-axis truth_evidence_tier and do not validate the revised E/V axes
+legacy_tier_mean_absolute_error	0.184375	0.1375	0.234375	10000	packet stratified by controlled truth packet class	legacy_tier metrics use the version-1 single-axis truth_evidence_tier and do not validate the revised E/V axes
+legacy_tier_false_escalation	0.05625	0.03125	0.08125	10000	packet stratified by controlled truth packet class	legacy_tier metrics use the version-1 single-axis truth_evidence_tier and do not validate the revised E/V axes
+legacy_tier_false_downgrade	0.125	0.08125	0.175	10000	packet stratified by controlled truth packet class	legacy_tier metrics use the version-1 single-axis truth_evidence_tier and do not validate the revised E/V axes

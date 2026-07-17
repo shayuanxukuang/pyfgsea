@@ -1,0 +1,7 @@
+metric	definition	denominator
+fdp	false calls / all calls; zero when no calls	each scenario replicate
+family_wise_false_positive	indicator of one or more false calls	each scenario replicate
+power	true calls / simulated true events	true events; null scenarios excluded from mean
+false_e_promotion	predicted E rank > truth E rank, including E0->E2 and E1->E2	all events
+false_e_demotion	predicted E rank < truth E rank, including E2->E0/E1 and E1->E0	all events
+non_e0_call_fraction	fraction assigned E1 or E2; not selective-prediction coverage	all events

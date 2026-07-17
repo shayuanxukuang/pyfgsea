@@ -1,0 +1,23 @@
+{
+  "seed": 20260716,
+  "holdout_repeats": 100,
+  "split_repeats": 50,
+  "target_holdout_fraction": 0.2,
+  "subsampling_repeats_per_fraction": 20,
+  "subsampling_retained_fractions": [
+    0.2,
+    0.4,
+    0.6,
+    0.8,
+    0.9
+  ],
+  "q_thresholds": [
+    0.01,
+    0.025,
+    0.05,
+    0.1
+  ],
+  "source": "G:\\pyfgsea\\data_external\\ted_development_phase2\\Animal_1_GSE202639_ZSCAPE_zebrafish\\zscape_celltype_abundance_event.tsv",
+  "runtime_seconds": 321.18624270000146,
+  "prospective_holdout_claimed": false
+}

@@ -56,6 +56,7 @@ def test_trajectory_event_result_collects_tables_metadata_and_diagnostics():
 
     assert isinstance(obj, pyfgsea.TrajectoryEventResult)
     assert obj.calibration_status == "discovery_ready"
+    assert obj.timing_status == "conditional_only"
     assert not obj.windows.empty
     assert not obj.diagnostics.empty
     assert obj.metadata["pyfgsea_version"] is not None
@@ -71,6 +72,11 @@ def test_trajectory_event_result_collects_tables_metadata_and_diagnostics():
         "robustness_level",
     }.issubset(obj.evidence_layers)
     assert set(obj.summary()["table"]).issuperset({"results", "event_fdr", "diagnostics"})
+    assert "activation_onset" in obj.events.columns
+    assert "activation_onset" not in obj.to_tables()["events"].columns
+    assert "activation_onset" in obj.to_tables(
+        include_conditional_timing=True
+    )["events"].columns
 
 
 def test_result_object_marks_null_calibration_failed():

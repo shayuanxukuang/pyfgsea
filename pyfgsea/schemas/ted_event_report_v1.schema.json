@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pyfgsea.local/schemas/ted_event_report_v1.schema.json",
+  "title": "TED event report row v1",
+  "type": "object",
+  "required": [
+    "dataset_id", "event_id", "pathway", "direction", "event_mode",
+    "event_q", "evidence_tier", "claim_ceiling", "identifiability_status",
+    "matched_functional_rescue", "seed"
+  ],
+  "properties": {
+    "dataset_id": {"type": "string", "minLength": 1},
+    "event_id": {"type": "string", "minLength": 1},
+    "pathway": {"type": "string", "minLength": 1},
+    "direction": {"enum": ["up", "down", "flat", "mixed", "not_identifiable"]},
+    "event_mode": {"type": "string", "minLength": 1},
+    "effect_size": {"type": ["number", "null"]},
+    "event_p": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+    "event_q": {"type": "number", "minimum": 0, "maximum": 1},
+    "evidence_tier": {"type": "number", "minimum": 1, "maximum": 5},
+    "claim_ceiling": {"pattern": "^Level\\s+[1-5](?:\\.5)?(?:\\b.*)?$", "type": "string"},
+    "identifiability_status": {"enum": ["identifiable", "limited", "not_identifiable"]},
+    "ambiguity_set": {"type": ["string", "null"]},
+    "matched_functional_rescue": {"type": "boolean"},
+    "seed": {"type": "integer"}
+  },
+  "additionalProperties": true
+}

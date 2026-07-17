@@ -1,0 +1,9 @@
+case	expected_valid	schema_valid	expected_outcome_met	n_errors	checks
+valid_run_not_supported	True	True	True	0	PASS
+not_run_with_numeric_q	False	False	True	2	json_schema;event_q_range
+not_run_without_missing_reason	False	False	True	2	json_schema;event_q_missing_reason
+run_supported_with_null_q	False	False	True	3	json_schema;json_schema;event_q_range
+e0_without_reason	False	False	True	2	json_schema;e0_reason_code
+e1_with_e0_reason	False	False	True	2	json_schema;e0_reason_code
+boundary_mismatch	False	False	True	1	evidence_boundary_consistency
+e2_with_unsupported_status	False	False	True	1	json_schema

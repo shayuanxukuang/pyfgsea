@@ -1,7 +1,4 @@
 dataset	claim_boundary	status	reason	matched_rescue_design	same_system	level4_causal_rescue	candidate_event	robust_event	known_source_metadata	outcome_alignment_pass	negative_control_pass	author_effect_support	lightweight_shuffle_pass
 GSE153056	outcome_supported_event	pass	baseline_effect=0.03327; spearman_event_pdl1=0.7846; direction_match=0.769; negative_controls=True	False	False	False							
 GSE93735	reversal_supported_event	pass	primary_recovery=0.3375; max_negative_control=0.1624	False	False	False							
-GSE90546	not_evaluable	pending	GSE90546 raw expression matrix not downloaded in first-pass audit	False	False	False							
-GSE90063	not_evaluable	pending	supplementary adapter prepared from WT UMI summaries only	False	False	False							
-GSE133344	not_evaluable	pending	supplementary scalability adapter has metadata but no expression matrix in first-pass audit	False	False	False							
-SCP1064	outcome_supported_event	pass	robust_event=True; outcome_alignment_pass=True; negative_control_pass=True; lightweight_shuffle_pass=True; author_effect_support=True	False	False	False	immune_evasion_antigen_presentation_IFN_response_T_cell_interaction_event	True	True	True	True	True	True
+SCP1064	E1-V1_partial	partial	robust_event=True; outcome_alignment_pass=True; negative_control_pass=False; lightweight_shuffle_pass=True; heavy_shuffle_pass=False; author_effect_support=True	False	False	False	immune_evasion_antigen_presentation_IFN_response_T_cell_interaction_event	True	True	True	False	True	True

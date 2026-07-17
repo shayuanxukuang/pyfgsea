@@ -1,0 +1,6 @@
+axis	metric	value	denominator
+biological_mode_evaluable	macro_f1	1.0	75
+artifact_class	macro_f1	0.9341855966175386	675
+identifiability	macro_f1	0.9297287329741691	675
+event_support_E	macro_f1	0.9084674653565804	675
+V_provenance_tag	macro_f1	1.0	675

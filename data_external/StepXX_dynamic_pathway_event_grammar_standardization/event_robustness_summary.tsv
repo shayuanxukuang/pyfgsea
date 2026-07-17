@@ -1,0 +1,10 @@
+dataset	event_type	n_events	mean_robustness_score	median_robustness_score	mean_prediction_robustness_score	mean_validation_robustness_score	min_event_FDR	n_with_numeric_event_FDR	n_event_FDR_available	n_prediction_only	n_with_negative_control_margin	n_with_claim_boundary
+GSE123013_Arabidopsis_root	branch-specific	4	0.228	0.224				0	0	0	4	4
+GSE271399_T21_GATA1s	failed-rescue-extension	4	0.45	0.45	1.0	0.0		0	0	4	4	4
+GSE271399_T21_GATA1s	shutdown	3	0.35633333333333334	0.355				0	0	0	3	3
+Paul15_branch_validation	branch-specific	10	0.6167	0.6545000000000001			1.122869541262862e-08	10	10	0	10	10
+Paul15_branch_validation	onset	8	0.834875	0.849			1.122869541262862e-08	8	8	0	8	8
+Paul15_branch_validation	peak	8	0.834875	0.849			1.122869541262862e-08	8	8	0	8	8
+Paul15_branch_validation	shutdown	7	0.8300000000000001	0.873			1.122869541262862e-08	7	7	0	7	7
+STT0000176_Bombyx_metamorphosis	peak	6	0.5870000000000001	0.5885			0.01	6	6	0	6	6
+STT0000176_Bombyx_metamorphosis	spatial-localized	6	0.6633333333333333	0.7070000000000001			0.01	6	6	0	6	6

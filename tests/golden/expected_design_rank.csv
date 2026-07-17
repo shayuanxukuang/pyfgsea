@@ -1,0 +1,3 @@
+experiment_id,name,description,utility,expected_information_gain,expected_claim_delta,falsification_score,cost,risk,cost_normalized,risk_normalized,readouts,claim_upgrade_evidence,rank,next_best_experiment
+A1_GATA1_FL_D7_rescue,Full-length GATA1 rescue at D7,Restore full-length GATA1 before the predicted regulatory defect.,0.948096451242,0.0809491808256,0.472147270416,1,0.7,0.4,0.7,0.4,D9_regulatory_module;D11_maturation_module;D11_hemoglobinization;TED_event_score,direct_rescue,1,True
+A4_hemin_rescue,Hemin rescue,Test a downstream heme bottleneck.,0.383449180826,0.0809491808256,0,0.65,0.25,0.2,0.25,0.2,D11_hemoglobinization;D11_maturation_module;D9_regulatory_module,,2,False

@@ -32,6 +32,108 @@ def _bh_adjust(p_values: np.ndarray) -> np.ndarray:
     return out
 
 
+def calibrate_selected_window_statistics(
+    observed_window_statistics: np.ndarray,
+    permuted_window_statistics: np.ndarray,
+    *,
+    event_ids: Optional[Sequence[str]] = None,
+) -> pd.DataFrame:
+    """Compare selected-window, event-FDR, and family-FWER calibrations.
+
+    Parameters
+    ----------
+    observed_window_statistics
+        Absolute or signed statistics with shape ``(events, windows)``.
+    permuted_window_statistics
+        Statistics recomputed after the complete selection pipeline in each
+        permutation, with shape ``(permutations, events, windows)``.
+    event_ids
+        Optional stable event labels.
+
+    Notes
+    -----
+    The primary TED event-FDR route maximizes within each event in every
+    permutation, forms one selection-adjusted p value per event, and applies
+    BH across the declared event family.  The family-wide maxT route is a
+    separate FWER sensitivity analysis and is not BH-adjusted.  The naive
+    p value holds the observed selected window fixed in the null draws and is
+    included only as an anti-selection comparator.
+    """
+    observed = np.asarray(observed_window_statistics, dtype=float)
+    permuted = np.asarray(permuted_window_statistics, dtype=float)
+    if observed.ndim != 2:
+        raise ValueError("observed_window_statistics must have shape (events, windows)")
+    if permuted.ndim != 3 or permuted.shape[1:] != observed.shape:
+        raise ValueError(
+            "permuted_window_statistics must have shape "
+            "(permutations, events, windows) matching the observed array"
+        )
+    if permuted.shape[0] < 1:
+        raise ValueError("At least one permutation is required")
+
+    n_events, _n_windows = observed.shape
+    ids = list(event_ids) if event_ids is not None else [f"event_{i}" for i in range(n_events)]
+    if len(ids) != n_events or len(set(ids)) != n_events:
+        raise ValueError("event_ids must be unique and match the number of events")
+
+    observed_abs = np.abs(observed)
+    permuted_abs = np.abs(permuted)
+    selected_window_index = np.nanargmax(observed_abs, axis=1)
+    observed_selected = observed_abs[np.arange(n_events), selected_window_index]
+    perm_index = np.arange(permuted.shape[0])[:, None]
+    event_index = np.arange(n_events)[None, :]
+    fixed_window_null = permuted_abs[
+        perm_index,
+        event_index,
+        selected_window_index[None, :],
+    ]
+    per_event_max_null = np.nanmax(permuted_abs, axis=2)
+    family_max_null = np.nanmax(per_event_max_null, axis=1)
+    denominator = float(permuted.shape[0] + 1)
+
+    tie_tolerance = np.maximum(1.0, observed_selected) * 1e-10
+    naive_p = (
+        1.0
+        + np.sum(
+            fixed_window_null >= observed_selected[None, :] - tie_tolerance[None, :],
+            axis=0,
+        )
+    ) / denominator
+    event_p = (
+        1.0
+        + np.sum(
+            per_event_max_null >= observed_selected[None, :] - tie_tolerance[None, :],
+            axis=0,
+        )
+    ) / denominator
+    event_q = _bh_adjust(event_p)
+    family_fwer_p = (
+        1.0
+        + np.sum(
+            family_max_null[:, None]
+            >= observed_selected[None, :] - tie_tolerance[None, :],
+            axis=0,
+        )
+    ) / denominator
+
+    return pd.DataFrame(
+        {
+            "event_id": ids,
+            "selected_window_index": selected_window_index.astype(int),
+            "observed_selected_abs_stat": observed_selected,
+            "naive_selected_window_p": naive_p,
+            "event_p": event_p,
+            "event_q": event_q,
+            "family_fwer_p": family_fwer_p,
+            "window_selection_correction": "per_event_permutation_max",
+            "across_event_adjustment": "BH",
+            "primary_error_rate": "event-level FDR",
+            "family_wide_sensitivity": "maxT FWER; no BH",
+            "n_perm": int(permuted.shape[0]),
+        }
+    )
+
+
 def _normalize_event_stat(stat: str) -> str:
     normalized = str(stat).replace("-", "_")
     aliases = {
@@ -330,6 +432,11 @@ def _event_calibration_long_table(
                 "event_p",
                 "event_q",
                 "event_fdr",
+                "family_fwer_p",
+                "multiplicity_method",
+                "window_selection_correction",
+                "across_event_adjustment",
+                "primary_error_rate",
                 "minimum_attainable_p",
                 "minimum_attainable_q",
                 "n_perm",
@@ -429,10 +536,19 @@ def _event_calibration_long_table(
 
         if stat_rows:
             p_values = np.asarray([row["event_p"] for row in stat_rows], dtype=float)
-            q_values = _bh_adjust(p_values)
-            for row, q_value in zip(stat_rows, q_values):
+            q_values = np.full_like(p_values, np.nan) if global_null else _bh_adjust(p_values)
+            for row, q_value in zip(stat_rows, q_values, strict=True):
                 row["event_q"] = q_value
                 row["event_fdr"] = q_value
+                row["family_fwer_p"] = row["event_p"] if global_null else np.nan
+                row["multiplicity_method"] = (
+                    "family_wide_maxT_fwer" if global_null else "per_event_max_window_bh"
+                )
+                row["window_selection_correction"] = "per_event_permutation_max"
+                row["across_event_adjustment"] = "none" if global_null else "BH"
+                row["primary_error_rate"] = (
+                    "family-wise error rate" if global_null else "event-level FDR"
+                )
                 warning = row.get("calibration_warning", "")
                 if "descriptive_only_low_replicate_count" in warning:
                     row["calibration_status"] = "descriptive_only_low_replicates"
@@ -455,6 +571,11 @@ def _event_calibration_long_table(
             "event_p",
             "event_q",
             "event_fdr",
+            "family_fwer_p",
+            "multiplicity_method",
+            "window_selection_correction",
+            "across_event_adjustment",
+            "primary_error_rate",
             "minimum_attainable_p",
             "minimum_attainable_q",
             "n_perm",
@@ -543,13 +664,16 @@ def calibrate_events(
     null_events: pd.DataFrame,
     stats: Iterable[str] = ("peak_NES_abs", "AUC_abs", "duration"),
     primary_stat: str = "peak_NES_abs",
-    global_null: bool = True,
+    global_null: bool = False,
 ) -> pd.DataFrame:
     """
     Add empirical event-level p-values and FDRs using permutation null events.
 
-    ``global_null=True`` uses the maximum statistic per permutation as the null,
-    giving a conservative trajectory-level max-stat calibration.
+    The default is the TED event-FDR target: each observed event is compared
+    with the same event statistic recomputed in every permutation (the event
+    statistic already contains its within-event window maximum), followed by
+    BH across events. ``global_null=True`` is retained as a family-wide maxT
+    FWER sensitivity analysis; it is not followed by BH.
     """
     stats = [_normalize_event_stat(stat) for stat in stats]
     primary_stat = _normalize_event_stat(primary_stat)
@@ -566,24 +690,72 @@ def calibrate_events(
         calibrated["event_fdr"] = np.nan
         return calibrated
 
+    observed_path_col = _pathway_column(calibrated)
+    null_path_col = _pathway_column(null_events)
     for stat in stats:
         observed = _event_stat_values(calibrated, stat).to_numpy(dtype=float)
-        null_values = _null_distribution(
-            null_events,
-            _event_stat_values(null_events, stat),
-            global_null=global_null,
-        )
-        p_values = _empirical_p_values(observed, null_values)
+        null_stat = _event_stat_values(null_events, stat)
+        if global_null:
+            null_values = _null_distribution(null_events, null_stat, global_null=True)
+            p_values = _empirical_p_values(observed, null_values)
+        else:
+            p_values = np.full(len(calibrated), np.nan, dtype=float)
+            null_tmp = pd.DataFrame(
+                {
+                    "pathway": null_events[null_path_col].map(_normalize_pathway_name),
+                    "perm_id": null_events.get("perm_id", pd.Series(np.arange(len(null_events)))),
+                    "stat": null_stat.to_numpy(dtype=float),
+                }
+            )
+            for idx, (pathway, value) in enumerate(
+                zip(calibrated[observed_path_col], observed, strict=True)
+            ):
+                if not np.isfinite(value):
+                    continue
+                event_null = null_tmp[
+                    null_tmp["pathway"].eq(_normalize_pathway_name(pathway))
+                ]
+                if event_null.empty:
+                    continue
+                if "perm_id" in event_null:
+                    values = event_null.groupby("perm_id")["stat"].max().to_numpy(dtype=float)
+                else:
+                    values = event_null["stat"].to_numpy(dtype=float)
+                p_values[idx] = _empirical_p_values(np.asarray([value]), values)[0]
         calibrated[f"event_p_{stat}"] = p_values
-        calibrated[f"event_fdr_{stat}"] = _bh_adjust(p_values)
+        if global_null:
+            calibrated[f"event_fwer_p_{stat}"] = p_values
+            calibrated[f"event_fdr_{stat}"] = np.nan
+        else:
+            calibrated[f"event_fdr_{stat}"] = _bh_adjust(p_values)
 
     calibrated["event_p"] = calibrated[f"event_p_{primary_stat}"]
-    calibrated["event_fdr"] = calibrated[f"event_fdr_{primary_stat}"]
+    if global_null:
+        calibrated["family_fwer_p"] = calibrated[f"event_fwer_p_{primary_stat}"]
+        calibrated["event_q"] = np.nan
+        calibrated["event_fdr"] = np.nan
+        multiplicity_method = "family_wide_maxT_fwer"
+        across_event_adjustment = "none"
+        primary_error_rate = "family-wise error rate"
+    else:
+        calibrated["event_q"] = calibrated[f"event_fdr_{primary_stat}"]
+        calibrated["event_fdr"] = calibrated["event_q"]
+        calibrated["family_fwer_p"] = np.nan
+        multiplicity_method = "per_event_max_window_bh"
+        across_event_adjustment = "BH"
+        primary_error_rate = "event-level FDR"
+    calibrated["multiplicity_method"] = multiplicity_method
+    calibrated["window_selection_correction"] = "per_event_permutation_max"
+    calibrated["across_event_adjustment"] = across_event_adjustment
+    calibrated["primary_error_rate"] = primary_error_rate
     calibrated.attrs["calibration"] = {
         "type": "event_permutation",
         "stats": list(stats),
         "primary_stat": primary_stat,
         "global_null": global_null,
+        "multiplicity_method": multiplicity_method,
+        "across_event_adjustment": across_event_adjustment,
+        "primary_error_rate": primary_error_rate,
         "n_null_events": int(len(null_events)),
         "n_permutations": int(null_events["perm_id"].nunique())
         if "perm_id" in null_events.columns
@@ -958,7 +1130,7 @@ def run_event_permutation_fdr(
     event_kwargs: Optional[dict] = None,
     calibration_stats: Iterable[str] = ("peak_NES_abs", "AUC_abs", "duration"),
     primary_stat: str = "peak_NES_abs",
-    global_null: bool = True,
+    global_null: bool = False,
     **trajectory_kwargs,
 ) -> dict[str, pd.DataFrame]:
     """

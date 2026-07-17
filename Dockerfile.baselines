@@ -8,6 +8,12 @@ RUN micromamba install -y -n base -f /tmp/environment.baselines.yml && micromamb
 COPY . /workspace
 
 ENV PATH=/opt/conda/bin:$PATH
+ENV CARGO_TARGET_DIR=/tmp/pyfgsea-target
 SHELL ["/bin/bash", "-lc"]
 
-CMD ["bash", "-lc", "python scripts/run_direct_external_baseline_suite.py --quick && python scripts/run_full_benchmark_suite.py --quick"]
+RUN micromamba run -n base python -m pip install --no-cache-dir --timeout 300 --retries 10 .
+
+WORKDIR /run
+
+ENTRYPOINT ["micromamba", "run", "-n", "base"]
+CMD ["python", "-c", "import pyfgsea; print(pyfgsea.__version__)"]

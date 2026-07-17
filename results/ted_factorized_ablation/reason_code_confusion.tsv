@@ -1,0 +1,6 @@
+truth_reason	E0_not_supported	E0_not_estimable	E0_not_identifiable	E0_artifact_dominated	E0_missing_required_design
+E0_not_supported	48	1	1	0	0
+E0_not_estimable	2	47	0	1	0
+E0_not_identifiable	2	0	47	0	1
+E0_artifact_dominated	0	1	1	48	0
+E0_missing_required_design	2	0	0	0	48

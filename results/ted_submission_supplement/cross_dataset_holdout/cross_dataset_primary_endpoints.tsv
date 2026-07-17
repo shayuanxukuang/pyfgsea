@@ -1,0 +1,5 @@
+dataset	primary_endpoint	primary_gate_pass	claim_boundary	analysis_unit	source_result
+GSE153056	masked RNA-event to PD-L1 protein alignment with negative controls	True	outcome_supported_event	perturbation/guide aggregate	results/ted_known_source_validation/tables/gse153056_claim_boundary.tsv
+GSE93735	LPS inflammatory reversal specificity under dexamethasone	True	reversal_supported_event	sample/replicate contrast	results/ted_known_source_validation/tables/gse93735_claim_boundary.tsv
+SCP1064	masked RNA-event to protein direction plus mandatory heavy controls	False	E1-V1_partial	perturbation block with guide/target robustness units	data/processed/ted_known_source/SCP1064/results/scp1064_claim_boundary.tsv
+ZSCAPE	leave-one-embryo event-family and claim-boundary stability	True	block_robust_developmental_event	embryo	results/ted_submission_supplement/zscape_leave_one_embryo_full_refit/summary.tsv

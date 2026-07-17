@@ -1,7 +1,6 @@
 case	gate_class	evidence	boundary	unsupported_escalation
 GSE153056	upgraded	known source + PD-L1 protein outcome	outcome_supported_event	universal PD-L1 causal regulator proof
 GSE93735	upgraded	LPS event + dexamethasone reversal above controls	reversal_supported_event	validation of GSE271399 biology
-SCP1064	upgraded	CRISPR guide + RNA event + protein readout	outcome_supported_event	level4_causal_rescue
+SCP1064	partial	CRISPR guide + RNA event + protein readout; mandatory heavy control failed	E1-V1_partial	level4_causal_rescue
 GSE271399	blocked	robust event + cross-dataset support	cross_dataset_supported_event	same-system full-length GATA1 rescue
-SCP1064	blocked	source-to-protein support without matched rescue	outcome_supported_event	matched rescue or exhaustive perturbation-causal validation
-GSE90546/GSE90063/GSE133344	pending	incomplete adapters or raw matrix	not_evaluable / pending	methodology support claim
+SCP1064	blocked	source-to-protein support without matched rescue	E1-V1_partial	matched rescue or exhaustive perturbation-causal validation

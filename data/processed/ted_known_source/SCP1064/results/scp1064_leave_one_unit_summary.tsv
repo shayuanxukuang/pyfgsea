@@ -1,0 +1,13 @@
+level	axis	protein_name	n_refits	observed_spearman	refit_min	refit_max	direction_stability	refit_pass
+guide	immune_evasion_antigen_presentation	HLA_A	741	0.5650246315588918	0.5633008233535262	0.5695609279684488	1.0	True
+guide	immune_evasion_antigen_presentation	CD274	741	0.47653544287109345	0.47441041760534675	0.4813097254091485	1.0	True
+guide	ifn_jak_stat_response	CD274	741	0.4371902769122234	0.43493751074407716	0.4421345803298656	1.0	True
+guide	t_cell_interaction_or_cytokine_response	CD274	741	0.440665622790747	0.4384172813771845	0.44537474971204766	1.0	True
+target	immune_evasion_antigen_presentation	HLA_A	246	0.5491462507783799	0.5436617189858751	0.5647316583570654	1.0	True
+target	immune_evasion_antigen_presentation	CD274	246	0.4906056349665372	0.4843483014957283	0.5064676170348188	1.0	True
+target	ifn_jak_stat_response	CD274	246	0.39339530815782414	0.3860594537695127	0.4085190413630467	1.0	True
+target	t_cell_interaction_or_cytokine_response	CD274	246	0.45065585432356015	0.44395711103313784	0.4670180907228946	1.0	True
+biological_block	ifn_jak_stat_response	CD274	3		0.30504633898166617	0.502468239114294	1.0	True
+biological_block	immune_evasion_antigen_presentation	CD274	3		0.2703149819356875	0.573473549971009	1.0	True
+biological_block	immune_evasion_antigen_presentation	HLA_A	3		0.19550828917270996	0.5493393245273646	1.0	True
+biological_block	t_cell_interaction_or_cytokine_response	CD274	3		0.21232826028876348	0.5090568264413401	1.0	True

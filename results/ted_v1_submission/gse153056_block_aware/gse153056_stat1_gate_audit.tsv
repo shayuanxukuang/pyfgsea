@@ -1,0 +1,13 @@
+field	value	threshold_or_rule	numeric_pass	contract_pass	audit_note
+legacy_event_q	1.301008659615434e-116	event q <= 0.05	True	False	Cell-level Welch/BH value; not an independent-block event q and not accepted as the locked inferential-unit gate.
+formal_event_q	0.055555054310242796	general retrospective E1 event q <= 0.10	True	True	BH-adjusted one-sample test over the three replicate-block effects; this is the formal E1 event q.
+locked_primary_q_max	0.055555054310242796	locked primary event q <= 0.05	False	False	The independent-block event q is 0.0556, so the locked confirmatory primary gate fails; CI cannot substitute for this failure.
+posthoc_e2_block_q	0.055555054310242796	post-hoc E2-sensitivity block q <= 0.10 AND CI excludes 0	True	True	Passes the retrospective q-and-CI sensitivity rule only; the rule was not fixed before STAT1 inspection.
+block_ci95	[-1.1014137936, -0.729444159528]	95% CI excludes 0	True	True	Three-block t interval (df=2).
+block_count	3	n_blocks >= 3	True	True	Blocks are replicate labels rep1, rep2 and rep3.
+direction_stability	1.0	>= 0.80	True	True	All three replicate effects have the same negative direction.
+basic_negative_control_gate	max=0.575490016852; margin=0.199694878757	all controls < legacy 90th-percentile threshold 0.775184895609	True	True	The basic matched negative-control panel passes for the retrospective E1 boundary.
+complete_e2_control_integration	not_executed	all mandatory E2 controls joined into one locked executable audit		False	The passing legacy controls were not joined into the post-hoc E2 block script or its locked audit trail.
+mode_identifiability	not_recorded	mandatory for E2		False	Suppression is implied by direction, but no executable mode-identifiability gate is stored.
+rule_fixed_before_STAT1	False	required for a locked primary E2 claim		False	The q-and-CI block audit was added during revision and is explicitly post hoc.
+final_boolean_rule	E1-V1 formal; post-hoc E2-eligible sensitivity	E1 = independent-block event_q<=0.10 AND retained family/basic controls; formal E2 requires the complete locked contract	True	True	E1 passes with event q=0.0556. The locked q<=0.05 primary gate fails. Post-hoc E2 eligibility = n_blocks>=3 AND block_q<=0.10 AND CI excludes 0 AND stability>=0.80, but does not confer E2.

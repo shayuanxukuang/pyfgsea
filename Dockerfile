@@ -1,13 +1,20 @@
-FROM mambaorg/micromamba:1.5.10
+FROM python:3.11-slim AS builder
+
+RUN apt-get -o Acquire::Retries=5 update \
+    && apt-get -o Acquire::Retries=5 install -y --no-install-recommends build-essential cargo \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /build
+COPY . /build
+RUN python -m pip wheel --no-cache-dir --timeout 300 --retries 10 --wheel-dir /wheels .
+
+FROM python:3.11-slim
+
+COPY --from=builder /wheels /wheels
+RUN python -m pip install --no-cache-dir /wheels/*.whl \
+    && rm -rf /wheels
 
 WORKDIR /workspace
-
-COPY environment.yml /tmp/environment.yml
-RUN micromamba install -y -n base -f /tmp/environment.yml && micromamba clean -a -y
-
 COPY . /workspace
 
-ENV PATH=/opt/conda/bin:$PATH
-SHELL ["/bin/bash", "-lc"]
-
-CMD ["bash", "-lc", "python reproducibility/run_minimal_demo.py && python scripts/run_full_benchmark_suite.py --quick && python reproduce_all_main_tables.py && python reproduce_all_main_figures.py"]
+CMD ["ted", "--help"]

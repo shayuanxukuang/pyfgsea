@@ -1,0 +1,13 @@
+failure_mode	detectability	required_behavior	observed_gated_false_escalation_max	applicability_condition
+cell_cycle_enrichment	directly simulated	downgrade identifiability and prevent evidence-tier escalation	0.0014333333333333333	Interpret only at dataset/contrast or biological-block level; never use cells as independent replicates.
+composition_only_change	directly simulated	downgrade identifiability and prevent evidence-tier escalation	3.3333333333333335e-05	Interpret only at dataset/contrast or biological-block level; never use cells as independent replicates.
+condition_dependent_library_size	directly simulated	downgrade identifiability and prevent evidence-tier escalation	0.0012333333333333335	Interpret only at dataset/contrast or biological-block level; never use cells as independent replicates.
+donor_batch_time_confounding	directly simulated	downgrade identifiability and prevent evidence-tier escalation	0.00030000000000000003	Interpret only at dataset/contrast or biological-block level; never use cells as independent replicates.
+lineage_frequency_shift	directly simulated	downgrade identifiability and prevent evidence-tier escalation	0.0006333333333333333	Interpret only at dataset/contrast or biological-block level; never use cells as independent replicates.
+matched_state_overlap_decline	directly simulated	downgrade identifiability and prevent evidence-tier escalation	0.0006000000000000001	Interpret only at dataset/contrast or biological-block level; never use cells as independent replicates.
+missing_intermediate_timepoints	directly simulated	downgrade identifiability and prevent evidence-tier escalation	0.0014333333333333333	Interpret only at dataset/contrast or biological-block level; never use cells as independent replicates.
+pseudotime_reversal	directly simulated	downgrade identifiability and prevent evidence-tier escalation	0.0006333333333333333	Interpret only at dataset/contrast or biological-block level; never use cells as independent replicates.
+rare_state_depletion	directly simulated	downgrade identifiability and prevent evidence-tier escalation	6.666666666666667e-05	Interpret only at dataset/contrast or biological-block level; never use cells as independent replicates.
+stress_response_spike_in	directly simulated	downgrade identifiability and prevent evidence-tier escalation	0.0002	Interpret only at dataset/contrast or biological-block level; never use cells as independent replicates.
+matched_functional_rescue_absent	protocol gate	cap claim at Level 3.5	0.0	GSE271399/T21/GATA1 remains a computational mechanism candidate.
+small_block_count	n_blocks field	report limited identifiability	0.00043333333333333337	Level 3 block-robust language requires at least three usable blocks.

@@ -1,0 +1,33 @@
+dataset_id	pathway	n_upstream_combinations	upstream_method_agreement	upstream_disagreement_flag	maximum_observed_e_code	ted_disagreement_handling
+GSE126085_real_time	Epithelial Mesenchymal Transition	8	0.5	True	E2	cap_at_E1_and_return_ambiguity_set
+GSE126085_real_time	Apical Junction	8	0.5	True	E2	cap_at_E1_and_return_ambiguity_set
+GSE126085_real_time	Protein Secretion	8	0.5	True	E2	cap_at_E1_and_return_ambiguity_set
+GSE126085_real_time	Allograft Rejection	8	0.5	True	E2	cap_at_E1_and_return_ambiguity_set
+GSE126085_real_time	Apoptosis	8	0.5	True	E2	cap_at_E1_and_return_ambiguity_set
+GSE126085_real_time	Hypoxia	8	0.5	True	E2	cap_at_E1_and_return_ambiguity_set
+GSE126085_real_time	PI3K/AKT/mTOR  Signaling	8	0.5	True	E2	cap_at_E1_and_return_ambiguity_set
+GSE126085_real_time	Fatty Acid Metabolism	8	0.5	True	E2	cap_at_E1_and_return_ambiguity_set
+GSE126085_real_time	Xenobiotic Metabolism	8	0.375	True	E2	cap_at_E1_and_return_ambiguity_set
+GSE126085_real_time	KRAS Signaling Up	8	0.5	True	E2	cap_at_E1_and_return_ambiguity_set
+GSE126085_real_time	Myogenesis	8	0.5	True	E2	cap_at_E1_and_return_ambiguity_set
+GSE126085_real_time	Unfolded Protein Response	8	0.5	True	E2	cap_at_E1_and_return_ambiguity_set
+GSE126085_real_time	UV Response Up	8	0.5	True	E2	cap_at_E1_and_return_ambiguity_set
+GSE126085_real_time	Estrogen Response Late	8	0.5	True	E2	cap_at_E1_and_return_ambiguity_set
+GSE126085_real_time	UV Response Dn	8	0.5	True	E1	cap_at_E1_and_return_ambiguity_set
+GSE126085_real_time	Interferon Alpha Response	8	0.5	True	E1	cap_at_E1_and_return_ambiguity_set
+GSE126085_real_time	DNA Repair	8	0.375	True	E1	cap_at_E1_and_return_ambiguity_set
+GSE126085_real_time	Estrogen Response Early	8	0.375	True	E1	cap_at_E1_and_return_ambiguity_set
+Nestorowa_trajectory	Panglao_Neutrophils	4	1.0	False	E2	eligible_subject_to_design_gates
+Nestorowa_trajectory	Hallmark_Heme_Metabolism_mapped	4	1.0	False	E2	eligible_subject_to_design_gates
+Nestorowa_trajectory	POSCTRL_Erythroid_core_program	4	0.75	False	E2	eligible_subject_to_design_gates
+Nestorowa_trajectory	POSCTRL_Myeloid_monocyte_program	4	0.75	False	E2	eligible_subject_to_design_gates
+Nestorowa_trajectory	POSCTRL_Neutrophil_granule_program	4	0.75	False	E2	eligible_subject_to_design_gates
+Nestorowa_trajectory	POSCTRL_Megakaryocyte_program	4	0.5	True	E1	cap_at_E1_and_return_ambiguity_set
+Nestorowa_trajectory	Panglao_Erythroid-like_And_Erythroid_Precursor_Cells	4	0.75	False	E1	eligible_subject_to_design_gates
+Nestorowa_trajectory	Panglao_Dendritic_Cells	4	0.75	False	E2	eligible_subject_to_design_gates
+Nestorowa_trajectory	Panglao_Monocytes	4	0.75	False	E2	eligible_subject_to_design_gates
+Nestorowa_trajectory	Panglao_Megakaryocytes	4	0.75	False	E1	eligible_subject_to_design_gates
+Nestorowa_trajectory	POSCTRL_Basophil_mast_program	4	0.75	False	E1	eligible_subject_to_design_gates
+Nestorowa_trajectory	Panglao_Hematopoietic_Stem_Cells	4	0.75	False	E2	eligible_subject_to_design_gates
+Nestorowa_trajectory	Panglao_Basophils	4	0.75	False	E1	eligible_subject_to_design_gates
+Nestorowa_trajectory	Panglao_Erythroblasts	4	0.5	True	E1	cap_at_E1_and_return_ambiguity_set

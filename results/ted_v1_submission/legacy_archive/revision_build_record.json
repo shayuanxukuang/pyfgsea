@@ -1,0 +1,8 @@
+{
+  "release_preparation_date": "2026-07-16",
+  "figure_command": "python scripts/build_bib_main_figures.py",
+  "manifest_command": "python scripts/build_bib_revision_manifest.py",
+  "python_version": "3.13.3",
+  "figure_source_directory": "results/bib_manuscript_revision/figure_source_data",
+  "canonical_main_source": "GenomeBiology_known_source_submission_package/06_latex_source/TED_GenomeBiology_Main_Manuscript_Only/main.tex"
+}

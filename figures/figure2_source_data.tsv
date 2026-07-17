@@ -1,10 +1,10 @@
 ﻿panel	dataset	source	event_or_axis	readout	metric	value	claim_boundary	status	notes
 A	GSE153056	IFNG stimulation and PD-L1 regulator perturbation	IFNG/JAK-STAT/PD-L1 RNA event	PD-L1 protein outcome	registry_status	pass	outcome_supported_event	pass	Frozen public validation registry.
 A	GSE93735	LPS stimulation plus dexamethasone intervention	LPS inflammatory event	inflammatory reversal	registry_status	pass	reversal_supported_event	pass	Frozen public validation registry.
-A	SCP1064	CRISPR guide identity	Perturb-CITE-seq immune-evasion RNA event	CITE-seq protein readout	registry_status	pass	outcome_supported_event	pass	Frozen public validation registry.
+A	SCP1064	CRISPR guide identity	Perturb-CITE-seq immune-evasion RNA event	CITE-seq protein readout	registry_status	partial	E1-V1_partial	partial	Mandatory heavy-control gate did not pass.
 B	GSE153056	IFNG/PD-L1 validation	IFNG/JAK-STAT/PD-L1 RNA event	PD-L1 protein outcome	Spearman_event_protein	0.7846	outcome_supported_event	pass	Direction match 0.769.
 B	GSE153056	IFNG/PD-L1 validation	IFNG/JAK-STAT/PD-L1 RNA event	PD-L1 protein outcome	direction_match	0.769	outcome_supported_event	pass	Outcome-alignment gate passed.
 C	GSE93735	LPS/dexamethasone validation	LPS inflammatory event	dexamethasone reversal	primary_reversal_fraction	0.3375	reversal_supported_event	pass	Primary reversal exceeds matched controls.
 C	GSE93735	LPS/dexamethasone validation	matched negative controls	dexamethasone reversal	max_negative_control_reversal	0.1624	reversal_supported_event	pass	Negative-control reversal gate passed.
-D	SCP1064	Perturb-CITE-seq source-labeled validation	immune-evasion/antigen-presentation RNA event	HLA-A and CD274/PD-L1 proteins	n_source_labeled_cells	195303	outcome_supported_event	pass	Explicit CELL_x alignment.
-D	SCP1064	Perturb-CITE-seq source-labeled validation	immune-evasion/antigen-presentation RNA event	HLA-A and CD274/PD-L1 proteins	outcome_alignment_pass	1	outcome_supported_event	pass	Cell, guide and target level support summarized in SCP1064 tables.
+D	SCP1064	Perturb-CITE-seq source-labeled validation	immune-evasion/antigen-presentation RNA event	HLA-A and CD274/PD-L1 proteins	n_source_labeled_cells	195303	E1-V1_partial	partial	Explicit CELL_x alignment; mandatory heavy-control gate did not pass.
+D	SCP1064	Perturb-CITE-seq source-labeled validation	immune-evasion/antigen-presentation RNA event	HLA-A and CD274/PD-L1 proteins	outcome_alignment_pass	1	E1-V1_partial	partial	Outcome alignment passed, but the mandatory heavy-control gate did not.

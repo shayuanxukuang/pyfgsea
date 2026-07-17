@@ -1,0 +1,6 @@
+{
+  "seed": 20260717,
+  "maximum_cells_per_dataset": 1000,
+  "n_combinations": 12,
+  "native_GSVA_AUCell_claimed": false
+}

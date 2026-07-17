@@ -1016,12 +1016,22 @@ def call_claim_boundary() -> pd.DataFrame:
     lightweight_shuffle_pass = bool(
         specificity.get("lightweight_shuffle_pass", pd.Series([True])).astype(str).str.lower().isin(["true", "pass"]).all()
     )
+    heavy_shuffle_status = str(
+        specificity.get("heavy_shuffle_status", pd.Series(["not_run"])).iloc[0]
+    )
+    heavy_shuffle_pass = bool(
+        specificity.get("heavy_shuffle_pass", pd.Series([False]))
+        .astype(str)
+        .str.lower()
+        .isin(["true", "pass"])
+        .all()
+    )
     author_support = bool(author.get("author_effect_support", pd.Series([False])).astype(str).str.lower().isin(["true", "pass"]).any())
-    if robust_event and outcome_alignment_pass and negative_control_pass and lightweight_shuffle_pass:
-        boundary = "outcome_supported_event"
+    if robust_event and outcome_alignment_pass and negative_control_pass and lightweight_shuffle_pass and heavy_shuffle_pass:
+        boundary = "E1-V1"
         status = "pass"
-    elif robust_event:
-        boundary = "known_source_supported_event"
+    elif robust_event and outcome_alignment_pass:
+        boundary = "E1-V1_partial"
         status = "partial"
     else:
         boundary = "no_SCP1064_methodology_claim"
@@ -1036,6 +1046,8 @@ def call_claim_boundary() -> pd.DataFrame:
                 "outcome_alignment_pass": outcome_alignment_pass,
                 "negative_control_pass": negative_control_pass,
                 "lightweight_shuffle_pass": lightweight_shuffle_pass,
+                "heavy_shuffle_status": heavy_shuffle_status,
+                "heavy_shuffle_pass": heavy_shuffle_pass,
                 "author_effect_support": author_support,
                 "claim_boundary": boundary,
                 "status": status,
@@ -1045,6 +1057,7 @@ def call_claim_boundary() -> pd.DataFrame:
                 "reason": (
                     f"robust_event={robust_event}; outcome_alignment_pass={outcome_alignment_pass}; "
                     f"negative_control_pass={negative_control_pass}; lightweight_shuffle_pass={lightweight_shuffle_pass}; "
+                    f"heavy_shuffle_status={heavy_shuffle_status}; heavy_shuffle_pass={heavy_shuffle_pass}; "
                     f"author_effect_support={author_support}"
                 ),
             }

@@ -1,8 +1,16 @@
 import click
+from pathlib import Path
+from typing import cast
+
 from ..api import run as run_pipeline
-from ..io.anndata_io import load_adata
 from ..io.meta_merge import merge_metadata_safe
 from ..ted_mad.cli import cli as ted_mad_cli
+from ..ted_schema import (
+    SchemaVersion,
+    TableKind,
+    ted_table_is_valid,
+    validate_ted_table,
+)
 
 
 @click.group()
@@ -11,6 +19,35 @@ def cli():
 
 
 cli.add_command(ted_mad_cli, name="ted-mad")
+
+
+@cli.command("validate")
+@click.argument("table", type=click.Path(exists=True, dir_okay=False, path_type=Path))
+@click.option("--kind", required=True, type=click.Choice(["activity", "event"]))
+@click.option(
+    "--schema-version",
+    default="auto",
+    show_default=True,
+    type=click.Choice(["auto", "v1", "v2"]),
+    help="Auto-detect event v2 from E/V fields, or require a built-in schema version.",
+)
+@click.option("--report", type=click.Path(dir_okay=False, path_type=Path), default=None)
+def validate_command(table: Path, kind: str, schema_version: str, report: Path | None):
+    """Validate a TED activity or event table and fail closed on errors."""
+    try:
+        result = validate_ted_table(
+            table,
+            cast(TableKind, kind),
+            schema_version=cast(SchemaVersion, schema_version),
+        )
+    except ValueError as exc:
+        raise click.ClickException(str(exc)) from exc
+    if report is not None:
+        report.parent.mkdir(parents=True, exist_ok=True)
+        result.to_csv(report, sep="\t", index=False)
+    click.echo(result.to_string(index=False))
+    if not ted_table_is_valid(result):
+        raise click.ClickException(f"TED {kind} table validation failed")
 
 
 @cli.command()
@@ -111,6 +148,9 @@ def run(
     allow_positional_merge,
 ):
     """Run the Universal Trajectory GSEA pipeline."""
+    # Keep schema-only CLI commands usable without the optional Scanpy stack.
+    from ..io.anndata_io import load_adata
+
     print(f"Loading {h5ad}...")
     adata = load_adata(h5ad)
 

@@ -1,0 +1,13 @@
+rule_type	rule_id	locked_rule
+reporting	R1	Report every prespecified event family, including unsupported and non-estimable events.
+reporting	R2	Report E0/E1 demotions, negative-control failures, false E promotions, false E demotions and missed prespecified positives.
+reporting	R3	Report artifact-suspected and artifact-dominated outcomes separately if both are implemented before activation.
+reporting	R4	Report all excluded blocks/samples and the rule that triggered exclusion.
+reporting	R5	Do not replace, rename or add a primary event family after outcome unmasking.
+exclusion	X1	Exclude a sample only for a prespecified data-integrity or minimum-quality rule; never for an unfavorable TED/outcome result.
+exclusion	X2	Fail closed as not estimable when fewer than three independent biological blocks remain.
+exclusion	X3	Fail closed when condition is completely confounded with batch or no defensible null exists.
+exclusion	X4	Do not treat cells, time bins, technical replicates or pseudo-blocks as independent biological blocks.
+unmasking	U1	Record SHA-256 hashes for locked RNA/activity outputs and the unopened outcome file before outcome access.
+unmasking	U2	Retain the pre-unmasking manifest and every failed gate in the final public archive.
+

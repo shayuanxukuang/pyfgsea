@@ -1,0 +1,6 @@
+metric	definition	denominator
+false_e_promotion	predicted E rank exceeds independent truth E rank	all 675 packets
+false_e_demotion	predicted E rank is below independent truth E rank	all 675 packets
+non_e0_call_fraction	fraction assigned E1 or E2; not selective coverage	all 675 packets
+incorrect_definite_mode_rate	wrong single mode calls; ambiguity returns are not counted as wrong definite calls	all 675 packets
+collapsed_ladder_overstatement_rate	orthogonal V provenance raises a collapsed E-like rank	all 675 packets

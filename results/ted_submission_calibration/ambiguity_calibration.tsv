@@ -1,0 +1,3 @@
+distribution_shift	n_packets	empirical_coverage	mean_prediction_set_size	singleton_fraction	terminology
+False	120	0.9	1.8	0.2	packet-class compatibility set; not conformal
+True	40	0.875	1.825	0.175	packet-class compatibility set; not conformal

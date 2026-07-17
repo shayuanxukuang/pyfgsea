@@ -1,0 +1,145 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pyfgsea.local/ted-mad/experiments.schema.json",
+  "title": "TED-MAD active rescue experiments",
+  "type": "object",
+  "required": ["experiments"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "type": "string"
+    },
+    "design_model": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "experiments": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "experiment_id",
+          "label",
+          "cost",
+          "risk",
+          "readouts",
+          "distinguishes",
+          "expected_patterns"
+        ],
+        "additionalProperties": true,
+        "properties": {
+          "experiment_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z][A-Za-z0-9_]*$"
+          },
+          "label": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": {
+            "type": "string"
+          },
+          "cost": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "risk": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "readouts": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "minimal_readout_panel": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "required": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "optional": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "negative_controls": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            }
+          },
+          "distinguishes": {
+            "type": "array",
+            "minItems": 2,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "supports_hypotheses": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "claim_level_if_success": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 5
+          },
+          "claim_upgrade_evidence": {
+            "type": "string"
+          },
+          "expected_patterns": {
+            "type": "object",
+            "minProperties": 1,
+            "additionalProperties": {
+              "type": "object",
+              "minProperties": 1,
+              "additionalProperties": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          },
+          "falsifiers": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["hypothesis", "rule"],
+              "additionalProperties": true,
+              "properties": {
+                "hypothesis": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "rule": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

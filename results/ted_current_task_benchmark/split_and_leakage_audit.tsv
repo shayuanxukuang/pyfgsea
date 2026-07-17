@@ -1,0 +1,4 @@
+partition	n_packets	replicate_range	truth_used_for_threshold_or_model_selection	outcome_masked_during_prediction	post_freeze	interpretation
+development	80	1-8	True	False	False	model development
+tuning	40	9-12	True	False	False	hyperparameter selection
+retrospective_shifted_audit	40	13-16	False	True	False	retrospective OOD diagnostic; not an untouched final test

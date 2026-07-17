@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pyfgsea.local/ted-mad/observed_rescue.schema.json",
+  "title": "TED-MAD observed rescue result",
+  "type": "object",
+  "required": ["experiment_id", "observed_results"],
+  "additionalProperties": true,
+  "properties": {
+    "schema_version": {
+      "type": "string"
+    },
+    "experiment_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "observed_results": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "quality": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "notes": {
+      "type": "string"
+    }
+  }
+}

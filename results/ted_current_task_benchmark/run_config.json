@@ -1,0 +1,20 @@
+{
+  "seed": 20260716,
+  "bootstrap_replicates": 10000,
+  "features": [
+    "n_blocks",
+    "curve_effect",
+    "peak_shift",
+    "terminal_recovery",
+    "alternative_fate_gain",
+    "composition_score",
+    "stress_score",
+    "outcome_alignment",
+    "reversal_score",
+    "block_direction_stability",
+    "matched_state_balance",
+    "negative_control_margin",
+    "missing_evidence_fraction"
+  ],
+  "warning": "Retrospective shifted audit only; generator and TED rules pre-date this split, so this is not an untouched post-freeze test."
+}

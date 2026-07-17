@@ -10,7 +10,7 @@ from jsonschema import Draft202012Validator
 from jsonschema.exceptions import ValidationError
 
 
-SCHEMA_DIR = Path(__file__).resolve().parents[2] / "schemas"
+SCHEMA_DIR = Path(__file__).resolve().parent / "schemas"
 
 ALLOWED_EVIDENCE_FAMILIES = {
     "family_block_robustness",
@@ -34,7 +34,7 @@ class TedMadValidationError(ValueError):
 
 
 def load_schema(name: str) -> dict[str, Any]:
-    """Load a JSON schema from the repository-level schemas directory."""
+    """Load a JSON schema bundled with the installed TED-MAD package."""
 
     path = SCHEMA_DIR / name
     return json.loads(path.read_text(encoding="utf-8"))

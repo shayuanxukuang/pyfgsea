@@ -1,0 +1,4 @@
+requested_refit	status	n_independent_units	available_alternative	claim_consequence
+leave_one_donor_out	not_estimable	1	none	do not describe GSE271399 as donor-replicated; retain Level 3.5 ceiling
+leave_one_sample_day_out	completed_existing_exact_aggregate_refit	12	216 family/contrast/trajectory refits	time-stratum sensitivity only; not donor replication
+leave_one_trajectory_state_or_bin_out	completed_existing_exact_aggregate_refit	14	pseudotime-bin and coarse-state jackknife tables	trajectory sensitivity support without causal upgrade

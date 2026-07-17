@@ -1,4 +1,4 @@
 dataset	known_source	event_family	readout	primary_metric	primary_value	TED_boundary	level4_causal_rescue	notes
 GSE153056	IFNg stimulation and PD-L1 regulator perturbation	IFNg/JAK-STAT/PD-L1 RNA event	PD-L1 protein outcome	Spearman event-protein correlation	0.7846	outcome_supported_event	False	Direction match 0.769; negative-control gate passed
 GSE93735	LPS plus dexamethasone intervention	LPS inflammatory event	dexamethasone reversal	primary reversal fraction	0.3375	reversal_supported_event	False	Maximum matched negative-control reversal 0.1624
-SCP1064	CRISPR guide identity	immune-evasion/antigen-presentation RNA event	CITE-seq protein readouts	source-labeled cells	195303	outcome_supported_event	False	HLA-A and CD274/PD-L1 alignment; not a matched rescue design
+SCP1064	CRISPR guide identity	immune-evasion/antigen-presentation RNA event	CITE-seq protein readouts	source-labeled cells	195303	E1-V1_partial	False	Outcome alignment passed, but the mandatory heavy-control gate did not; not a matched rescue design

@@ -10,9 +10,12 @@ import pandas as pd
 from matplotlib.patches import FancyBboxPatch
 
 
+plt.rcParams.update({"pdf.fonttype": 42, "ps.fonttype": 42})
+
+
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_OUT = ROOT / "data_external" / "StepXX_dynamic_pathway_event_grammar_standardization"
-DEFAULT_SUBMISSION = ROOT / "source_data"
+DEFAULT_SUBMISSION = ROOT / "GenomeBiology_submission_files_only"
 DEFAULT_PAUL15 = ROOT / "results" / "paul15_branch_validation"
 DEFAULT_GSE271399 = ROOT / "data_external" / "deliverables_all_ted_rounds" / "GSE271399_T21_GATA1s"
 
@@ -316,7 +319,7 @@ def standardize_bombyx(rows: list[dict[str, Any]], submission_dir: Path) -> None
             claim_boundary=fmt(r.get("interpretation_boundary_short")) or "spatial_localization_only",
             supported_interpretation="spatial/trajectory pathway localization event",
             unsupported_interpretation="direct hormonal causality or new metamorphosis mechanism from enrichment alone",
-            source_file="source_data/bombyx_spatial_pathway_localization_summary.tsv",
+            source_file="GenomeBiology_submission_files_only/bombyx_spatial_pathway_localization_summary.tsv",
         )
 
         if not math.isnan(dynamic_gain) and dynamic_gain > 0:
@@ -345,7 +348,7 @@ def standardize_bombyx(rows: list[dict[str, Any]], submission_dir: Path) -> None
                 claim_boundary="dynamic localization event; not causal mechanism",
                 supported_interpretation="dynamic pathway peak/localization event",
                 unsupported_interpretation="pathway mechanism inferred from static enrichment alone",
-                source_file="source_data/bombyx_method_comparison_summary.tsv",
+                source_file="GenomeBiology_submission_files_only/bombyx_method_comparison_summary.tsv",
             )
 
 
@@ -360,8 +363,7 @@ def standardize_gse271399(rows: list[dict[str, Any]], gse_dir: Path) -> None:
         sub = sub.sort_values("family_delta_auc")
         for _, r in sub.head(3).iterrows():
             effect = as_float(r.get("family_delta_auc"))
-            fdr = as_float(r.get("family_q"))
-            block_stability = as_float(r.get("direction_stability"))
+            direction_stability = as_float(r.get("direction_stability"))
             margin = as_float(r.get("specificity_percentile"))
             add_row(
                 rows,
@@ -382,12 +384,15 @@ def standardize_gse271399(rows: list[dict[str, Any]], gse_dir: Path) -> None:
                 spatial_specificity="not_applicable",
                 rescue_status="predicted_rescue_required_not_observed",
                 event_effect=round(effect, 4),
-                event_FDR=fdr,
-                block_stability=block_stability,
+                event_FDR="not_estimable_from_independent_biological_blocks",
+                block_stability=(
+                    f"design_stratum_direction_stability={direction_stability:.3f};"
+                    " not_biological_replication"
+                ),
                 negative_control_margin=round(margin, 4),
-                robustness_score=robustness_score(min(fdr, 0.25) if not math.isnan(fdr) else None, block_stability, margin - 0.5, effect),
-                claim_boundary="computational mechanism candidate; not functionally validated",
-                supported_interpretation="block-robust erythroid event-loss family",
+                robustness_score=robustness_score(None, None, margin - 0.5, effect),
+                claim_boundary="E1-V0 direction-consistent candidate; design-stratum sensitivity only",
+                supported_interpretation="direction-consistent erythroid event-loss candidate without biological-block robustness",
                 unsupported_interpretation="GATA1s/T21 causal erythroid failure mechanism proven",
                 source_file="data_external/deliverables_all_ted_rounds/GSE271399_T21_GATA1s/gse271399_family_evidence_scorecard.tsv",
             )
@@ -458,7 +463,7 @@ def standardize_gse123013(rows: list[dict[str, Any]], submission_dir: Path) -> N
             claim_boundary=fmt(r.get("claim_boundary")),
             supported_interpretation="stress-sensitive plant fate-switch candidate",
             unsupported_interpretation="strong root-hair causal mechanism",
-            source_file="source_data/gse123013_root_fate_event_table.tsv",
+            source_file="GenomeBiology_submission_files_only/gse123013_root_fate_event_table.tsv",
         )
 
 
@@ -665,8 +670,8 @@ def baseline_comparison(submission_dir: Path, events: pd.DataFrame) -> pd.DataFr
                     "comparison_id": fmt(r.get("method_or_adapter")),
                     "baseline_curve_or_score_output": fmt(r.get("native_task_output")),
                     "ted_event_output": fmt(r.get("same_data_ted_object_task")),
-                    "baseline_event_mode_accuracy_mean": r.get("baseline_event_mode_accuracy_mean", ""),
-                    "TED_event_mode_accuracy_mean": r.get("TED_event_mode_accuracy_mean", ""),
+                    "baseline_event_type_accuracy_mean": r.get("baseline_event_type_accuracy_mean", ""),
+                    "TED_event_type_accuracy_mean": r.get("TED_event_type_accuracy_mean", ""),
                     "baseline_overclaim_rate_mean": r.get("baseline_overclaim_rate_mean", ""),
                     "TED_overclaim_rate_mean": r.get("TED_overclaim_rate_mean", ""),
                     "why_event_table_is_different": fmt(r.get("conclusion")),
@@ -677,8 +682,8 @@ def baseline_comparison(submission_dir: Path, events: pd.DataFrame) -> pd.DataFr
             "comparison_id": "dynamic_pathway_event_table",
             "baseline_curve_or_score_output": "ssGSEA/AUCell/GSVA/rolling fgsea curves or scores",
             "ted_event_output": "pathway x event rows with onset/peak/shutdown/branch/spatial labels, event_FDR, robustness and claim boundary",
-            "baseline_event_mode_accuracy_mean": "not_a_native_field",
-            "TED_event_mode_accuracy_mean": "see benchmark_compact_table and dynamic_pathway_event_table",
+            "baseline_event_type_accuracy_mean": "not_a_native_field",
+            "TED_event_type_accuracy_mean": "see benchmark_compact_table and dynamic_pathway_event_table",
             "baseline_overclaim_rate_mean": "not_a_native_field",
             "TED_overclaim_rate_mean": "explicitly audited",
             "why_event_table_is_different": "The event table stores biological event grammar and missing evidence; score curves store activity magnitude only.",
@@ -696,8 +701,8 @@ def baseline_comparison(submission_dir: Path, events: pd.DataFrame) -> pd.DataFr
                 "comparison_id": comparison_id,
                 "baseline_curve_or_score_output": curve_output,
                 "ted_event_output": "standardized event rows with event type, event_FDR, robustness_score, claim_boundary, supported_interpretation and unsupported_interpretation",
-                "baseline_event_mode_accuracy_mean": "not_a_native_field",
-                "TED_event_mode_accuracy_mean": "event_type_available_for_all_rows",
+                "baseline_event_type_accuracy_mean": "not_a_native_field",
+                "TED_event_type_accuracy_mean": "event_type_available_for_all_rows",
                 "baseline_overclaim_rate_mean": "not_a_native_field",
                 "TED_overclaim_rate_mean": "claim_boundary_available_for_all_rows",
                 "why_event_table_is_different": "The baseline is an upstream activity profile. TED standardizes the profile into onset/peak/shutdown/branch/spatial event grammar with audit fields.",
@@ -708,8 +713,8 @@ def baseline_comparison(submission_dir: Path, events: pd.DataFrame) -> pd.DataFr
             "comparison_id": "standardized_event_grammar_coverage",
             "baseline_curve_or_score_output": "curve has local maxima/minima but no standardized event row",
             "ted_event_output": f"{events['event_type'].nunique()} event types across {events['dataset'].nunique()} datasets",
-            "baseline_event_mode_accuracy_mean": "",
-            "TED_event_mode_accuracy_mean": "",
+            "baseline_event_type_accuracy_mean": "",
+            "TED_event_type_accuracy_mean": "",
             "baseline_overclaim_rate_mean": "",
             "TED_overclaim_rate_mean": "",
             "why_event_table_is_different": "The standardized table turns curve features into audit-ready event objects.",

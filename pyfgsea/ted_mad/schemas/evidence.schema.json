@@ -1,0 +1,126 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pyfgsea.local/ted-mad/evidence.schema.json",
+  "title": "TED-MAD evidence ledger",
+  "type": "object",
+  "required": ["evidence"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "type": "string"
+    },
+    "evidence": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "evidence_id",
+          "evidence_family",
+          "dependency_group",
+          "target_event",
+          "direction",
+          "effect_size",
+          "standard_error",
+          "p_value",
+          "weight",
+          "assumptions",
+          "failure_modes",
+          "supports",
+          "weakens"
+        ],
+        "additionalProperties": true,
+        "properties": {
+          "evidence_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "evidence_family": {
+            "type": "string",
+            "enum": [
+              "family_block_robustness",
+              "proliferation_adjusted_mediation",
+              "counterfactual_ot",
+              "day_stratified_timing",
+              "negative_mediator_controls",
+              "dynamic_precedence",
+              "rescue_prediction",
+              "external_GATA1_KD",
+              "external_T21_multiome",
+              "state_matched",
+              "direct_rescue",
+              "orthogonal_perturbation",
+              "independent_replication"
+            ]
+          },
+          "dependency_group": {
+            "type": "string",
+            "minLength": 1
+          },
+          "target_event": {
+            "type": "string",
+            "minLength": 1
+          },
+          "direction": {
+            "type": "string",
+            "enum": ["supports", "weakens", "mixed", "neutral"]
+          },
+          "effect_size": {
+            "type": "number"
+          },
+          "standard_error": {
+            "type": "number",
+            "exclusiveMinimum": 0
+          },
+          "p_value": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "weight": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 5
+          },
+          "assumptions": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "failure_modes": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "supports": {
+            "type": "object",
+            "minProperties": 0,
+            "additionalProperties": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            }
+          },
+          "weakens": {
+            "type": "object",
+            "minProperties": 0,
+            "additionalProperties": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            }
+          },
+          "data_source": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

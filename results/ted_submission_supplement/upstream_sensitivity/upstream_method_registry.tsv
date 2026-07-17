@@ -1,0 +1,7 @@
+scoring_method	implementation	n_trajectory_inputs	native_task	claim_boundary_output
+pyfgsea_rolling	PyFgsea rolling-window core	3	rolling competitive enrichment	True
+rank_auc	internal score-then-smooth bridge; native package capability not claimed	2	pathway activity followed by smoothing	False
+mean_zscore	internal score-then-smooth bridge; native package capability not claimed	2	pathway activity followed by smoothing	False
+gsva_bridge	internal score-then-smooth bridge; native package capability not claimed	2	pathway activity followed by smoothing	False
+ssgsea_bridge	internal score-then-smooth bridge; native package capability not claimed	2	pathway activity followed by smoothing	False
+decoupler_ulm_bridge	internal score-then-smooth bridge; native package capability not claimed	2	pathway activity followed by smoothing	False

@@ -1,0 +1,3 @@
+level	check	row_index	message	table
+ok	table		activity table passed v1 schema and semantic validation	activity
+ok	table		event table passed v2 schema and semantic validation	event
