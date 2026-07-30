@@ -1,8 +1,69 @@
 # Trajectory Pathway Event Discovery (TED)
 
+> [!IMPORTANT]
+> ## Post-submission reproducibility and release clarification (30 July 2026)
+>
+> The Briefings in Bioinformatics (BIB) manuscript was submitted before the
+> two public release candidates listed below were published. The submitted
+> manuscript pins the immutable audited baseline
+> [`ted-v1.0.0`](https://github.com/shayuanxukuang/pyfgsea-TED/releases/tag/ted-v1.0.0)
+> at commit
+> [`5cb7b254`](https://github.com/shayuanxukuang/pyfgsea-TED/commit/5cb7b25458b41437b54623488d37b4872e79f474)
+> and Zenodo DOI
+> [`10.5281/zenodo.21403133`](https://doi.org/10.5281/zenodo.21403133).
+> That tag, commit and DOI remain unchanged; the later candidates do not
+> replace or rewrite the manuscript-cited baseline.
+>
+> A post-submission release-readiness audit identified four public-facing
+> reproducibility gaps:
+>
+> 1. `ted-v1.0.0` does not contain the complete BIB 480-task manuscript
+>    companion and its 2,400 native method-task outputs.
+> 2. The submitted supplementary “Minimal TED run” example describes an
+>    interface that is not implemented by the shipped CLI. The executable
+>    package/schema smoke uses `scripts/run_ted_validation_demo.py` followed by
+>    `ted validate`; it is not a Figure 3/Figure 5 reproduction command.
+> 3. The 10-job Linux workflow validated a release-candidate commit, and a
+>    later `main` workflow validated the post-release compatibility fix.
+>    Neither run should be described as an exact-tag 10-job validation of
+>    `ted-v1.0.0`.
+> 4. Historical `V0`--`V4` fields in the baseline are provenance records, not
+>    a current evidence-upgrade ladder. In the BIB companion, only `E0`--`E2`
+>    grades event support; outcome, reversal and rescue are separate typed
+>    records, while event replication and outcome replication are separate
+>    facets.
+>
+> The correct public records are:
+>
+> - [`ted-v1.0.1-rc1`](https://github.com/shayuanxukuang/pyfgsea-TED/releases/tag/ted-v1.0.1-rc1)
+>   is a release-engineering candidate. Its 64 declared scientific-result
+>   artifacts and two provenance artifacts are byte-identical to
+>   `ted-v1.0.0`.
+> - [`ted-v1.1.0-rc1`](https://github.com/shayuanxukuang/pyfgsea-TED/releases/tag/ted-v1.1.0-rc1)
+>   is the post-submission BIB manuscript-companion candidate. It provides the
+>   locked 480-task registry, post-output truth, harmonized predictions, 2,400
+>   native outputs, Figure 3/Figure 5 source tables, BNT162b2 and GSE171964
+>   records, stability/resolution shards, manifests and focused-test evidence.
+>   Its immutable analysis lock is
+>   [`32e099c`](https://github.com/shayuanxukuang/pyfgsea-TED/commit/32e099c780bf0103bbcfadb2993e59254c6d9e12).
+>
+> The scientific boundary is unchanged:
+> **E0 | protein outcome passed | event replication not evaluable
+> (eligibility failed; test not run) | protein-outcome replication not
+> tested**. The passed protein record is parallel evidence and does not
+> upgrade the event E code.
+>
+> These post-submission changes correct packaging, documentation, public
+> availability and provenance. They do **not** alter a dataset, estimator,
+> threshold, reported number, biological conclusion or claim ceiling. Both
+> `-rc1` records are explicitly pre-release candidates and are not final
+> DOI-bearing releases. Any invited manuscript revision will correct the
+> CLI/CI wording and cite the final version-specific companion DOI after its
+> release gates pass.
+
 **Trajectory Pathway Event Discovery (TED)** is an artifact-aware protocol for structured interpretation of dynamic pathway events in single-cell genomics.
 
-TED starts from pathway, module or perturbation activity profiles and writes row-wise event objects. Each event row records event mode, effect and uncertainty, block support, matched-state and negative-control behavior, identifiability, an E0--E2 within-study support code, and a V0--V4 external-evidence provenance code. Escort addresses upstream trajectory suitability; TED starts after a trajectory, time or state representation has been supplied. PyFgsea can generate upstream activity profiles, but TED is a separate downstream inference task and accepts activity matrices produced by other scoring or trajectory methods.
+TED starts from pathway, module or perturbation activity profiles and writes row-wise event objects. Each event row records event mode, effect and uncertainty, block support, matched-state and negative-control behavior, identifiability and an E0--E2 within-study support code. Orthogonal outcome, reversal and rescue evidence is represented by separate typed records; event replication and outcome replication are separate facets. These records cannot repair a failed event gate or automatically upgrade its E code. Historical `ted-v1.0.0` files may retain V0--V4 provenance fields for traceability, but they are not a current evidence-upgrade ladder. Escort addresses upstream trajectory suitability; TED starts after a trajectory, time or state representation has been supplied. PyFgsea can generate upstream activity profiles, but TED is a separate downstream inference task and accepts activity matrices produced by other scoring or trajectory methods.
 
 ## Release status
 
