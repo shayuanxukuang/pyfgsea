@@ -14,6 +14,35 @@
 > That tag, commit and DOI remain unchanged; the later candidates do not
 > replace or rewrite the manuscript-cited baseline.
 >
+> ### Where the post-submission files are
+>
+> The default GitHub **Code** view opens the `main` branch. `main` retains the
+> manuscript-cited baseline, the post-release compatibility fix and this
+> clarification; it does not contain the complete file trees of the two later
+> release candidates.
+>
+> - Release-engineering sources and manifests can be browsed at the
+>   [`ted-v1.0.1-rc1` tag](https://github.com/shayuanxukuang/pyfgsea-TED/tree/ted-v1.0.1-rc1)
+>   or on the
+>   [`codex/ted-release-remediation` branch](https://github.com/shayuanxukuang/pyfgsea-TED/tree/codex/ted-release-remediation).
+>   Its wheel and manifest files are attached under **Assets** on the
+>   [`ted-v1.0.1-rc1` Release page](https://github.com/shayuanxukuang/pyfgsea-TED/releases/tag/ted-v1.0.1-rc1).
+> - BIB companion sources, schemas, reproduction entry points and tests can be
+>   browsed at the
+>   [`ted-v1.1.0-rc1` tag](https://github.com/shayuanxukuang/pyfgsea-TED/tree/ted-v1.1.0-rc1)
+>   or on the
+>   [`codex/ted-bib-companion` branch](https://github.com/shayuanxukuang/pyfgsea-TED/tree/codex/ted-bib-companion).
+>   The core archive, 2,400 native outputs, stability/resolution shards, wheel
+>   and manifests are attached under **Assets** on the
+>   [`ted-v1.1.0-rc1` Release page](https://github.com/shayuanxukuang/pyfgsea-TED/releases/tag/ted-v1.1.0-rc1).
+>
+> GitHub Release attachments are stored outside the Git source tree and
+> therefore do not appear in the default Code file list. The relative date
+> shown beside a file or directory is the latest commit on the selected branch
+> that modified that path, not the publication date of a GitHub Release. It is
+> therefore expected that unchanged `main` directories show an older date even
+> though the two RC Releases were published later.
+>
 > A post-submission release-readiness audit identified four public-facing
 > reproducibility gaps:
 >
