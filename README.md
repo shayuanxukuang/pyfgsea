@@ -1,200 +1,194 @@
 # PyFgsea: GSEA in Python and Rust
 
-**PyFgsea** is a Python-first library for Gene Set Enrichment Analysis (GSEA), powered by a Rust backend. Its aligned mode implements a multilevel estimator intended for comparison with the reference R `fgseaMultilevel` methodology.
+PyFgsea runs preranked Gene Set Enrichment Analysis (GSEA) from Python with a
+Rust numerical core. It supports single analyses and rolling-window pathway
+analysis along an ordered trajectory.
 
-The current development version is the PEP 440 prerelease `0.2.0rc6`. Once its release gates pass, the corresponding Git prerelease tag is `v0.2.0-rc6`; the Git tag contains a hyphen, while the Python distribution version does not.
+The current development version is `0.2.0rc6`. It is a prerelease, not the
+final `0.2.0` distribution.
 
-## Key Features
-- **Rust-backed execution**: Native enrichment-score and null-estimation kernels.
-- **Numerical diagnostics**: ES, NES, tail-error and failure-state fields support explicit reference-lane auditing; formal RC6 conformance is still pending.
-- **Trajectory analysis**: Rolling-window GSEA for single-cell trajectory analysis.
-- **Python-first API**: Designed for seamless integration with pandas and scanpy workflows.
+## Features
+
+- Rust-backed enrichment-score and null-estimation kernels.
+- `mode="aligned"` for comparisons with R `fgseaMultilevel` under an explicit
+  parameter contract.
+- Deterministic gene-ID tie ordering and exact pathway-size nulls.
+- Explicit ES, NES, p-value, tail-error, unresolved, and failure diagnostics.
+- Rolling-window GSEA for single-cell or other ordered trajectories.
+- pandas-friendly input and output.
 
 ## Installation
 
-### Prerequisites
-- Python 3.9+
-- Rust toolchain (stable)
-- RC6 CI matrix: Linux/Windows with Python 3.9–3.13 (gate execution pending)
+PyFgsea requires Python 3.9 or newer. Building from source also requires a Rust
+toolchain.
 
-### Install from Source
-
-**Recommended (Standard):**
 ```bash
 git clone https://github.com/shayuanxukuang/pyfgsea.git
 cd pyfgsea
-pip install --upgrade pip maturin
-pip install .           # Core GSEA installation
-# OR
-pip install -e .        # Editable/Development mode
-
-# Add single-cell trajectory and plotting support when needed
-pip install ".[trajectory]"
+python -m pip install --upgrade pip maturin
+python -m pip install .
 ```
 
-**For Rust Development:**
+Install trajectory and plotting dependencies only when needed:
+
 ```bash
-maturin develop --release
+python -m pip install ".[trajectory]"
 ```
 
-## Quick Start
+For Rust development:
 
-Here is a minimal example to get you running in seconds.
+```bash
+maturin develop --release --locked
+```
+
+## Quick start
 
 ```python
 import pandas as pd
 import pyfgsea
 
-# 1. Prepare Data
-# Option A: DataFrame (Customizable column names)
-df = pd.DataFrame({
-    'gene_name': ['GeneA', 'GeneB', 'GeneC', 'GeneD', 'GeneE'],
-    'score': [2.5, 1.8, 0.5, -0.2, -1.5]
-})
-
-# Option B: Series (Index=Gene, Value=Score)
-# scores = df.set_index('gene_name')['score']
-
-# 2. Define Pathways (Dict of List)
-pathways = {
-    'Pathway_1': ['GeneA', 'GeneB'],
-    'Pathway_2': ['GeneD', 'GeneE']
-}
-
-# 3. Run GSEA
-# For DataFrame: specify gene_col and score_col
-res = pyfgsea.run_gsea(
-    data=df,
-    gmt=pathways,
-    gene_col='gene_name',
-    score_col='score',
-    min_size=1,     # Lower for toy example
-    max_size=500,
-    nperm_nes=100
+ranks = pd.DataFrame(
+    {
+        "gene_name": ["GeneA", "GeneB", "GeneC", "GeneD", "GeneE"],
+        "score": [2.5, 1.8, 0.5, -0.2, -1.5],
+    }
 )
 
-# 4. View Results (column names are case-sensitive)
-print(res[["Pathway", "NES", "P-value", "padj", "ES"]])
+pathways = {
+    "Pathway_1": ["GeneA", "GeneB"],
+    "Pathway_2": ["GeneD", "GeneE"],
+}
+
+result = pyfgsea.run_gsea(
+    data=ranks,
+    gmt=pathways,
+    gene_col="gene_name",
+    score_col="score",
+    min_size=1,
+    max_size=500,
+    nperm_nes=100,
+)
+
+print(result[["Pathway", "NES", "P-value", "padj", "ES", "status"]])
 ```
 
-### Input Formats
-- **DataFrame**: Must contain a gene column and a ranking score column. Specify via `gene_col` and `score_col`.
-- **Series**: Index must be gene names, values must be ranking scores.
-- **Deduplication**: Default strategy (`dedup_genes='max_abs'`) retains the gene entry with the highest absolute score.
+### Inputs
 
-### Output Columns
-The principal columns returned by `run_gsea` are:
-- `Pathway`: Pathway name
-- `P-value`: Estimated P-value
-- `padj`: Benjamini-Hochberg adjusted P-value
-- `ES`: Enrichment Score
-- `NES`: Normalized Enrichment Score
-- `Size`: Size of the pathway after filtering
-- `log2err`: P-value estimation error metric
-- `n_levels`: Multilevel depth used for the result
-- `pval_capped`: Whether p-value hit the eps floor
+- A `DataFrame` must contain a gene column and a ranking-score column. Select
+  them with `gene_col` and `score_col`.
+- A `Series` uses its index as gene identifiers and its values as scores.
+- `dedup_genes="max_abs"`, the default, keeps the duplicate entry with the
+  largest absolute score.
+- Pathways may be supplied as a mapping from pathway names to gene lists.
 
-Additional diagnostic columns include `log_pval`, `observed_pathway_size`, `null_curve_size`, `size_binned`, `approximate`, `status`, `termination_reason`, acceptance-rate summaries, `ranking_hash`, and `algorithm_revision`.
+### Outputs
 
-### Aligned and fast modes
+The main result columns are:
 
-`mode="aligned"` is the default and requires exact pathway sizes
-(`bin_width=0`). `mode="fast"` first runs an empirical precheck (default
-`precheck_n=64`, `precheck_eps=0.005`): a shallow tail uses the simple estimate,
-while a deeper tail proceeds to the multilevel compound ruler. The
-`termination_reason` field records which route was taken. Fast-mode results are
-marked approximate and must not be reported as aligned-mode results.
+- `Pathway`, `Size`, `ES`, `NES`, `P-value`, and `padj`;
+- `log2err`, `log_pval`, `n_levels`, and `pval_capped`;
+- `status` and `termination_reason` for resolved, unresolved, and failed rows;
+- `observed_pathway_size`, `null_curve_size`, `size_binned`, and
+  `approximate`;
+- `ranking_hash` and `algorithm_revision` for provenance.
 
-## Trajectory (rolling-window) GSEA along pseudotime
+Pathways with unresolved or failed estimates remain visible in the output.
+They must not be silently removed before reporting or comparison.
 
-PyFgsea supports rolling-window preranked GSEA to track pathway activity changes along single-cell trajectories.
-It reuses a stateful runner across windows.
+## Aligned and fast modes
 
-<p align="center">
-  <img src="https://raw.githubusercontent.com/shayuanxukuang/pyfgsea/v0.2.0-rc6/docs/assets/trajectory_demo.png" width="900" alt="Rolling-window trajectory demo">
-</p>
+`mode="aligned"` is the default. It uses exact pathway sizes (`bin_width=0`)
+and is the mode intended for the current R fgsea 1.38.0 conformance lane.
 
-### One-command demo
+`mode="fast"` starts with an empirical precheck. A shallow tail may return the
+simple estimate; a deeper tail proceeds to the multilevel compound ruler. Fast
+results are marked `approximate=True`, and `termination_reason` records the
+route. Do not report fast-mode output as aligned-mode output.
 
-> **Note**: Install the trajectory extra first: `pip install "pyfgsea[trajectory]"`.
-> This is a synthetic toy dataset for demonstration only (not biological data).
+The deprecated `score_type="two_sided_abs"` and low-level empirical tail
+helpers remain available for bounded compatibility work. They are approximate
+and are not equivalent to R `fgseaMultilevel(scoreType="std")`.
+
+## Rolling-window trajectory GSEA
+
+PyFgsea can rank genes and run GSEA repeatedly across overlapping windows of
+cells ordered by pseudotime. The default ranking statistic is:
+
+```text
+mean(expression in window) - mean(expression outside window)
+```
+
+Run the included synthetic example:
 
 ```bash
-# from the repo root
 python examples/trajectory_demo.py \
   --adata repro/data/toy_trajectory.h5ad \
   --pseudotime-key dpt_pseudotime \
   --outdir results/
 ```
 
-### What the plot shows
-- **Cells are ordered by pseudotime.**
-- **A sliding window moves along this ordering** (window size = `window_size`, step = `step`).
-- **Points denote window centers** (`pt_mid`), and curves are lightly smoothed for display.
-- **Preranked GSEA is run per window** to obtain ES/NES and FDR.
+![Rolling-window trajectory example](docs/assets/trajectory_demo.png)
 
-### Ranking statistic
-`mean(expression in window) − mean(expression outside window)` on log1p-normalized expression.
+The example writes:
 
-### Key parameters
-- `window_size`: number of cells per window (larger = smoother, smaller = higher resolution)
-- `step`: stride between windows (smaller = more windows)
-- `min_size`, `max_size`: gene set size filters
-- `eps`, `sample_size`: multilevel sampling controls
-- Threading: the current Python API does not expose an `n_threads` keyword.
-Defaults: `window_size=500`, `step=50`, `min_size=15`, `max_size=500`, `nperm_nes=2000`, `score_type="std"`, exact pathway sizes (`bin_width=0`), NES caching off (`use_nes_cache=False`), and `seed=42`.
+- `results/trajectory_demo.png`;
+- `results/trajectory_gsea_table.tsv`.
 
-### Outputs
-- `results/trajectory_demo.png`: marker expression and pathway NES dynamics along pseudotime
-- `results/trajectory_gsea_table.tsv`: per-window GSEA results (ES, NES, P-value, padj, window index)
+Trajectory defaults are `window_size=500`, `step=50`, `min_size=15`,
+`max_size=500`, `nperm_nes=2000`, `score_type="std"`, exact pathway sizes,
+NES caching off, and `seed=42`. The Python API does not currently expose an
+`n_threads` keyword.
 
-### Notes
-- Synthetic toy dataset for demonstration only (not biological data).
-- Expected trend: Pathway_Up increases and Pathway_Down decreases along pseudotime.
+## Reproducing the paper
 
-## Reproducing Paper Results
+Paper reproduction uses two separate reference lanes:
 
-The `repro/` directory contains the versioned reproduction definitions. PyFgsea 0.2.0 keeps two non-interchangeable reference lanes: the publication audit uses R fgsea 1.32.2, while current conformance uses R fgsea 1.38.0. See the [alignment boundary](https://github.com/shayuanxukuang/pyfgsea/blob/v0.2.0-rc6/docs/fgsea-1.38-alignment.md), [0.2.0 release note](https://github.com/shayuanxukuang/pyfgsea/blob/v0.2.0-rc6/docs/releases/0.2.0.md), and [dual-lane Figure 1 protocol](https://github.com/shayuanxukuang/pyfgsea/blob/v0.2.0-rc6/repro/figure1_dual_lane/README.md).
+| Purpose | PyFgsea | R | Bioconductor | fgsea |
+| --- | --- | --- | --- | --- |
+| Reproduce the published comparison | 0.1.4 | 4.4.3 | 3.20 | 1.32.2 |
+| Test current conformance | 0.2.0rc6 | 4.6.0 | 3.23 | 1.38.0 |
 
-### Reproducibility (with/without R)
+The lanes are not interchangeable. Do not relabel a result against fgsea
+1.32.2 as a comparison against fgsea 1.38.0, or combine the two references
+under an unspecified fgsea version.
 
-Some scripts can exercise the Python implementation without R. Such runs are partial checks, not reference-comparison or manuscript-artifact receipts. A formal comparison requires the pinned R/Bioconductor/fgsea environment and the artifact provenance described by the dual-lane protocol.
+See:
 
-Recommended setup: `pip install -e ".[trajectory]"`. The core install keeps only
-the numerical/dataframe runtime plus the lightweight command entry dependency;
-single-cell and plotting packages are isolated in the `trajectory` extra.
+- [fgsea reference alignment](docs/fgsea-1.38-alignment.md);
+- [0.2.0 release note](docs/releases/0.2.0.md);
+- [Figure 1 dual-lane protocol](repro/figure1_dual_lane/README.md).
 
-**Core Commands:**
-```bash
-python repro/fig_ablation_tail.py
-python repro/fig_supp_tail_consistency.py
-```
+A complete reference comparison requires a clean worktree at a named commit,
+an annotated release-candidate tag, and verified artifacts. The artifact chain
+builds an sdist from the source, builds the wheel from that sdist, installs the
+wheel in a clean environment, checks the installed version and native core, and
+runs the installed-wheel tests. Run records include SHA-256 values for the source,
+sdist, wheel, installed core, inputs, and outputs.
 
-### Exploratory unpinned R check (optional)
+An unpinned local R installation or a Python-only run is useful for exploration
+but is not a complete reference comparison. A skipped R comparison remains incomplete.
 
-The generic command below is useful only for local exploration. It is not a
-formal baseline because it does not pin fgsea 1.32.2 or 1.38.0. Formal
-comparisons must use the two frozen reference-lane definitions linked above.
+## Current limitations
 
-```r
-# In R console:
-install.packages("BiocManager")
-BiocManager::install("fgsea")
-```
-
-> **Note**: If R is not found, any skipped comparison must be reported as incomplete; a Python-only result does not close either reference lane.
-
-For full details, see the [dual-lane reproduction guide](https://github.com/shayuanxukuang/pyfgsea/blob/v0.2.0-rc6/repro/figure1_dual_lane/README.md).
+- `0.2.0rc6` is a prerelease; final PyPI, GitHub Release, and Zenodo artifacts
+  are not yet published.
+- Figure 1, Figure 2, supplementary results, and manuscript values still need
+  to be recalculated separately from the source-level tests.
+- Fast mode and the legacy empirical helpers are approximate.
+- Runtime and peak-memory values depend on the recorded hardware and software
+  environment.
 
 ## Citation
-If you use PyFgsea in academic work, please cite:
+
+If you use PyFgsea in academic work, cite:
 
 > Wang K, Shi H. PyFgsea: a Rust-powered, fgseaMultilevel-aligned GSEA framework with rolling-window enrichment along single-cell trajectories. *Bioinformatics*. 2026;42(5):btag257. doi:[10.1093/bioinformatics/btag257](https://doi.org/10.1093/bioinformatics/btag257).
 
 - Article: <https://doi.org/10.1093/bioinformatics/btag257>
-- Source code: <https://github.com/shayuanxukuang/pyfgsea>
+- Source: <https://github.com/shayuanxukuang/pyfgsea>
 - PyPI: <https://pypi.org/project/pyfgsea/>
-- Zenodo archive: <https://doi.org/10.5281/zenodo.19446446>
+- Zenodo: <https://doi.org/10.5281/zenodo.19446446>
 
 ## License
-MIT License. See [LICENSE](LICENSE) for details.
+
+MIT License. See [LICENSE](LICENSE).

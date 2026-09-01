@@ -1,5 +1,6 @@
 [package]
 name = "pyfgsea"
+# Single version source: maturin uses this Cargo version for Python metadata.
 version = "0.2.0-rc6"
 edition = "2021"
 description = "Python-first, Rust-backed gene set enrichment analysis"
@@ -19,22 +20,20 @@ include = [
     "/src/**/*.rs",
 ]
 
-# See more keys and their definitions at `https://doc.rust-lang.org/cargo/reference/manifest.html`
-
 [lib]
 name = "_core"
 crate-type = ["cdylib"]
 
 [dependencies]
-# PyO3 是核心，abi3 允许你编译一次支持多个 Python 版本
+# Build one abi3 extension that can run on supported Python versions.
 pyo3 = { version = "0.20", features = ["extension-module", "abi3-py38"] }
 numpy = "0.20"
 
-# 随机数生成，后面 Multilevel 必用
+# Random-number generators used by the multilevel estimator.
 rand = { version = "0.8", features = ["small_rng"] }
 rand_chacha = "0.3.1"
 rand_distr = "0.4"
 
-# 并行计算，未来做 batch 模式必用
+# Parallel execution for native kernels.
 rayon = "1.8"
 statrs = "0.17.1"
