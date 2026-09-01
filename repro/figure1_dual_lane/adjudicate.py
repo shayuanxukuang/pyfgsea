@@ -698,7 +698,7 @@ def _draw_figure(raw: pd.DataFrame, metrics: pd.DataFrame, output: Path) -> None
         lane_label = (
             "0.1.4 / fgsea 1.32.2"
             if lane == "legacy"
-            else "0.2.0rc5 / fgsea 1.38.0"
+            else "0.2.0rc6 / fgsea 1.38.0"
         )
         scenario_label = (
             "publication input"

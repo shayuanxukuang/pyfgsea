@@ -2,11 +2,11 @@
 
 **PyFgsea** is a Python-first library for Gene Set Enrichment Analysis (GSEA), powered by a Rust backend. Its aligned mode implements a multilevel estimator intended for comparison with the reference R `fgseaMultilevel` methodology.
 
-The current development version is the PEP 440 prerelease `0.2.0rc5`. Once its release gates pass, the corresponding Git prerelease tag is `v0.2.0-rc5`; the Git tag contains a hyphen, while the Python distribution version does not.
+The current development version is the PEP 440 prerelease `0.2.0rc6`. Once its release gates pass, the corresponding Git prerelease tag is `v0.2.0-rc6`; the Git tag contains a hyphen, while the Python distribution version does not.
 
 ## Key Features
 - **Rust-backed execution**: Native enrichment-score and null-estimation kernels.
-- **Numerical diagnostics**: ES, NES, tail-error and failure-state fields support explicit reference-lane auditing; formal RC5 conformance is still pending.
+- **Numerical diagnostics**: ES, NES, tail-error and failure-state fields support explicit reference-lane auditing; formal RC6 conformance is still pending.
 - **Trajectory analysis**: Rolling-window GSEA for single-cell trajectory analysis.
 - **Python-first API**: Designed for seamless integration with pandas and scanpy workflows.
 
@@ -15,7 +15,7 @@ The current development version is the PEP 440 prerelease `0.2.0rc5`. Once its r
 ### Prerequisites
 - Python 3.9+
 - Rust toolchain (stable)
-- RC5 CI matrix: Linux/Windows with Python 3.9–3.13 (gate execution pending)
+- RC6 CI matrix: Linux/Windows with Python 3.9–3.13 (gate execution pending)
 
 ### Install from Source
 
@@ -111,7 +111,7 @@ PyFgsea supports rolling-window preranked GSEA to track pathway activity changes
 It reuses a stateful runner across windows.
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/shayuanxukuang/pyfgsea/v0.2.0-rc5/docs/assets/trajectory_demo.png" width="900" alt="Rolling-window trajectory demo">
+  <img src="https://raw.githubusercontent.com/shayuanxukuang/pyfgsea/v0.2.0-rc6/docs/assets/trajectory_demo.png" width="900" alt="Rolling-window trajectory demo">
 </p>
 
 ### One-command demo
@@ -154,7 +154,7 @@ Defaults: `window_size=500`, `step=50`, `min_size=15`, `max_size=500`, `nperm_ne
 
 ## Reproducing Paper Results
 
-The `repro/` directory contains the versioned reproduction definitions. PyFgsea 0.2.0 keeps two non-interchangeable reference lanes: the publication audit uses R fgsea 1.32.2, while current conformance uses R fgsea 1.38.0. See the [alignment boundary](https://github.com/shayuanxukuang/pyfgsea/blob/v0.2.0-rc5/docs/fgsea-1.38-alignment.md), [0.2.0 release note](https://github.com/shayuanxukuang/pyfgsea/blob/v0.2.0-rc5/docs/releases/0.2.0.md), and [dual-lane Figure 1 protocol](https://github.com/shayuanxukuang/pyfgsea/blob/v0.2.0-rc5/repro/figure1_dual_lane/README.md).
+The `repro/` directory contains the versioned reproduction definitions. PyFgsea 0.2.0 keeps two non-interchangeable reference lanes: the publication audit uses R fgsea 1.32.2, while current conformance uses R fgsea 1.38.0. See the [alignment boundary](https://github.com/shayuanxukuang/pyfgsea/blob/v0.2.0-rc6/docs/fgsea-1.38-alignment.md), [0.2.0 release note](https://github.com/shayuanxukuang/pyfgsea/blob/v0.2.0-rc6/docs/releases/0.2.0.md), and [dual-lane Figure 1 protocol](https://github.com/shayuanxukuang/pyfgsea/blob/v0.2.0-rc6/repro/figure1_dual_lane/README.md).
 
 ### Reproducibility (with/without R)
 
@@ -184,7 +184,7 @@ BiocManager::install("fgsea")
 
 > **Note**: If R is not found, any skipped comparison must be reported as incomplete; a Python-only result does not close either reference lane.
 
-For full details, see the [dual-lane reproduction guide](https://github.com/shayuanxukuang/pyfgsea/blob/v0.2.0-rc5/repro/figure1_dual_lane/README.md).
+For full details, see the [dual-lane reproduction guide](https://github.com/shayuanxukuang/pyfgsea/blob/v0.2.0-rc6/repro/figure1_dual_lane/README.md).
 
 ## Citation
 If you use PyFgsea in academic work, please cite:

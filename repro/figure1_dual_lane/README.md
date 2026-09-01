@@ -11,7 +11,7 @@ The two mandatory lanes are:
 | Lane | Installed PyFgsea distribution | Module declaration | R | Bioconductor | fgsea | Rust revision |
 | --- | --- | --- | --- | --- | --- | --- |
 | `legacy` | 0.1.4 | 0.1.3 (historical packaging mismatch) | 4.4.3 | 3.20 | 1.32.2 | no revision API (required) |
-| `current` | 0.2.0rc5 | 0.2.0rc5 | 4.6.0 | 3.23 | 1.38.0 | `fgsea-1.38-pr178-v1` |
+| `current` | 0.2.0rc6 | 0.2.0rc6 | 4.6.0 | 3.23 | 1.38.0 | `fgsea-1.38-pr178-v1` |
 
 The historical mismatch in the legacy row is intentional.  The `v0.1.4` tag's
 Python project metadata declares 0.1.4, while its module and Cargo crate still
@@ -25,7 +25,8 @@ historical build receipt exists.
 
 `prepare_inputs.py` materializes two byte-hashed scenarios:
 
-RC5 names this input and receipt contract `figure1-dual-lane-v3`. The committed
+RC5 introduced, and RC6 retains unchanged, the input and receipt contract
+`figure1-dual-lane-v3`. The committed
 input files are the cross-platform source of truth: GitHub functional tests use
 byte equality and semantic invariants, not a predeclared SHA-256 pass/fail
 value. SHA-256 values are still recorded in formal evidence receipts for
@@ -129,10 +130,10 @@ python "${PYFGSEA_EVIDENCE_REPO}/repro/figure1_dual_lane/run_lane.py" \
   --reference-receipt "${EVIDENCE_ROOT}/legacy-oci/oci-receipt.json" \
   --output-dir "${EVIDENCE_ROOT}/figure1-legacy" \
   --expected-git-commit FULL_40_CHARACTER_RC_COMMIT \
-  --expected-git-tag v0.2.0-rc5
+  --expected-git-tag v0.2.0-rc6
 ```
 
-Run the analogous current command in the 0.2.0rc5 wheel environment with R
+Run the analogous current command in the 0.2.0rc6 wheel environment with R
 4.6.0/Bioconductor 3.23/fgsea 1.38.0:
 
 ```bash
@@ -149,7 +150,7 @@ python "${PYFGSEA_EVIDENCE_REPO}/repro/figure1_dual_lane/run_lane.py" \
   --reference-receipt "${EVIDENCE_ROOT}/current-oci/oci-receipt.json" \
   --output-dir "${EVIDENCE_ROOT}/figure1-current" \
   --expected-git-commit FULL_40_CHARACTER_RC_COMMIT \
-  --expected-git-tag v0.2.0-rc5
+  --expected-git-tag v0.2.0-rc6
 ```
 
 Finally, in a clean analysis environment containing pandas, NumPy, and
@@ -165,7 +166,7 @@ python "${PYFGSEA_EVIDENCE_REPO}/repro/figure1_dual_lane/adjudicate.py" \
   --input-manifest "${EVIDENCE_ROOT}/figure1-inputs/input_manifest.json" \
   --output-dir "${EVIDENCE_ROOT}/figure1-adjudicated" \
   --expected-git-commit FULL_40_CHARACTER_RC_COMMIT \
-  --expected-git-tag v0.2.0-rc5
+  --expected-git-tag v0.2.0-rc6
 ```
 
 The adjudication receipt binds the lane receipts, raw rows, metrics, plot,
