@@ -1,10 +1,10 @@
 [build-system]
-requires = ["maturin>=1.0,<2.0"]
+requires = ["maturin==1.10.2"]
 build-backend = "maturin"
 
 [project]
 name = "pyfgsea"
-version = "0.1.4"
+dynamic = ["version"]
 description = "Universal Trajectory GSEA Framework"
 requires-python = ">=3.9"
 dependencies = [
@@ -50,6 +50,7 @@ ted-mad = "pyfgsea.ted_mad.cli:cli"
 [tool.maturin]
 module-name = "pyfgsea._core"
 include = ["pyfgsea/schemas/*.json", "pyfgsea/ted_mad/schemas/*.json"]
+locked = true
 
 [tool.pytest.ini_options]
 markers = [

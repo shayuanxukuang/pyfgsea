@@ -7,7 +7,12 @@ from collections import deque
 from dataclasses import dataclass, field
 import hashlib
 import json
-from .wrapper import load_gmt, prepare_pathways, GseaRunner
+from .wrapper import (
+    GseaRunner,
+    _normalize_run_options,
+    load_gmt,
+    prepare_pathways,
+)
 from .leading_edge import compute_leading_edges
 from .validation import _expression_matrix
 
@@ -1322,9 +1327,14 @@ def run_trajectory_gsea(
     eps: float = 1e-50,
     nperm_nes: int = 100,
     pseudotime_key: str = "dpt_pseudotime",
-    bin_width: int = 10,
+    bin_width: Optional[int] = 0,
     calculate_nes: bool = True,
-    use_nes_cache: bool = True,
+    use_nes_cache: bool = False,
+    mode: str = "aligned",
+    score_type: str = "std",
+    tie_policy: str = "gene_id",
+    nperm_simple: Optional[int] = 1000,
+    max_levels: Optional[int] = None,
     ranker: str = "mean_diff",
     window_mode: str = "cell_count",
     min_cells: Optional[int] = None,
@@ -1354,6 +1364,34 @@ def run_trajectory_gsea(
     """
     Rolling-window GSEA along pseudotime (Trajectory Analysis).
     """
+    gsea_options = _normalize_run_options(
+        sample_size=sample_size,
+        seed=seed,
+        nperm_nes=nperm_nes,
+        gsea_param=gsea_param,
+        eps=eps,
+        score_type=score_type,
+        mode=mode,
+        tie_policy=tie_policy,
+        bin_width=bin_width,
+        calculate_nes=calculate_nes,
+        nperm_simple=nperm_simple,
+        max_levels=max_levels,
+    )
+    sample_size = gsea_options["sample_size"]
+    seed = gsea_options["seed"]
+    nperm_nes = gsea_options["nperm_nes"]
+    gsea_param = gsea_options["gsea_param"]
+    eps = gsea_options["eps"]
+    score_type = gsea_options["score_type"]
+    mode = gsea_options["mode"]
+    tie_policy = gsea_options["tie_policy"]
+    bin_width = gsea_options["bin_width"]
+    nperm_simple = gsea_options["nperm_simple"]
+    max_levels = gsea_options["max_levels"]
+    if not isinstance(use_nes_cache, (bool, np.bool_)):
+        raise TypeError("use_nes_cache must be boolean")
+
     if not HAS_SCANPY:
         raise ImportError("scanpy is required for trajectory analysis")
 
@@ -1491,7 +1529,14 @@ def run_trajectory_gsea(
         return empty
 
     # Initialize Runner
-    runner = GseaRunner(pathway_names, pathway_indices, min_size, max_size)
+    runner = GseaRunner(
+        pathway_names,
+        pathway_indices,
+        min_size,
+        max_size,
+        gene_ids=genes,
+        tie_policy=tie_policy,
+    )
 
     n_all = X.shape[0]
     weight_total = float(cell_weights.sum()) if cell_weights is not None and not graph_mode else None
@@ -1597,45 +1642,35 @@ def run_trajectory_gsea(
         scores = np.asarray(rank_vector, dtype=np.float64)
         scores[~np.isfinite(scores)] = 0.0
 
-        # Stateful Run
-        # The Rust sampler expects sample_size to fit both the ranked universe
-        # and each retained pathway size.
-        sample_size_limit = min(max(len(scores) - 1, 1), min(len(p) for p in pathway_indices))
-        sample_size_eff = min(sample_size, max(sample_size_limit, 1))
-        if sample_size_eff != sample_size:
-            logger.warning(
-                "sample_size=%s exceeds ranked gene count=%s; using sample_size=%s.",
-                sample_size,
-                len(scores),
-                sample_size_eff,
-            )
-        bin_width_eff = bin_width
-        if bin_width_eff is not None and bin_width_eff > len(scores):
-            logger.warning(
-                "bin_width=%s exceeds ranked gene count=%s; disabling binning for this run.",
-                bin_width_eff,
-                len(scores),
-            )
-            bin_width_eff = None
+        # The master seed is stable across windows. The Rust core derives task
+        # streams from the ranking hash and exact pathway size.
         res = runner.run(
             scores,
-            sample_size=sample_size_eff,
-            seed=seed + wi,
+            sample_size=sample_size,
+            seed=seed,
             eps=eps,
             nperm_nes=nperm_nes,
             gsea_param=gsea_param,
-            bin_width=bin_width_eff,
+            score_type=score_type,
+            bin_width=bin_width,
             calculate_nes=calculate_nes,
             use_nes_cache=use_nes_cache,
+            mode=mode,
+            nperm_simple=nperm_simple,
+            max_levels=max_levels,
         )
 
         if not res.empty:
             if return_leading_edge:
+                leading_scores = runner.prepare_scores(scores)
+                leading_genes = runner.prepared_gene_ids
+                if leading_genes is None:
+                    leading_genes = genes
                 leading_edges = compute_leading_edges(
-                    genes,
-                    scores,
+                    leading_genes,
+                    leading_scores,
                     pathway_names,
-                    pathway_indices,
+                    runner.pathway_indices,
                     gsea_param=gsea_param,
                 )
                 res["leading_edge"] = res["Pathway"].map(leading_edges).fillna("")
@@ -1696,6 +1731,26 @@ def run_trajectory_gsea(
             "target_span": target_span,
             "span_step": span_step,
             "pseudotime_key": pseudotime_key,
+            "min_size": min_size,
+            "max_size": max_size,
+            "sample_size": sample_size,
+            "seed": seed,
+            "eps": eps,
+            "nperm_nes": nperm_nes,
+            "bin_width": bin_width,
+            "calculate_nes": calculate_nes,
+            "use_nes_cache": use_nes_cache,
+            "mode": mode,
+            "score_type": score_type,
+            "tie_policy": tie_policy,
+            "nperm_simple": nperm_simple,
+            "max_levels": max_levels,
+            "approximate_mode": bool(
+                mode == "fast"
+                or bin_width > 0
+                or score_type in {"two_sided_abs", "one_sided_signed"}
+            ),
+            "gsea_param": gsea_param,
             "graph_key": graph_key,
             "graph_radius": graph_radius,
             "bandwidth_pt": bandwidth_pt,
@@ -1717,6 +1772,25 @@ def run_trajectory_gsea(
         "target_span": target_span,
         "span_step": span_step,
         "pseudotime_key": pseudotime_key,
+        "min_size": min_size,
+        "max_size": max_size,
+        "sample_size": sample_size,
+        "seed": seed,
+        "eps": eps,
+        "nperm_nes": nperm_nes,
+        "bin_width": bin_width,
+        "calculate_nes": calculate_nes,
+        "use_nes_cache": use_nes_cache,
+        "mode": mode,
+        "score_type": score_type,
+        "tie_policy": tie_policy,
+        "nperm_simple": nperm_simple,
+        "max_levels": max_levels,
+        "approximate_mode": bool(
+            mode == "fast"
+            or bin_width > 0
+            or score_type in {"two_sided_abs", "one_sided_signed"}
+        ),
         "return_leading_edge": return_leading_edge,
         "gsea_param": gsea_param,
         "expression_source": expression_source,

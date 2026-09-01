@@ -1,0 +1,87 @@
+{
+  "schema_version": 2,
+  "manifest_type": "pyfgsea-reference-configuration",
+  "configuration_status": "not-built-not-recomputed",
+  "generated_results": false,
+  "null_field_policy": "The linux/amd64 base-image digests are pinned in this configuration. Per-profile PyFgsea commit/tree hash, built OCI image digest, resolved-lock hash, dataset hash, parameters, and result hashes remain null or empty until scripts/update_reference_manifest.py records them from a clean committed tree and concrete artifacts.",
+  "profiles": {
+    "legacy_publication": {
+      "purpose": "Reproduce the published PyFgsea 0.1.4 comparison environment; do not use this lane to claim current fgsea alignment.",
+      "pyfgsea_version": "0.1.4",
+      "r_version": "4.4.3",
+      "bioconductor_version": "3.20",
+      "fgsea_version": "1.32.2",
+      "fgsea_commit": "4620281",
+      "pyfgsea_commit": null,
+      "pyfgsea_source_tree_sha256": null,
+      "dockerfile": "Dockerfile.reference-fgsea-1.32.2",
+      "bootstrap_lockfile": "renv-fgsea-1.32.2.lock",
+      "fgsea_source": {
+        "url": "https://bioconductor.org/packages/3.20/bioc/src/contrib/Archive/fgsea/fgsea_1.32.2.tar.gz",
+        "sha256": "2eb41ffb00af5ba3a1eb121d85a04028e57a023e8af3578e21440af62ff231a4"
+      },
+      "docker_base_image": "r-base:4.4.3",
+      "docker_base_image_digest": "sha256:089317f336a61255bb35f1efd799820cef37136d2acf2a76ba4abb74af51d4a3",
+      "docker_platform": "linux/amd64",
+      "docker_image_digest": null,
+      "resolved_lockfile_sha256": null,
+      "dataset_sha256": null,
+      "parameters": {},
+      "input_artifacts": {},
+      "result_artifacts": {},
+      "recomputation_status": "not-run"
+    },
+    "current_conformance": {
+      "purpose": "Validate PyFgsea 0.2.0 against the current Bioconductor stable fgsea reference after the statistical repair.",
+      "pyfgsea_version": "0.2.0",
+      "r_version": "4.6.0",
+      "bioconductor_version": "3.23",
+      "fgsea_version": "1.38.0",
+      "fgsea_commit": "1fe4644",
+      "pyfgsea_commit": null,
+      "pyfgsea_source_tree_sha256": null,
+      "pyfgsea_algorithm_revision": "fgsea-1.38-pr178-v1",
+      "dockerfile": "Dockerfile.reference-fgsea-1.38.0",
+      "bootstrap_lockfile": "renv.lock",
+      "fgsea_source": {
+        "url": "https://bioconductor.org/packages/3.23/bioc/src/contrib/fgsea_1.38.0.tar.gz",
+        "sha256": "223eede5c1c1c8f8a5979e51a40d7f373f0476aefc5c3525c323af5cf871798f"
+      },
+      "upstream_alignment_basis": {
+        "pull_request": "https://github.com/alserglab/fgsea/pull/178",
+        "issue": "https://github.com/alserglab/fgsea/issues/151",
+        "merge_commit": "9a06694dfc7b54a0a698061a97db15945ede725c"
+      },
+      "docker_base_image": "r-base:4.6.0",
+      "docker_base_image_digest": "sha256:dc3c818ba1a6a58cbc5c450878bb4d9a6385feef60bbbfa5f8d62e54f544e566",
+      "docker_platform": "linux/amd64",
+      "docker_image_digest": null,
+      "resolved_lockfile_sha256": null,
+      "dataset_sha256": null,
+      "parameters": {},
+      "input_artifacts": {},
+      "result_artifacts": {},
+      "recomputation_status": "not-run"
+    }
+  },
+  "host_validation": {
+    "docker_build_status": "blocked",
+    "docker_build_blocker": "Docker Desktop backend failed while initializing Inference manager (dockerInference): The filename, directory name, or volume label syntax is incorrect.",
+    "docker_global_settings_modified": false,
+    "static_validation_only": false,
+    "docker_profiles_static_validation_only": true,
+    "isolated_local_validation": {
+      "current_conformance": {
+        "status": "passed-smoke-not-artifact-binding",
+        "validated_on": "2026-09-01",
+        "r_version": "4.6.0",
+        "bioconductor_version": "3.23",
+        "fgsea_version": "1.38.0",
+        "test_scope": "tests/test_reference_fgsea.py",
+        "artifact_binding": false,
+        "r_installer_sha256": "ca14dd6c39cdacee0b2bc7702c4335f6b34e40ab5cf5f55f71428ebf5bc368ca",
+        "fgsea_windows_binary_sha256": "85507da401c53b8b9dc535d6c5867de26ed52b16b8442ac125d6bd03f43667d"
+      }
+    }
+  }
+}

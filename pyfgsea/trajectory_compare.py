@@ -566,6 +566,11 @@ def _pseudobulk_condition_results(
     gene_set_mode: str,
     min_abs_gene_weight: float,
     gsea_param: float,
+    gsea_mode: str,
+    score_type: str,
+    tie_policy: str,
+    nperm_simple: Optional[int],
+    max_levels: Optional[int],
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
     if pseudotime_key not in adata.obs:
         raise ValueError(f"pseudotime_key '{pseudotime_key}' not found in adata.obs")
@@ -599,7 +604,14 @@ def _pseudobulk_condition_results(
     pathway_names, pathway_indices = prepare_pathways(genes, gene_sets, min_size, max_size)
     if not pathway_indices:
         return pd.DataFrame(), pd.DataFrame()
-    runner = GseaRunner(pathway_names, pathway_indices, min_size, max_size)
+    runner = GseaRunner(
+        pathway_names,
+        pathway_indices,
+        min_size,
+        max_size,
+        gene_ids=genes,
+        tie_policy=tie_policy,
+    )
 
     order = np.argsort(pt)
     windows = _make_windows(
@@ -661,19 +673,20 @@ def _pseudobulk_condition_results(
         scores = np.asarray(scores, dtype=np.float64)
         scores[~np.isfinite(scores)] = 0.0
 
-        sample_size_limit = min(max(len(scores) - 1, 1), min(len(p) for p in pathway_indices))
-        sample_size_eff = min(sample_size, max(sample_size_limit, 1))
-        bin_width_eff = None if bin_width is not None and bin_width > len(scores) else bin_width
         res = runner.run(
             scores,
-            sample_size=sample_size_eff,
-            seed=seed + wi,
+            sample_size=sample_size,
+            seed=seed,
             eps=eps,
             nperm_nes=nperm_nes,
             gsea_param=gsea_param,
-            bin_width=bin_width_eff,
+            score_type=score_type,
+            bin_width=bin_width,
             calculate_nes=calculate_nes,
             use_nes_cache=use_nes_cache,
+            mode=gsea_mode,
+            nperm_simple=nperm_simple,
+            max_levels=max_levels,
         )
         if res.empty:
             continue
@@ -952,6 +965,11 @@ def _matched_condition_results(
     gene_set_mode: str,
     min_abs_gene_weight: float,
     gsea_param: float,
+    gsea_mode: str,
+    score_type: str,
+    tie_policy: str,
+    nperm_simple: Optional[int],
+    max_levels: Optional[int],
     smooth_slope_bandwidth: Optional[float] = None,
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
     if pseudotime_key not in adata.obs:
@@ -987,7 +1005,14 @@ def _matched_condition_results(
     pathway_names, pathway_indices = prepare_pathways(genes, gene_sets, min_size, max_size)
     if not pathway_indices:
         return pd.DataFrame(), pd.DataFrame()
-    runner = GseaRunner(pathway_names, pathway_indices, min_size, max_size)
+    runner = GseaRunner(
+        pathway_names,
+        pathway_indices,
+        min_size,
+        max_size,
+        gene_ids=genes,
+        tie_policy=tie_policy,
+    )
     ranker = _normalize_ranker(ranker)
 
     ordered = np.argsort(pt)
@@ -1143,21 +1168,20 @@ def _matched_condition_results(
             scores = np.mean(np.vstack(score_reps), axis=0)
             scores = np.asarray(scores, dtype=np.float64)
             scores[~np.isfinite(scores)] = 0.0
-            sample_size_limit = min(
-                max(len(scores) - 1, 1), min(len(p) for p in pathway_indices)
-            )
-            sample_size_eff = min(sample_size, max(sample_size_limit, 1))
-            bin_width_eff = None if bin_width is not None and bin_width > len(scores) else bin_width
             res = runner.run(
                 scores,
-                sample_size=sample_size_eff,
-                seed=seed + wi,
+                sample_size=sample_size,
+                seed=seed,
                 eps=eps,
                 nperm_nes=nperm_nes,
                 gsea_param=gsea_param,
-                bin_width=bin_width_eff,
+                score_type=score_type,
+                bin_width=bin_width,
                 calculate_nes=calculate_nes,
                 use_nes_cache=use_nes_cache,
+                mode=gsea_mode,
+                nperm_simple=nperm_simple,
+                max_levels=max_levels,
             )
             if res.empty:
                 continue
@@ -1222,6 +1246,11 @@ def _sample_balanced_condition_results(
     gene_set_mode: str,
     min_abs_gene_weight: float,
     gsea_param: float,
+    gsea_mode: str,
+    score_type: str,
+    tie_policy: str,
+    nperm_simple: Optional[int],
+    max_levels: Optional[int],
     smooth_slope_bandwidth: Optional[float] = None,
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
     if pseudotime_key not in adata.obs:
@@ -1257,7 +1286,14 @@ def _sample_balanced_condition_results(
     pathway_names, pathway_indices = prepare_pathways(genes, gene_sets, min_size, max_size)
     if not pathway_indices:
         return pd.DataFrame(), pd.DataFrame()
-    runner = GseaRunner(pathway_names, pathway_indices, min_size, max_size)
+    runner = GseaRunner(
+        pathway_names,
+        pathway_indices,
+        min_size,
+        max_size,
+        gene_ids=genes,
+        tie_policy=tie_policy,
+    )
     ranker = _normalize_ranker(ranker)
 
     result_frames = []
@@ -1345,21 +1381,20 @@ def _sample_balanced_condition_results(
             scores = np.mean(np.vstack(sample_scores), axis=0)
             scores = np.asarray(scores, dtype=np.float64)
             scores[~np.isfinite(scores)] = 0.0
-            sample_size_limit = min(
-                max(len(scores) - 1, 1), min(len(p) for p in pathway_indices)
-            )
-            sample_size_eff = min(sample_size, max(sample_size_limit, 1))
-            bin_width_eff = None if bin_width is not None and bin_width > len(scores) else bin_width
             res = runner.run(
                 scores,
-                sample_size=sample_size_eff,
-                seed=seed + wi,
+                sample_size=sample_size,
+                seed=seed,
                 eps=eps,
                 nperm_nes=nperm_nes,
                 gsea_param=gsea_param,
-                bin_width=bin_width_eff,
+                score_type=score_type,
+                bin_width=bin_width,
                 calculate_nes=calculate_nes,
                 use_nes_cache=use_nes_cache,
+                mode=gsea_mode,
+                nperm_simple=nperm_simple,
+                max_levels=max_levels,
             )
             if res.empty:
                 continue
@@ -1951,9 +1986,9 @@ def run_pseudobulk_condition_gsea(
     seed: int = 42,
     eps: float = 1e-50,
     nperm_nes: int = 100,
-    bin_width: int = 10,
+    bin_width: Optional[int] = 0,
     calculate_nes: bool = True,
-    use_nes_cache: bool = True,
+    use_nes_cache: bool = False,
     event_kwargs: Optional[dict] = None,
     n_permutations: int = 100,
     calibration_stats: Sequence[str] = ("max_abs_NES", "AUC_abs", "duration"),
@@ -1964,6 +1999,11 @@ def run_pseudobulk_condition_gsea(
     gene_set_mode: str = "standard",
     min_abs_gene_weight: float = 0.0,
     gsea_param: float = 1.0,
+    mode: str = "aligned",
+    score_type: str = "std",
+    tie_policy: str = "gene_id",
+    nperm_simple: Optional[int] = 1000,
+    max_levels: Optional[int] = None,
 ) -> pd.DataFrame:
     """
     Differential trajectory GSEA on sample-window pseudobulk profiles.
@@ -2027,6 +2067,11 @@ def run_pseudobulk_condition_gsea(
         gene_set_mode=gene_set_mode,
         min_abs_gene_weight=min_abs_gene_weight,
         gsea_param=gsea_param,
+        gsea_mode=mode,
+        score_type=score_type,
+        tie_policy=tie_policy,
+        nperm_simple=nperm_simple,
+        max_levels=max_levels,
     )
     results, diagnostics = _pseudobulk_condition_results(
         work,
@@ -2143,14 +2188,19 @@ def compare_trajectory_gsea_replicate_aware(
     sample_size = int(run_kwargs.pop("sample_size", 101))
     eps = float(run_kwargs.pop("eps", 1e-50))
     nperm_nes = int(run_kwargs.pop("nperm_nes", 100))
-    bin_width = run_kwargs.pop("bin_width", 10)
+    bin_width = run_kwargs.pop("bin_width", 0)
     calculate_nes = bool(run_kwargs.pop("calculate_nes", True))
-    use_nes_cache = bool(run_kwargs.pop("use_nes_cache", True))
+    use_nes_cache = bool(run_kwargs.pop("use_nes_cache", False))
     layer = run_kwargs.pop("layer", None)
     use_raw = bool(run_kwargs.pop("use_raw", False))
     gene_set_mode = run_kwargs.pop("gene_set_mode", "standard")
     min_abs_gene_weight = float(run_kwargs.pop("min_abs_gene_weight", 0.0))
     gsea_param = float(run_kwargs.pop("gsea_param", 1.0))
+    gsea_mode = run_kwargs.pop("gsea_mode", "aligned")
+    score_type = run_kwargs.pop("score_type", "std")
+    tie_policy = run_kwargs.pop("tie_policy", "gene_id")
+    nperm_simple = run_kwargs.pop("nperm_simple", 1000)
+    max_levels = run_kwargs.pop("max_levels", None)
     smooth_slope_bandwidth = run_kwargs.pop("smooth_slope_bandwidth", None)
     min_sample_cells = (
         int(kwargs.get("window_size", 1)) if min_sample_cells is None else int(min_sample_cells)
@@ -2202,6 +2252,11 @@ def compare_trajectory_gsea_replicate_aware(
         gene_set_mode=gene_set_mode,
         min_abs_gene_weight=min_abs_gene_weight,
         gsea_param=gsea_param,
+        gsea_mode=gsea_mode,
+        score_type=score_type,
+        tie_policy=tie_policy,
+        nperm_simple=nperm_simple,
+        max_levels=max_levels,
         smooth_slope_bandwidth=smooth_slope_bandwidth,
     )
     events = _summarize_events_by_group(results, condition_key, event_kwargs=event_kwargs)
@@ -2248,6 +2303,11 @@ def compare_trajectory_gsea_replicate_aware(
         gene_set_mode=gene_set_mode,
         min_abs_gene_weight=min_abs_gene_weight,
         gsea_param=gsea_param,
+        mode=gsea_mode,
+        score_type=score_type,
+        tie_policy=tie_policy,
+        nperm_simple=nperm_simple,
+        max_levels=max_levels,
         smooth_slope_bandwidth=smooth_slope_bandwidth,
     )
     sample_comparison = _compare_sample_event_tables(
@@ -2321,6 +2381,11 @@ def compare_trajectory_gsea_replicate_aware(
                 gene_set_mode=gene_set_mode,
                 min_abs_gene_weight=min_abs_gene_weight,
                 gsea_param=gsea_param,
+                gsea_mode=gsea_mode,
+                score_type=score_type,
+                tie_policy=tie_policy,
+                nperm_simple=nperm_simple,
+                max_levels=max_levels,
                 smooth_slope_bandwidth=smooth_slope_bandwidth,
             )
             perm_events = _summarize_events_by_group(
@@ -2754,6 +2819,7 @@ def compare_trajectory_gsea(
             )
         )
         alignment_sensitivity = bool(run_kwargs.pop("alignment_sensitivity", True))
+        run_kwargs["mode"] = run_kwargs.pop("gsea_mode", "aligned")
         precomputed_pathway_null = str(alignment_permutation).lower() in {
             "pathway_label",
             "pathway_label_permutation",
@@ -2925,14 +2991,19 @@ def compare_trajectory_gsea(
         sample_size = int(run_kwargs.pop("sample_size", 101))
         eps = float(run_kwargs.pop("eps", 1e-50))
         nperm_nes = int(run_kwargs.pop("nperm_nes", 100))
-        bin_width = run_kwargs.pop("bin_width", 10)
+        bin_width = run_kwargs.pop("bin_width", 0)
         calculate_nes = bool(run_kwargs.pop("calculate_nes", True))
-        use_nes_cache = bool(run_kwargs.pop("use_nes_cache", True))
+        use_nes_cache = bool(run_kwargs.pop("use_nes_cache", False))
         layer = run_kwargs.pop("layer", None)
         use_raw = bool(run_kwargs.pop("use_raw", False))
         gene_set_mode = run_kwargs.pop("gene_set_mode", "standard")
         min_abs_gene_weight = float(run_kwargs.pop("min_abs_gene_weight", 0.0))
         gsea_param = float(run_kwargs.pop("gsea_param", 1.0))
+        gsea_mode = run_kwargs.pop("gsea_mode", "aligned")
+        score_type = run_kwargs.pop("score_type", "std")
+        tie_policy = run_kwargs.pop("tie_policy", "gene_id")
+        nperm_simple = run_kwargs.pop("nperm_simple", 1000)
+        max_levels = run_kwargs.pop("max_levels", None)
         smooth_slope_bandwidth = run_kwargs.pop("smooth_slope_bandwidth", None)
         results, diagnostics = _matched_condition_results(
             adata,
@@ -2968,6 +3039,11 @@ def compare_trajectory_gsea(
             gene_set_mode=gene_set_mode,
             min_abs_gene_weight=min_abs_gene_weight,
             gsea_param=gsea_param,
+            gsea_mode=gsea_mode,
+            score_type=score_type,
+            tie_policy=tie_policy,
+            nperm_simple=nperm_simple,
+            max_levels=max_levels,
             smooth_slope_bandwidth=smooth_slope_bandwidth,
         )
         events = _summarize_events_by_group(results, condition_key, event_kwargs=event_kwargs)
@@ -3024,6 +3100,8 @@ def compare_trajectory_gsea(
         raise ValueError("Only compare='case_vs_control' is currently supported")
 
     event_kwargs = {} if event_kwargs is None else dict(event_kwargs)
+    run_kwargs = dict(kwargs)
+    run_kwargs["mode"] = run_kwargs.pop("gsea_mode", "aligned")
     result_frames = []
     event_frames = []
     for condition in (control, case):
@@ -3032,7 +3110,7 @@ def compare_trajectory_gsea(
             gmt_path=gmt_path,
             pseudotime_key=pseudotime_key,
             seed=seed,
-            **kwargs,
+            **run_kwargs,
         )
         if res is None or res.empty:
             continue
@@ -3097,13 +3175,15 @@ def run_branch_gsea(
         raise ValueError("At least two branches are required")
 
     event_kwargs = {} if event_kwargs is None else dict(event_kwargs)
+    run_kwargs = dict(kwargs)
+    run_kwargs["mode"] = run_kwargs.pop("gsea_mode", "aligned")
     result_frames = []
     event_frames = []
     for branch in selected:
         res = run_trajectory_gsea(
             _subset_adata(adata, branch_key, branch),
             gmt_path=gmt_path,
-            **kwargs,
+            **run_kwargs,
         )
         if res is None or res.empty:
             continue
@@ -3199,9 +3279,9 @@ def run_branch_contrast_gsea(
     seed: int = 42,
     eps: float = 1e-50,
     nperm_nes: int = 100,
-    bin_width: int = 10,
+    bin_width: Optional[int] = 0,
     calculate_nes: bool = True,
-    use_nes_cache: bool = True,
+    use_nes_cache: bool = False,
     event_kwargs: Optional[dict] = None,
     layer: Optional[str] = None,
     use_raw: bool = False,
@@ -3209,6 +3289,11 @@ def run_branch_contrast_gsea(
     gene_set_mode: str = "standard",
     min_abs_gene_weight: float = 0.0,
     gsea_param: float = 1.0,
+    gsea_mode: str = "aligned",
+    score_type: str = "std",
+    tie_policy: str = "gene_id",
+    nperm_simple: Optional[int] = 1000,
+    max_levels: Optional[int] = None,
 ) -> dict[str, pd.DataFrame]:
     """
     Compare branches at matched pseudotime windows using branch contrast ranks.
@@ -3252,7 +3337,14 @@ def run_branch_contrast_gsea(
     if not pathway_indices:
         return {"results": pd.DataFrame(), "events": pd.DataFrame(), "comparisons": pd.DataFrame()}
 
-    runner = GseaRunner(pathway_names, pathway_indices, min_size, max_size)
+    runner = GseaRunner(
+        pathway_names,
+        pathway_indices,
+        min_size,
+        max_size,
+        gene_ids=genes,
+        tie_policy=tie_policy,
+    )
     result_frames = []
     event_frames = []
 
@@ -3283,19 +3375,20 @@ def run_branch_contrast_gsea(
             scores = np.asarray(scores, dtype=np.float64)
             scores[~np.isfinite(scores)] = 0.0
 
-            sample_size_limit = min(max(len(scores) - 1, 1), min(len(p) for p in pathway_indices))
-            sample_size_eff = min(sample_size, max(sample_size_limit, 1))
-            bin_width_eff = None if bin_width is not None and bin_width > len(scores) else bin_width
             res = runner.run(
                 scores,
-                sample_size=sample_size_eff,
-                seed=seed + wi,
+                sample_size=sample_size,
+                seed=seed,
                 eps=eps,
                 nperm_nes=nperm_nes,
                 gsea_param=gsea_param,
-                bin_width=bin_width_eff,
+                score_type=score_type,
+                bin_width=bin_width,
                 calculate_nes=calculate_nes,
                 use_nes_cache=use_nes_cache,
+                mode=gsea_mode,
+                nperm_simple=nperm_simple,
+                max_levels=max_levels,
             )
             if res.empty:
                 continue

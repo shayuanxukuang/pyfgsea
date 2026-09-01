@@ -1,5 +1,17 @@
 # Trajectory Pathway Event Discovery (TED)
 
+> [!CAUTION]
+> ## PyFgsea statistical-core 0.2.0 release candidate
+>
+> The published PyFgsea comparison used R fgsea 1.32.2. PyFgsea 0.2.0
+> introduces a separately versioned statistical-core repair targeting the
+> fgsea 1.38.0 / PR #178 behavior boundary. Source-level verification has
+> passed, but current-alignment, performance, figure, and manuscript claims
+> remain bounded by the frozen-reference and artifact gates in
+> [`docs/fgsea-1.38-alignment.md`](docs/fgsea-1.38-alignment.md). Historical
+> 0.1.x and 0.2.0 outputs must not be pooled without recording the software
+> version and reference lane.
+
 > [!IMPORTANT]
 > ## Post-submission reproducibility and release clarification (30 July 2026)
 >

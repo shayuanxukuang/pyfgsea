@@ -7,6 +7,9 @@ __pycache__
 *.pyc
 *.pyo
 *.pyd
+*.so
+*.dll
+*.dylib
 *.whl
 target
 dist

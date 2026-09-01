@@ -178,7 +178,7 @@ def test_run_trajectory_supports_smooth_slope_and_split_signed_sets():
         min_size=1,
         max_size=10,
         nperm_nes=10,
-        sample_size=1,
+        sample_size=3,
         calculate_nes=False,
     )
 

@@ -5,6 +5,10 @@ __pycache__/
 dist/
 target/
 *.pyc
+*.pyd
+*.so
+*.dll
+*.dylib
 *.log
 *.aux
 *.out

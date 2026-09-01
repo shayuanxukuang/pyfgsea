@@ -1,12 +1,31 @@
+from importlib.metadata import PackageNotFoundError, version as _distribution_version
+from pathlib import Path as _Path
+import re as _re
+
 from .wrapper import (
     run_gsea,
     load_gmt,
     GseaRunner,
     prepare_pathways,
     get_random_es_means,
+    multilevel_error,
 )
 
-__version__ = "0.1.4"
+_cargo_manifest = _Path(__file__).resolve().parent.parent / "Cargo.toml"
+if _cargo_manifest.is_file():
+    _package_section = _cargo_manifest.read_text(encoding="utf-8").split("[package]", 1)[1]
+    _package_section = _package_section.split("[", 1)[0]
+    _version_match = _re.search(
+        r'^version\s*=\s*"([^"]+)"', _package_section, _re.MULTILINE
+    )
+    if _version_match is None:
+        raise RuntimeError("Cargo.toml [package] is missing version")
+    __version__ = _version_match.group(1)
+else:
+    try:
+        __version__ = _distribution_version("pyfgsea")
+    except PackageNotFoundError:
+        __version__ = "0+unknown"
 
 try:
     from .wrapper import run_scanpy  # type: ignore
@@ -186,6 +205,7 @@ __all__ = [
     "GseaRunner",
     "prepare_pathways",
     "get_random_es_means",
+    "multilevel_error",
     "run_trajectory_gsea",
     "GeneSetIndex",
     "WindowIndex",
