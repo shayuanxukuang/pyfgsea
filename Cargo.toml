@@ -1,6 +1,6 @@
 [package]
 name = "pyfgsea"
-version = "0.2.0-rc3"
+version = "0.2.0-rc4"
 edition = "2021"
 description = "Python-first, Rust-backed gene set enrichment analysis"
 license = "MIT"

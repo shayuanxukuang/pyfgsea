@@ -228,8 +228,8 @@ def _verify_artifact_receipt(
             )
         expected = receipt.get("expected")
         expected_fields = {
-            "cargo_version": "0.2.0-rc3",
-            "pyfgsea_version": "0.2.0rc3",
+            "cargo_version": "0.2.0-rc4",
+            "pyfgsea_version": "0.2.0rc4",
             "algorithm_revision": "fgsea-1.38-pr178-v1",
         }
         if not isinstance(expected, Mapping) or any(

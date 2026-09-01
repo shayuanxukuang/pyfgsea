@@ -10,6 +10,7 @@ permissions:
   contents: read
 
 env:
+  RUST_VERSION: "1.92.0"
   CARGO_REGISTRIES_CRATES_IO_PROTOCOL: sparse
   CARGO_NET_RETRY: 10
   CARGO_HTTP_TIMEOUT: 60
@@ -37,9 +38,11 @@ jobs:
         python-version: ${{ matrix.python-version }}
 
     - name: Install Rust toolchain
-      uses: dtolnay/rust-toolchain@87eb139fed4b08a67bd1fa429a21d1f5d523e03e # 1.92.0
-      with:
-        toolchain: 1.92.0
+      shell: bash
+      run: |
+        rustup toolchain install "$RUST_VERSION" --profile minimal --component rustfmt
+        rustup default "$RUST_VERSION"
+        test "$(rustc --version | awk '{print $2}')" = "$RUST_VERSION"
 
     - name: Install dependencies
       run: |
@@ -82,29 +85,41 @@ jobs:
     - name: Run tests against the installed wheel
       shell: bash
       run: |
-        python - <<'PY'
+        python -I - <<'PY'
         import importlib.metadata
         import os
+        import sys
         from pathlib import Path
-
-        import pytest
 
         workspace = Path(os.environ["GITHUB_WORKSPACE"]).resolve()
         os.chdir(os.environ["RUNNER_TEMP"])
+        os.environ["PYTEST_DISABLE_PLUGIN_AUTOLOAD"] = "1"
 
         import pyfgsea
+        import pyfgsea._core as pyfgsea_core
+        import pytest
 
         package_file = Path(pyfgsea.__file__).resolve()
+        core_file = Path(pyfgsea_core.__file__).resolve()
         assert workspace not in package_file.parents, (
             f"source checkout shadowed installed wheel: {package_file}"
         )
+        assert workspace not in core_file.parents, (
+            f"source checkout shadowed installed native core: {core_file}"
+        )
         assert pyfgsea.__version__ == importlib.metadata.version("pyfgsea")
+
+        # The Figure 1 test imports commit-bound helpers from repro/.  Append the
+        # checkout only after the installed package and native core are loaded.
+        sys.path.append(str(workspace))
 
         raise SystemExit(
             pytest.main(
                 [
                     "-q",
                     "--import-mode=importlib",
+                    "-p",
+                    "no:cacheprovider",
                     str(workspace / "tests"),
                     str(workspace / "repro" / "figure1_dual_lane" / "test_pipeline.py"),
                 ]

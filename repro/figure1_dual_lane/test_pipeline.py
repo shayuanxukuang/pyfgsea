@@ -14,6 +14,7 @@ from repro.figure1_dual_lane.adjudicate import concordance_metrics
 from repro.figure1_dual_lane.common import read_json, verify_file_record
 from repro.figure1_dual_lane.prepare_inputs import (
     PUBLICATION_PARAMETERS,
+    PUBLICATION_SCORE_SIGNIFICANT_DIGITS,
     generate_test_data,
     prepare_inputs,
 )
@@ -47,13 +48,41 @@ def test_publication_generator_matches_historical_utility() -> None:
     assert actual_pathways == expected_pathways
 
 
+def test_publication_freeze_only_canonicalizes_binary64_tails(tmp_path: Path) -> None:
+    raw_ranks, _ = generate_test_data(**PUBLICATION_PARAMETERS)
+    raw_ordered = raw_ranks.sort_values(
+        ["Score", "Gene"], ascending=[False, True], kind="mergesort"
+    ).reset_index(drop=True)
+
+    manifest_path = prepare_inputs(tmp_path / "inputs")
+    manifest = read_json(manifest_path)
+    publication = manifest["scenarios"]["publication_main"]
+    frozen = pd.read_csv(manifest_path.parent / publication["ranks"]["path"])
+
+    assert frozen["Gene"].tolist() == raw_ordered["Gene"].tolist()
+    np.testing.assert_allclose(
+        frozen["Score"].to_numpy(),
+        raw_ordered["Score"].to_numpy(),
+        rtol=5e-12,
+        atol=5e-12,
+    )
+    assert np.max(
+        np.abs(frozen["Score"].to_numpy() - raw_ordered["Score"].to_numpy())
+    ) > 0.0
+
+
 def test_input_bundle_contains_distinct_predeclared_ties(tmp_path: Path) -> None:
     manifest_path = prepare_inputs(tmp_path / "inputs")
     manifest = read_json(manifest_path)
     assert list(manifest["scenarios"]) == ["publication_main", "ties_predeclared"]
     publication = manifest["scenarios"]["publication_main"]
     ties = manifest["scenarios"]["ties_predeclared"]
-    assert publication["score_transform"] == "none"
+    assert publication["score_transform"] == (
+        "canonicalize_to_12_significant_decimal_digits"
+    )
+    assert publication["parameters"]["score_significant_digits"] == (
+        PUBLICATION_SCORE_SIGNIFICANT_DIGITS
+    )
     assert ties["score_transform"] == "round_binary64_to_1_decimal"
     assert publication["invariants"]["pathway_count"] == 100
     assert publication["invariants"]["tied_score_group_count"] == 0

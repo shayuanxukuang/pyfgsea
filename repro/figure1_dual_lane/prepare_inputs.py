@@ -8,6 +8,7 @@ import platform
 import random
 import sys
 from pathlib import Path
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -37,6 +38,7 @@ except ImportError:  # pragma: no cover - direct script execution
 
 
 PUBLICATION_PARAMETERS = {"n_genes": 12000, "n_sets": 100, "seed": 42}
+PUBLICATION_SCORE_SIGNIFICANT_DIGITS = 12
 TIES_PARAMETERS = {
     "n_genes": 4000,
     "n_sets": 60,
@@ -88,7 +90,8 @@ def _write_scenario(
     parameters: dict[str, int],
     *,
     score_transform: str,
-) -> dict[str, object]:
+    float_significant_digits: int,
+) -> dict[str, Any]:
     scenario_dir = root / name
     scenario_dir.mkdir()
     ranks_path = scenario_dir / "ranks.csv"
@@ -109,11 +112,12 @@ def _write_scenario(
     if min(sizes) < 15 or max(sizes) > 500:
         raise RuntimeError(f"{name} contains a pathway outside [15, 500]")
 
-    # Seventeen significant digits preserve every generated binary64 value.
+    # The publication scenario is explicitly canonicalized before this write.
+    # The ties scenario is already rounded to one decimal place.
     ordered.to_csv(
         ranks_path,
         index=False,
-        float_format="%.17g",
+        float_format=f"%.{float_significant_digits}g",
         lineterminator="\n",
     )
     with pathways_path.open("w", encoding="utf-8", newline="\n") as handle:
@@ -150,6 +154,12 @@ def prepare_inputs(output_dir: Path) -> Path:
     publication_ranks, publication_pathways = generate_test_data(
         **PUBLICATION_PARAMETERS
     )
+    publication_ranks = publication_ranks.copy()
+    publication_ranks["Score"] = publication_ranks["Score"].map(
+        lambda value: float(
+            format(float(value), f".{PUBLICATION_SCORE_SIGNIFICANT_DIGITS}g")
+        )
+    )
     ties_ranks, ties_pathways = generate_test_data(
         n_genes=TIES_PARAMETERS["n_genes"],
         n_sets=TIES_PARAMETERS["n_sets"],
@@ -166,8 +176,12 @@ def prepare_inputs(output_dir: Path) -> Path:
             "publication_main",
             publication_ranks,
             publication_pathways,
-            dict(PUBLICATION_PARAMETERS),
-            score_transform="none",
+            {
+                **PUBLICATION_PARAMETERS,
+                "score_significant_digits": PUBLICATION_SCORE_SIGNIFICANT_DIGITS,
+            },
+            score_transform="canonicalize_to_12_significant_decimal_digits",
+            float_significant_digits=PUBLICATION_SCORE_SIGNIFICANT_DIGITS,
         ),
         "ties_predeclared": _write_scenario(
             root,
@@ -176,6 +190,7 @@ def prepare_inputs(output_dir: Path) -> Path:
             ties_pathways,
             dict(TIES_PARAMETERS),
             score_transform="round_binary64_to_1_decimal",
+            float_significant_digits=17,
         ),
     }
     if tuple(scenario_records) != SCENARIOS:
@@ -201,9 +216,11 @@ def prepare_inputs(output_dir: Path) -> Path:
                 "source_path": "bioinfor0208/revision/generate_revision_assets.py",
                 "generator_call": "generate_test_data(n_genes=12000,n_sets=100,seed=42)",
                 "note": (
-                    "publication_main is a direct transcription of the historical "
-                    "generator; ties_predeclared is a separate, prospectively labelled "
-                    "quantized-score stress scenario and is not a paper input"
+                    "publication_main runs a direct transcription of the historical "
+                    "generator, then canonicalizes platform-dependent binary64 tails "
+                    "to 12 significant decimal digits; ties_predeclared is a separate, "
+                    "prospectively labelled quantized-score stress scenario and is not "
+                    "a paper input"
                 ),
             },
             "generator": {

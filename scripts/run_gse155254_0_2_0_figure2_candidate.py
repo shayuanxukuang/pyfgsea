@@ -37,8 +37,8 @@ import pandas as pd
 REPO_ROOT = Path(__file__).resolve().parents[1]
 CONTRACT_PATH = REPO_ROOT / "repro" / "figure2_gse155254" / "author_parameter_contract.json"
 REFERENCE_MANIFEST_PATH = REPO_ROOT / "reference_manifest.json"
-EXPECTED_VERSION = "0.2.0rc3"
-EXPECTED_CARGO_VERSION = "0.2.0-rc3"
+EXPECTED_VERSION = "0.2.0rc4"
+EXPECTED_CARGO_VERSION = "0.2.0-rc4"
 EXPECTED_ALGORITHM_REVISION = "fgsea-1.38-pr178-v1"
 EXPECTED_FGSEA_REFERENCE = "1.38.0"
 EXPECTED_DATASET_SHA256 = "9d9d1db60fe06037c5bfcf1a6ce06adfa74fe6ef715d910ef8b7e004d05cd21e"
@@ -48,7 +48,7 @@ EXPECTED_N_WINDOWS = 62
 EXPECTED_N_PATHWAYS = 43
 EXPECTED_N_ROWS = EXPECTED_N_WINDOWS * EXPECTED_N_PATHWAYS
 BH_ATOL = 1e-14
-RELEASE_TAG_PATTERN = re.compile(r"v0\.2\.0-rc3")
+RELEASE_TAG_PATTERN = re.compile(r"v0\.2\.0-rc4")
 
 PARAMETERS: dict[str, Any] = {
     "pseudotime_key": "dpt_pseudotime",
@@ -175,7 +175,7 @@ def _capture_release_git_state(expected_commit: str, expected_tag: str) -> dict[
     if re.fullmatch(r"[0-9a-f]{40}", expected_commit) is None:
         raise BindingError("--expected-git-commit must be a full lowercase 40-hex SHA")
     if RELEASE_TAG_PATTERN.fullmatch(expected_tag) is None:
-        raise BindingError("--expected-git-tag must be v0.2.0-rc3")
+        raise BindingError("--expected-git-tag must be v0.2.0-rc4")
 
     head = str(_git("rev-parse", "HEAD")).strip().lower()
     if head != expected_commit:
@@ -270,7 +270,7 @@ def _load_reference_contract() -> dict[str, Any]:
         "pyfgsea_algorithm_revision": EXPECTED_ALGORITHM_REVISION,
     }
     if any(current.get(key) != value for key, value in expected.items()):
-        raise BindingError("current fgsea reference contract differs from the RC3 runner")
+        raise BindingError("current fgsea reference contract differs from the RC4 runner")
     return {
         "manifest_path": REFERENCE_MANIFEST_PATH.relative_to(REPO_ROOT).as_posix(),
         "manifest_sha256": sha256_file(REFERENCE_MANIFEST_PATH),
@@ -887,7 +887,7 @@ def plot_target_curves(results: pd.DataFrame, png_path: Path, pdf_path: Path) ->
         axis.set_ylabel("NES")
         axis.legend(loc="best", frameon=False, fontsize=8)
     axes[-1].set_xlabel("Pseudotime midpoint")
-    fig.suptitle("PyFgsea 0.2.0rc3 Figure 2 parameter-bound recalculation")
+    fig.suptitle("PyFgsea 0.2.0rc4 Figure 2 parameter-bound recalculation")
     fig.tight_layout()
     fig.savefig(png_path, dpi=300, bbox_inches="tight")
     fig.savefig(pdf_path, bbox_inches="tight")
