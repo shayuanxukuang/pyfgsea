@@ -11,14 +11,20 @@ import pytest
 
 from repro.data_utils import generate_test_data as historical_generate_test_data
 from repro.figure1_dual_lane.adjudicate import concordance_metrics
-from repro.figure1_dual_lane.common import read_json, verify_file_record
+from repro.figure1_dual_lane.common import read_json, verify_file_record, write_json
 from repro.figure1_dual_lane.prepare_inputs import (
+    FROZEN_INPUT_ROOT,
     PUBLICATION_PARAMETERS,
     PUBLICATION_SCORE_SIGNIFICANT_DIGITS,
+    TIES_PARAMETERS,
+    _read_frozen_pathways,
     generate_test_data,
     prepare_inputs,
 )
-from repro.figure1_dual_lane.run_lane import _resolve_current_bundle_file
+from repro.figure1_dual_lane.run_lane import (
+    _resolve_current_bundle_file,
+    _validate_input_manifest,
+)
 from repro.figure1_dual_lane.verify_legacy_artifact import _verify_record
 
 
@@ -49,7 +55,7 @@ def test_publication_generator_matches_historical_utility() -> None:
 
 
 def test_publication_freeze_only_canonicalizes_binary64_tails(tmp_path: Path) -> None:
-    raw_ranks, _ = generate_test_data(**PUBLICATION_PARAMETERS)
+    raw_ranks, raw_pathways = generate_test_data(**PUBLICATION_PARAMETERS)
     raw_ordered = raw_ranks.sort_values(
         ["Score", "Gene"], ascending=[False, True], kind="mergesort"
     ).reset_index(drop=True)
@@ -69,6 +75,43 @@ def test_publication_freeze_only_canonicalizes_binary64_tails(tmp_path: Path) ->
     assert np.max(
         np.abs(frozen["Score"].to_numpy() - raw_ordered["Score"].to_numpy())
     ) > 0.0
+    frozen_pathways = _read_frozen_pathways(
+        manifest_path.parent / publication["pathways"]["path"]
+    )
+    assert frozen_pathways == raw_pathways
+
+
+def test_ties_freeze_matches_predeclared_generator_and_rounding(
+    tmp_path: Path,
+) -> None:
+    generator_parameters = {
+        key: TIES_PARAMETERS[key] for key in ("n_genes", "n_sets", "seed")
+    }
+    raw_ranks, raw_pathways = generate_test_data(**generator_parameters)
+    expected = raw_ranks.copy()
+    expected["Score"] = expected["Score"].round(
+        TIES_PARAMETERS["score_round_decimals"]
+    )
+    expected = expected.sort_values(
+        ["Score", "Gene"], ascending=[False, True], kind="mergesort"
+    ).reset_index(drop=True)
+
+    manifest_path = prepare_inputs(tmp_path / "inputs")
+    manifest = read_json(manifest_path)
+    ties = manifest["scenarios"]["ties_predeclared"]
+    frozen = pd.read_csv(manifest_path.parent / ties["ranks"]["path"])
+
+    assert frozen["Gene"].tolist() == expected["Gene"].tolist()
+    np.testing.assert_allclose(
+        frozen["Score"].to_numpy(),
+        expected["Score"].to_numpy(),
+        rtol=0.0,
+        atol=np.finfo(np.float64).eps,
+    )
+    frozen_pathways = _read_frozen_pathways(
+        manifest_path.parent / ties["pathways"]["path"]
+    )
+    assert frozen_pathways == raw_pathways
 
 
 def test_input_bundle_contains_distinct_predeclared_ties(tmp_path: Path) -> None:
@@ -78,12 +121,19 @@ def test_input_bundle_contains_distinct_predeclared_ties(tmp_path: Path) -> None
     publication = manifest["scenarios"]["publication_main"]
     ties = manifest["scenarios"]["ties_predeclared"]
     assert publication["score_transform"] == (
-        "canonicalize_to_12_significant_decimal_digits"
+        "frozen_bytes_canonicalized_to_12_significant_decimal_digits"
     )
-    assert publication["parameters"]["score_significant_digits"] == (
+    assert publication["score_transform_parameters"][
+        "significant_decimal_digits"
+    ] == (
         PUBLICATION_SCORE_SIGNIFICANT_DIGITS
     )
-    assert ties["score_transform"] == "round_binary64_to_1_decimal"
+    assert publication["parameters"] == PUBLICATION_PARAMETERS
+    assert ties["score_transform"] == "frozen_bytes_round_binary64_to_1_decimal"
+    assert ties["score_transform_parameters"] == {"round_decimal_places": 1}
+    assert ties["parameters"] == TIES_PARAMETERS
+    assert publication["materialization"] == "copy_commit_bound_frozen_bytes"
+    assert ties["materialization"] == "copy_commit_bound_frozen_bytes"
     assert publication["invariants"]["pathway_count"] == 100
     assert publication["invariants"]["tied_score_group_count"] == 0
     assert ties["invariants"]["pathway_count"] == 60
@@ -91,6 +141,67 @@ def test_input_bundle_contains_distinct_predeclared_ties(tmp_path: Path) -> None
     for scenario in (publication, ties):
         for label in ("ranks", "pathways"):
             verify_file_record(manifest_path.parent, scenario[label], label=label)
+
+    for scenario_name, scenario in manifest["scenarios"].items():
+        for label, filename in (("ranks", "ranks.csv"), ("pathways", "pathways.gmt")):
+            materialized = manifest_path.parent / scenario[label]["path"]
+            committed = FROZEN_INPUT_ROOT / scenario_name / filename
+            assert materialized.read_bytes() == committed.read_bytes()
+
+
+def test_input_manifest_rejects_materialized_path_escape(tmp_path: Path) -> None:
+    manifest_path = prepare_inputs(tmp_path / "inputs")
+    manifest = read_json(manifest_path)
+    manifest["scenarios"]["publication_main"]["ranks"]["path"] = "../outside.csv"
+    write_json(manifest_path, manifest)
+
+    with pytest.raises(ValueError, match="materialized input paths"):
+        _validate_input_manifest(manifest_path)
+
+
+@pytest.mark.parametrize(
+    ("section", "field", "replacement", "message"),
+    [
+        (
+            "historical_generator",
+            "source_path",
+            "unrelated/generator.py",
+            "historical generator",
+        ),
+        (
+            "generator",
+            "frozen_input_root",
+            "unrelated/frozen_inputs",
+            "input script",
+        ),
+    ],
+)
+def test_input_manifest_rejects_descriptive_contract_tampering(
+    tmp_path: Path,
+    section: str,
+    field: str,
+    replacement: str,
+    message: str,
+) -> None:
+    manifest_path = prepare_inputs(tmp_path / "inputs")
+    manifest = read_json(manifest_path)
+    manifest[section][field] = replacement
+    write_json(manifest_path, manifest)
+
+    with pytest.raises(ValueError, match=message):
+        _validate_input_manifest(manifest_path)
+
+
+def test_input_manifest_rejects_invariant_tampering(tmp_path: Path) -> None:
+    manifest_path = prepare_inputs(tmp_path / "inputs")
+    manifest = read_json(manifest_path)
+    manifest["scenarios"]["ties_predeclared"]["invariants"][
+        "tied_gene_count"
+    ] += 1
+    write_json(manifest_path, manifest)
+
+    with pytest.raises(ValueError, match="scenario invariants"):
+        _validate_input_manifest(manifest_path)
 
 
 def test_concordance_metrics_are_derived_from_values() -> None:

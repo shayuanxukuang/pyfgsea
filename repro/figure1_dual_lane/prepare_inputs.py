@@ -15,7 +15,6 @@ import pandas as pd
 
 try:
     from .common import (
-        EXPECTED_INPUT_SHA256,
         PUBLICATION_SOURCE_COMMIT,
         SCENARIOS,
         SUITE_VERSION,
@@ -26,7 +25,6 @@ try:
     )
 except ImportError:  # pragma: no cover - direct script execution
     from common import (  # type: ignore
-        EXPECTED_INPUT_SHA256,
         PUBLICATION_SOURCE_COMMIT,
         SCENARIOS,
         SUITE_VERSION,
@@ -39,6 +37,7 @@ except ImportError:  # pragma: no cover - direct script execution
 
 PUBLICATION_PARAMETERS = {"n_genes": 12000, "n_sets": 100, "seed": 42}
 PUBLICATION_SCORE_SIGNIFICANT_DIGITS = 12
+FROZEN_INPUT_ROOT = Path(__file__).resolve().with_name("frozen_inputs")
 TIES_PARAMETERS = {
     "n_genes": 4000,
     "n_sets": 60,
@@ -82,28 +81,60 @@ def generate_test_data(
     return ranks, pathways
 
 
-def _write_scenario(
+def _read_frozen_pathways(path: Path) -> dict[str, list[str]]:
+    pathways: dict[str, list[str]] = {}
+    for line_number, line in enumerate(
+        path.read_text(encoding="utf-8").splitlines(), start=1
+    ):
+        fields = line.split("\t")
+        if len(fields) < 3 or fields[1] != "NA":
+            raise RuntimeError(f"invalid frozen GMT row at {path}:{line_number}")
+        pathway, members = fields[0], fields[2:]
+        if not pathway or pathway in pathways:
+            raise RuntimeError(f"duplicate or empty pathway at {path}:{line_number}")
+        pathways[pathway] = members
+    return pathways
+
+
+def _materialize_frozen_scenario(
     root: Path,
     name: str,
-    ranks: pd.DataFrame,
-    pathways: dict[str, list[str]],
     parameters: dict[str, int],
     *,
     score_transform: str,
-    float_significant_digits: int,
+    score_transform_parameters: dict[str, int],
 ) -> dict[str, Any]:
+    source_dir = FROZEN_INPUT_ROOT / name
     scenario_dir = root / name
     scenario_dir.mkdir()
+    source_ranks_path = source_dir / "ranks.csv"
+    source_pathways_path = source_dir / "pathways.gmt"
     ranks_path = scenario_dir / "ranks.csv"
     pathways_path = scenario_dir / "pathways.gmt"
 
+    for label, source, target in (
+        ("ranks", source_ranks_path, ranks_path),
+        ("pathways", source_pathways_path, pathways_path),
+    ):
+        source_bytes = source.read_bytes()
+        target.write_bytes(source_bytes)
+        if target.read_bytes() != source_bytes:
+            raise RuntimeError(f"materialized frozen {name}/{label} bytes differ")
+
+    ranks = pd.read_csv(ranks_path)
+    if list(ranks.columns) != ["Gene", "Score"]:
+        raise RuntimeError(f"{name} ranks must contain exactly Gene and Score")
     ordered = ranks.sort_values(
         ["Score", "Gene"], ascending=[False, True], kind="mergesort"
     ).reset_index(drop=True)
+    if not ordered.equals(ranks.reset_index(drop=True)):
+        raise RuntimeError(f"{name} committed ranks are not canonically ordered")
     if ordered["Gene"].duplicated().any():
         raise RuntimeError(f"{name} contains duplicate gene identifiers")
     if not np.isfinite(ordered["Score"].to_numpy(dtype=float)).all():
         raise RuntimeError(f"{name} contains non-finite scores")
+
+    pathways = _read_frozen_pathways(pathways_path)
     if len(pathways) != parameters["n_sets"]:
         raise RuntimeError(f"{name} pathway count does not match its contract")
     if len(set(pathways)) != len(pathways):
@@ -112,25 +143,23 @@ def _write_scenario(
     if min(sizes) < 15 or max(sizes) > 500:
         raise RuntimeError(f"{name} contains a pathway outside [15, 500]")
 
-    # The publication scenario is explicitly canonicalized before this write.
-    # The ties scenario is already rounded to one decimal place.
-    ordered.to_csv(
-        ranks_path,
-        index=False,
-        float_format=f"%.{float_significant_digits}g",
-        lineterminator="\n",
-    )
-    with pathways_path.open("w", encoding="utf-8", newline="\n") as handle:
-        for pathway, members in pathways.items():
-            if len(set(members)) != len(members):
-                raise RuntimeError(f"{name}/{pathway} contains duplicate members")
-            handle.write(f"{pathway}\tNA\t" + "\t".join(members) + "\n")
+    for pathway, members in pathways.items():
+        if len(set(members)) != len(members):
+            raise RuntimeError(f"{name}/{pathway} contains duplicate members")
 
     counts = ordered["Score"].value_counts()
     tied_groups = counts[counts > 1]
     return {
         "parameters": parameters,
         "score_transform": score_transform,
+        "score_transform_parameters": score_transform_parameters,
+        "materialization": "copy_commit_bound_frozen_bytes",
+        "frozen_source": {
+            "ranks": file_record(source_ranks_path, relative_to=FROZEN_INPUT_ROOT),
+            "pathways": file_record(
+                source_pathways_path, relative_to=FROZEN_INPUT_ROOT
+            ),
+        },
         "ranks": file_record(ranks_path, relative_to=root),
         "pathways": file_record(pathways_path, relative_to=root),
         "invariants": {
@@ -148,67 +177,38 @@ def _write_scenario(
 
 
 def prepare_inputs(output_dir: Path) -> Path:
-    """Generate both scenarios and return the portable manifest path."""
+    """Materialize both frozen scenarios and return the portable manifest path."""
 
     root = ensure_empty_output_dir(output_dir)
-    publication_ranks, publication_pathways = generate_test_data(
-        **PUBLICATION_PARAMETERS
-    )
-    publication_ranks = publication_ranks.copy()
-    publication_ranks["Score"] = publication_ranks["Score"].map(
-        lambda value: float(
-            format(float(value), f".{PUBLICATION_SCORE_SIGNIFICANT_DIGITS}g")
-        )
-    )
-    ties_ranks, ties_pathways = generate_test_data(
-        n_genes=TIES_PARAMETERS["n_genes"],
-        n_sets=TIES_PARAMETERS["n_sets"],
-        seed=TIES_PARAMETERS["seed"],
-    )
-    ties_ranks = ties_ranks.copy()
-    ties_ranks["Score"] = ties_ranks["Score"].round(
-        TIES_PARAMETERS["score_round_decimals"]
-    )
-
     scenario_records = {
-        "publication_main": _write_scenario(
+        "publication_main": _materialize_frozen_scenario(
             root,
             "publication_main",
-            publication_ranks,
-            publication_pathways,
-            {
-                **PUBLICATION_PARAMETERS,
-                "score_significant_digits": PUBLICATION_SCORE_SIGNIFICANT_DIGITS,
+            dict(PUBLICATION_PARAMETERS),
+            score_transform=(
+                "frozen_bytes_canonicalized_to_12_significant_decimal_digits"
+            ),
+            score_transform_parameters={
+                "significant_decimal_digits": PUBLICATION_SCORE_SIGNIFICANT_DIGITS
             },
-            score_transform="canonicalize_to_12_significant_decimal_digits",
-            float_significant_digits=PUBLICATION_SCORE_SIGNIFICANT_DIGITS,
         ),
-        "ties_predeclared": _write_scenario(
+        "ties_predeclared": _materialize_frozen_scenario(
             root,
             "ties_predeclared",
-            ties_ranks,
-            ties_pathways,
             dict(TIES_PARAMETERS),
-            score_transform="round_binary64_to_1_decimal",
-            float_significant_digits=17,
+            score_transform="frozen_bytes_round_binary64_to_1_decimal",
+            score_transform_parameters={
+                "round_decimal_places": TIES_PARAMETERS["score_round_decimals"]
+            },
         ),
     }
     if tuple(scenario_records) != SCENARIOS:
         raise AssertionError("scenario order differs from the suite contract")
-    for scenario, expected_files in EXPECTED_INPUT_SHA256.items():
-        for label, expected_hash in expected_files.items():
-            actual_hash = scenario_records[scenario][label]["sha256"]
-            if actual_hash != expected_hash:
-                raise RuntimeError(
-                    f"generated {scenario}/{label} hash drifted: "
-                    f"expected {expected_hash}, found {actual_hash}"
-                )
-
     manifest_path = root / "input_manifest.json"
     write_json(
         manifest_path,
         {
-            "schema_version": 1,
+            "schema_version": 2,
             "kind": "figure1_input_manifest",
             "suite_version": SUITE_VERSION,
             "historical_generator": {
@@ -216,16 +216,19 @@ def prepare_inputs(output_dir: Path) -> Path:
                 "source_path": "bioinfor0208/revision/generate_revision_assets.py",
                 "generator_call": "generate_test_data(n_genes=12000,n_sets=100,seed=42)",
                 "note": (
-                    "publication_main runs a direct transcription of the historical "
-                    "generator, then canonicalizes platform-dependent binary64 tails "
-                    "to 12 significant decimal digits; ties_predeclared is a separate, "
-                    "prospectively labelled quantized-score stress scenario and is not "
-                    "a paper input"
+                    "publication_main is copied from committed frozen bytes produced "
+                    "once by the directly transcribed historical generator and "
+                    "canonicalized to 12 significant decimal digits; evidence runs do "
+                    "not regenerate platform-dependent normal scores. ties_predeclared "
+                    "is a separate, prospectively labelled quantized-score stress "
+                    "scenario and is not a paper input"
                 ),
             },
             "generator": {
+                "mode": "copy_commit_bound_frozen_bytes",
                 "command": [str(item) for item in sys.argv],
                 "script_sha256": sha256_file(Path(__file__)),
+                "frozen_input_root": "repro/figure1_dual_lane/frozen_inputs",
                 "python": platform.python_version(),
                 "numpy": np.__version__,
                 "pandas": pd.__version__,

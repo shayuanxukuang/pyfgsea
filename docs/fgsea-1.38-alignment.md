@@ -1,6 +1,6 @@
 # fgsea 1.38 alignment boundary
 
-Status: the clean PyFgsea `0.2.0rc4` candidate defines the reference and
+Status: the clean PyFgsea `0.2.0rc5` candidate defines the reference and
 artifact gates below. The clean candidate has not yet produced accepted
 cross-platform artifacts, reference-image digests, Figure 1 receipts, a formal
 Figure 2 receipt, or a manuscript-impact decision.
@@ -10,7 +10,7 @@ Figure 2 receipt, or a manuscript-impact decision.
 | Lane | PyFgsea | R | Bioconductor | fgsea | Permitted use |
 | --- | --- | --- | --- | --- | --- |
 | `legacy_publication` | 0.1.4 | 4.4.3 | 3.20 | 1.32.2 | Reproduce the comparison declared by the published paper |
-| `current_conformance` | 0.2.0rc4 candidate; 0.2.0 target | 4.6.0 | 3.23 | 1.38.0 | Evaluate the repaired implementation against the current reference |
+| `current_conformance` | 0.2.0rc5 candidate; 0.2.0 target | 4.6.0 | 3.23 | 1.38.0 | Evaluate the repaired implementation against the current reference |
 
 The exact URLs, source hashes, source commits, base-image digests and pending
 receipt fields are recorded in `reference_manifest.json`. The corresponding

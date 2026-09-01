@@ -20,7 +20,6 @@ import pandas as pd  # noqa: E402
 
 try:
     from .common import (
-        EXPECTED_INPUT_SHA256,
         GSEA_PARAMETERS,
         LANE_CONTRACTS,
         LOG10_FLOOR,
@@ -39,7 +38,6 @@ try:
     )
 except ImportError:  # pragma: no cover - direct script execution
     from common import (  # type: ignore
-        EXPECTED_INPUT_SHA256,
         GSEA_PARAMETERS,
         LANE_CONTRACTS,
         LOG10_FLOOR,
@@ -473,7 +471,7 @@ def _verify_common_input_bundle(
             )
     manifest = read_json(manifest_path)
     if (
-        manifest.get("schema_version") != 1
+        manifest.get("schema_version") != 2
         or manifest.get("kind") != "figure1_input_manifest"
     ):
         raise ValueError("supplied input manifest has the wrong schema or kind")
@@ -492,10 +490,6 @@ def _verify_common_input_bundle(
         if not isinstance(record, Mapping):
             raise ValueError(f"input scenario is invalid: {scenario}")
         for label in ("ranks", "pathways"):
-            if record[label].get("sha256") != EXPECTED_INPUT_SHA256[scenario][label]:
-                raise ValueError(
-                    f"input bundle {scenario}/{label} differs from the tagged hash"
-                )
             file_hash = sha256_file(
                 verify_file_record(
                     manifest_path.parent,
@@ -704,7 +698,7 @@ def _draw_figure(raw: pd.DataFrame, metrics: pd.DataFrame, output: Path) -> None
         lane_label = (
             "0.1.4 / fgsea 1.32.2"
             if lane == "legacy"
-            else "0.2.0rc4 / fgsea 1.38.0"
+            else "0.2.0rc5 / fgsea 1.38.0"
         )
         scenario_label = (
             "publication input"

@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "manifest_type": "pyfgsea-reference-configuration",
-  "configuration_status": "defined-for-clean-rc4-not-built-not-recomputed",
+  "configuration_status": "defined-for-clean-rc5-not-built-not-recomputed",
   "generated_results": false,
   "null_field_policy": "The linux/amd64 base-image digests are pinned in this configuration. Per-profile PyFgsea commit/tree hash, built OCI image digest, resolved-lock hash, dataset hash, parameters, and result hashes remain null or empty until scripts/update_reference_manifest.py records them from a clean committed tree and concrete artifacts.",
   "profiles": {
@@ -33,7 +33,7 @@
     },
     "current_conformance": {
       "purpose": "Validate the clean PyFgsea 0.2.0 release candidate against fgsea 1.38.0 before promoting it to final 0.2.0.",
-      "pyfgsea_version": "0.2.0rc4",
+      "pyfgsea_version": "0.2.0rc5",
       "pyfgsea_release_target": "0.2.0",
       "r_version": "4.6.0",
       "bioconductor_version": "3.23",
@@ -66,14 +66,14 @@
     }
   },
   "host_validation": {
-    "docker_build_status": "not-run-for-clean-rc4",
+    "docker_build_status": "not-run-for-clean-rc5",
     "docker_build_blocker": null,
     "docker_global_settings_modified": false,
     "static_validation_only": false,
     "docker_profiles_static_validation_only": true,
     "isolated_local_validation": {
       "current_conformance": {
-        "status": "not-run-for-clean-rc4",
+        "status": "not-run-for-clean-rc5",
         "artifact_binding": false
       }
     }

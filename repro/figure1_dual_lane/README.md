@@ -11,7 +11,7 @@ The two mandatory lanes are:
 | Lane | Installed PyFgsea distribution | Module declaration | R | Bioconductor | fgsea | Rust revision |
 | --- | --- | --- | --- | --- | --- | --- |
 | `legacy` | 0.1.4 | 0.1.3 (historical packaging mismatch) | 4.4.3 | 3.20 | 1.32.2 | no revision API (required) |
-| `current` | 0.2.0rc4 | 0.2.0rc4 | 4.6.0 | 3.23 | 1.38.0 | `fgsea-1.38-pr178-v1` |
+| `current` | 0.2.0rc5 | 0.2.0rc5 | 4.6.0 | 3.23 | 1.38.0 | `fgsea-1.38-pr178-v1` |
 
 The historical mismatch in the legacy row is intentional.  The `v0.1.4` tag's
 Python project metadata declares 0.1.4, while its module and Cargo crate still
@@ -25,21 +25,30 @@ historical build receipt exists.
 
 `prepare_inputs.py` materializes two byte-hashed scenarios:
 
-RC4 names this input and receipt contract `figure1-dual-lane-v2`. The RC3 v1
-contract is not interchangeable because it hashed platform-dependent raw
-binary64 normal scores.
+RC5 names this input and receipt contract `figure1-dual-lane-v3`. The committed
+input files are the cross-platform source of truth: GitHub functional tests use
+byte equality and semantic invariants, not a predeclared SHA-256 pass/fail
+value. SHA-256 values are still recorded in formal evidence receipts for
+provenance. RC4 v2 remains immutable and is superseded because regenerating its
+12-significant-digit values could still cross a decimal rounding boundary on
+macOS ARM. RC3 v1 is also non-interchangeable because it used raw,
+platform-dependent binary64 normal scores.
 
 - `publication_main` transcribes the historical
   `generate_test_data(n_genes=12000, n_sets=100, seed=42)` call recovered from
   commit `5cedd4abbc8d399221c741256ec5f3839861686d`. Because that normal generator's
-  final binary64 bits vary with the platform math library, the frozen CSV
-  canonicalizes scores to 12 significant decimal digits before sorting and
-  hashing. The seed, gene identifiers and pathway memberships are unchanged.
+  final binary64 bits vary with the platform math library, the tagged suite
+  stores one committed CSV whose scores were canonicalized once to 12
+  significant decimal digits. Evidence runs copy those exact bytes instead of
+  regenerating normal scores. The seed, gene identifiers and pathway
+  memberships are unchanged.
 - `ties_predeclared` is a separately labelled quantized-score stress case.  It
   is never represented as an input from the published paper.
 
-The four expected rank/GMT SHA-256 values are also embedded in the tagged suite,
-so changing input bytes and merely rewriting the manifest does not pass a lane.
+The tagged Git tree binds the four rank/GMT source files. Formal lane receipts
+record their SHA-256 values and require both lanes to use the same materialized
+files, but cross-platform GitHub functional tests do not compare against a
+hard-coded digest.
 
 Both PyFgsea calls use `min_size=15`, `max_size=500`, `sample_size=101`, Python
 seed 1, `nperm_nes=1800`, `eps=1e-50`, and one thread. Both R calls use
@@ -120,10 +129,10 @@ python "${PYFGSEA_EVIDENCE_REPO}/repro/figure1_dual_lane/run_lane.py" \
   --reference-receipt "${EVIDENCE_ROOT}/legacy-oci/oci-receipt.json" \
   --output-dir "${EVIDENCE_ROOT}/figure1-legacy" \
   --expected-git-commit FULL_40_CHARACTER_RC_COMMIT \
-  --expected-git-tag v0.2.0-rc4
+  --expected-git-tag v0.2.0-rc5
 ```
 
-Run the analogous current command in the 0.2.0rc4 wheel environment with R
+Run the analogous current command in the 0.2.0rc5 wheel environment with R
 4.6.0/Bioconductor 3.23/fgsea 1.38.0:
 
 ```bash
@@ -140,7 +149,7 @@ python "${PYFGSEA_EVIDENCE_REPO}/repro/figure1_dual_lane/run_lane.py" \
   --reference-receipt "${EVIDENCE_ROOT}/current-oci/oci-receipt.json" \
   --output-dir "${EVIDENCE_ROOT}/figure1-current" \
   --expected-git-commit FULL_40_CHARACTER_RC_COMMIT \
-  --expected-git-tag v0.2.0-rc4
+  --expected-git-tag v0.2.0-rc5
 ```
 
 Finally, in a clean analysis environment containing pandas, NumPy, and
@@ -156,7 +165,7 @@ python "${PYFGSEA_EVIDENCE_REPO}/repro/figure1_dual_lane/adjudicate.py" \
   --input-manifest "${EVIDENCE_ROOT}/figure1-inputs/input_manifest.json" \
   --output-dir "${EVIDENCE_ROOT}/figure1-adjudicated" \
   --expected-git-commit FULL_40_CHARACTER_RC_COMMIT \
-  --expected-git-tag v0.2.0-rc4
+  --expected-git-tag v0.2.0-rc5
 ```
 
 The adjudication receipt binds the lane receipts, raw rows, metrics, plot,

@@ -11,6 +11,10 @@ permissions:
 
 env:
   RUST_VERSION: "1.92.0"
+  MATURIN_VERSION: "1.10.2"
+  PYTEST_VERSION: "8.4.2"
+  MYPY_VERSION: "2.3.1"
+  RUFF_VERSION: "0.11.6"
   CARGO_REGISTRIES_CRATES_IO_PROTOCOL: sparse
   CARGO_NET_RETRY: 10
   CARGO_HTTP_TIMEOUT: 60
@@ -45,19 +49,45 @@ jobs:
         test "$(rustc --version | awk '{print $2}')" = "$RUST_VERSION"
 
     - name: Install dependencies
+      shell: bash
       run: |
+        set -euo pipefail
         python -m pip install --upgrade pip
-        python -m pip install maturin==1.10.2 pytest mypy ruff pandas numpy
+        python -m pip install \
+          "maturin==$MATURIN_VERSION" \
+          "pytest==$PYTEST_VERSION" \
+          "mypy==$MYPY_VERSION" \
+          "ruff==$RUFF_VERSION" \
+          pandas numpy
+        python - <<'PY'
+        import importlib.metadata
+        import os
 
-    - name: Verify Rust sources
-      run: |
-        cargo fmt --check
-        cargo test --locked
+        expected = {
+            "maturin": os.environ["MATURIN_VERSION"],
+            "pytest": os.environ["PYTEST_VERSION"],
+            "mypy": os.environ["MYPY_VERSION"],
+            "ruff": os.environ["RUFF_VERSION"],
+        }
+        for distribution, version in expected.items():
+            observed = importlib.metadata.version(distribution)
+            if observed != version:
+                raise SystemExit(
+                    f"{distribution} version drifted: {observed}; expected {version}"
+                )
+        PY
 
-    - name: Run Static Checks
-      run: |
-        ruff check pyfgsea
-        mypy pyfgsea --ignore-missing-imports
+    - name: Verify Rust formatting
+      run: cargo fmt --check
+
+    - name: Run Rust tests
+      run: cargo test --locked
+
+    - name: Run Ruff
+      run: python -m ruff check pyfgsea
+
+    - name: Run mypy
+      run: python -m mypy pyfgsea --ignore-missing-imports
 
     - name: Build wheel
       run: maturin build --release --locked --out dist
