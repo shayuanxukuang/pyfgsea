@@ -15,13 +15,13 @@ SCRIPT = (
     / "scripts"
     / "run_gse155254_0_2_0_figure2_candidate.py"
 )
-SPEC = importlib.util.spec_from_file_location("figure2_formal_binding", SCRIPT)
+SPEC = importlib.util.spec_from_file_location("figure2_reproduction", SCRIPT)
 assert SPEC is not None and SPEC.loader is not None
 figure2 = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(figure2)
 
 
-def test_figure2_runner_is_bound_only_to_rc6() -> None:
+def test_release_tag_version() -> None:
     assert figure2.RELEASE_TAG_PATTERN.fullmatch("v0.2.0-rc6")
     assert not figure2.RELEASE_TAG_PATTERN.fullmatch("v0.2.0-rc5")
     assert not figure2.RELEASE_TAG_PATTERN.fullmatch("v0.2.0-rc4")
@@ -43,17 +43,22 @@ def _sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def test_author_contract_matches_formal_runner() -> None:
-    evidence = figure2._load_author_contract()
-    assert evidence["contract"]["author_parameter_contract_status"] == "accepted"
-    assert evidence["contract"]["publication_accepted"] is False
-    assert evidence["contract"]["accepted_values"] == figure2.ACCEPTED_VALUES
-    assert figure2.PARAMETERS["mode"] == "aligned"
-    assert figure2.PARAMETERS["bin_width"] == 0
-    assert figure2.PARAMETERS["use_nes_cache"] is False
+def test_parameter_file_matches_runner() -> None:
+    evidence = figure2._load_figure2_parameters()
+    record = evidence["record"]
+    assert set(record) == {"schema_version", "dataset", "recorded_on", "parameters"}
+    assert record["schema_version"] == 1
+    assert record["dataset"] == "GSE155254"
+    assert record["recorded_on"] == "2026-09-01"
+    assert record["parameters"] == figure2.RECORDED_PARAMETERS
+    assert record["parameters"]["mode"] == "aligned"
+    assert record["parameters"]["bin_width"] == 0
+    assert record["parameters"]["use_nes_cache"] is False
+    assert record["parameters"]["pathway_size_policy"] == "exact"
+    assert "pathway_size_policy" not in figure2.PARAMETERS
 
 
-def test_reference_contract_names_fgsea_1_38_as_alignment_target_only() -> None:
+def test_fgsea_reference() -> None:
     contract = figure2._load_reference_contract()
     assert contract["profile"] == "current_conformance"
     assert contract["fgsea_alignment_target_version"] == "1.38.0"
@@ -61,17 +66,17 @@ def test_reference_contract_names_fgsea_1_38_as_alignment_target_only() -> None:
     assert "does not execute R fgsea" in contract["interpretation"]
 
 
-def test_formal_output_must_be_external_and_new(tmp_path: Path) -> None:
-    with pytest.raises(figure2.BindingError, match="outside"):
-        figure2._require_external_output(figure2.REPO_ROOT / "results" / "formal")
-    external = tmp_path / "formal"
+def test_output_directory(tmp_path: Path) -> None:
+    with pytest.raises(figure2.Figure2Error, match="outside"):
+        figure2._require_external_output(figure2.REPO_ROOT / "results" / "figure2")
+    external = tmp_path / "figure2"
     assert figure2._require_external_output(external) == external.resolve()
     external.mkdir()
     with pytest.raises(FileExistsError, match="overwrite"):
         figure2._require_external_output(external)
 
 
-def test_release_state_requires_clean_annotated_tag(
+def test_clean_annotated_tag(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     repo = tmp_path / "repo"
@@ -92,11 +97,11 @@ def test_release_state_requires_clean_annotated_tag(
     assert state["release_tag"]["peeled_commit"] == commit
 
     (repo / "untracked.txt").write_text("dirty\n", encoding="utf-8")
-    with pytest.raises(figure2.BindingError, match="clean"):
+    with pytest.raises(figure2.Figure2Error, match="checkout contains"):
         figure2._capture_release_git_state(commit, "v0.2.0-rc6")
 
 
-def test_result_audit_requires_complete_resolved_grid_and_independent_bh() -> None:
+def test_result_validation() -> None:
     pathways = [f"Pathway {index:02d}" for index in range(figure2.EXPECTED_N_PATHWAYS)]
     rows = []
     for window_id in range(figure2.EXPECTED_N_WINDOWS):
@@ -113,34 +118,36 @@ def test_result_audit_requires_complete_resolved_grid_and_independent_bh() -> No
                 }
             )
     results = pd.DataFrame(rows)
-    audit = figure2._audit_results(results)
-    assert audit["n_rows"] == 2666
-    assert audit["complete_grid"] is True
-    assert audit["duplicate_key_count"] == 0
-    assert audit["status_counts"] == {"resolved": 2666}
-    assert audit["bh"]["max_absolute_difference"] <= figure2.BH_ATOL
+    validation = figure2._validate_results(results)
+    assert validation["n_rows"] == 2666
+    assert validation["complete_grid"] is True
+    assert validation["duplicate_key_count"] == 0
+    assert validation["status_counts"] == {"resolved": 2666}
+    assert validation["bh"]["max_absolute_difference"] <= figure2.BH_ATOL
+    assert figure2._audit_results is figure2._validate_results
+    assert figure2.BindingError is figure2.Figure2Error
 
     unresolved = results.copy()
     unresolved.loc[0, "status"] = "eps_floor"
-    with pytest.raises(figure2.BindingError, match="all rows resolved"):
-        figure2._audit_results(unresolved)
+    with pytest.raises(figure2.Figure2Error, match="unresolved rows"):
+        figure2._validate_results(unresolved)
 
     incomplete = results.iloc[:-1].copy()
-    with pytest.raises(figure2.BindingError, match="expected 2666 rows"):
-        figure2._audit_results(incomplete)
+    with pytest.raises(figure2.Figure2Error, match="not 2666"):
+        figure2._validate_results(incomplete)
 
     invalid_p = results.copy()
     invalid_p.loc[0, "P-value"] = 1.01
-    with pytest.raises(figure2.BindingError, match=r"p-values in \(0, 1\]"):
-        figure2._audit_results(invalid_p)
+    with pytest.raises(figure2.Figure2Error, match=r"p-value is in \(0, 1\]"):
+        figure2._validate_results(invalid_p)
 
     invalid_padj = results.copy()
     invalid_padj.loc[0, "padj"] = -0.01
-    with pytest.raises(figure2.BindingError, match=r"padj in \[0, 1\]"):
-        figure2._audit_results(invalid_padj)
+    with pytest.raises(figure2.Figure2Error, match=r"padj is in \[0, 1\]"):
+        figure2._validate_results(invalid_padj)
 
 
-def test_artifact_receipt_binds_sdist_wheel_core_and_tag(
+def test_artifact_receipt(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     bundle = tmp_path / "downloaded-bundle"
@@ -150,7 +157,7 @@ def test_artifact_receipt_binds_sdist_wheel_core_and_tag(
     evidence_dir.mkdir()
     sdist = dist / "pyfgsea-0.2.0rc6.tar.gz"
     sdist.write_bytes(b"sdist")
-    core = b"MZ-formal-core"
+    core = b"MZ-figure2-core"
     wheel = dist / "pyfgsea-0.2.0rc6-cp38-abi3-win_amd64.whl"
     with zipfile.ZipFile(wheel, "w") as archive:
         archive.writestr("pyfgsea/_core.pyd", core)
@@ -279,52 +286,52 @@ def test_artifact_receipt_binds_sdist_wheel_core_and_tag(
     failed_tests["installed_tests"]["counts"]["passed"] = 0
     failed_tests["installed_tests"]["counts"]["failed"] = 1
     receipt.write_text(json.dumps(failed_tests), encoding="utf-8")
-    with pytest.raises(figure2.BindingError, match="passing suite"):
+    with pytest.raises(figure2.Figure2Error, match="did not pass"):
         figure2._verify_artifact_receipt(receipt, git_state)
 
     escaped_bundle = json.loads(json.dumps(payload))
     escaped_bundle["artifact_chain"]["wheel"]["bundle_path"] = "../outside.whl"
     escaped_bundle["artifact_bundle"]["wheel"] = "../outside.whl"
     receipt.write_text(json.dumps(escaped_bundle), encoding="utf-8")
-    with pytest.raises(figure2.BindingError, match="unsafe bundle_path"):
+    with pytest.raises(figure2.Figure2Error, match="bundle_path.*leaves"):
         figure2._verify_artifact_receipt(receipt, git_state)
 
     missing_manifest = json.loads(json.dumps(payload))
     del missing_manifest["git"]["source_manifest"]
     receipt.write_text(json.dumps(missing_manifest), encoding="utf-8")
-    with pytest.raises(figure2.BindingError, match="source manifest"):
+    with pytest.raises(figure2.Figure2Error, match="source manifest"):
         figure2._verify_artifact_receipt(receipt, git_state)
 
     false_exact = json.loads(json.dumps(payload))
     false_exact["artifact_chain"]["wheel"]["pyfgsea_source_set_exact"] = False
     receipt.write_text(json.dumps(false_exact), encoding="utf-8")
-    with pytest.raises(figure2.BindingError, match="wheel package source boundary"):
+    with pytest.raises(figure2.Figure2Error, match="wheel PyFgsea file list"):
         figure2._verify_artifact_receipt(receipt, git_state)
 
     receipt.write_text(json.dumps(payload), encoding="utf-8")
     with zipfile.ZipFile(wheel, "a") as archive:
         archive.writestr("changed.txt", "changed")
-    with pytest.raises(figure2.BindingError, match="wheel is missing or has changed"):
+    with pytest.raises(figure2.Figure2Error, match="wheel is missing"):
         figure2._verify_artifact_receipt(receipt, git_state)
 
 
-def test_failed_publication_leaves_no_success_receipt(
+def test_atomic_output(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    staging = tmp_path / ".formal.incomplete-test"
-    output = tmp_path / "formal"
+    staging = tmp_path / ".figure2.incomplete-test"
+    output = tmp_path / "figure2"
     staging.mkdir()
     (staging / "trajectory_results.csv").write_text("result\n", encoding="utf-8")
     original_replace = figure2.os.replace
 
     def fail_manifest_replace(source: str | Path, destination: str | Path) -> None:
         if str(source).endswith(".run_manifest.json.pending"):
-            raise OSError("simulated manifest publication failure")
+            raise OSError("simulated manifest write failure")
         original_replace(source, destination)
 
     monkeypatch.setattr(figure2.os, "replace", fail_manifest_replace)
-    with pytest.raises(OSError, match="simulated"):
-        figure2._publish_evidence(staging, output, {"binding_status": "bound"})
+    with pytest.raises(OSError, match="simulated manifest write failure"):
+        figure2._publish_evidence(staging, output, {"verification_status": "verified"})
     assert not staging.exists()
     assert not output.exists()
     assert not (output / "run_manifest.json").exists()
