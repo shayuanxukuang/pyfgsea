@@ -1,0 +1,250 @@
+from __future__ import annotations
+
+import hashlib
+import importlib.util
+import json
+import subprocess
+import zipfile
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+import pytest
+
+
+SCRIPT = (
+    Path(__file__).resolve().parents[1]
+    / "scripts"
+    / "run_gse155254_0_2_0_figure2_candidate.py"
+)
+SPEC = importlib.util.spec_from_file_location("figure2_formal_binding", SCRIPT)
+assert SPEC is not None and SPEC.loader is not None
+figure2 = importlib.util.module_from_spec(SPEC)
+SPEC.loader.exec_module(figure2)
+
+
+def _git(repo: Path, *args: str) -> str:
+    completed = subprocess.run(
+        ["git", "-C", str(repo), *args],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    return completed.stdout.strip()
+
+
+def _sha256(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def test_author_contract_matches_formal_runner() -> None:
+    evidence = figure2._load_author_contract()
+    assert evidence["contract"]["author_parameter_contract_status"] == "accepted"
+    assert evidence["contract"]["publication_accepted"] is False
+    assert evidence["contract"]["accepted_values"] == figure2.ACCEPTED_VALUES
+    assert figure2.PARAMETERS["mode"] == "aligned"
+    assert figure2.PARAMETERS["bin_width"] == 0
+    assert figure2.PARAMETERS["use_nes_cache"] is False
+
+
+def test_formal_output_must_be_external_and_new(tmp_path: Path) -> None:
+    with pytest.raises(figure2.BindingError, match="outside"):
+        figure2._require_external_output(figure2.REPO_ROOT / "results" / "formal")
+    external = tmp_path / "formal"
+    assert figure2._require_external_output(external) == external.resolve()
+    external.mkdir()
+    with pytest.raises(FileExistsError, match="overwrite"):
+        figure2._require_external_output(external)
+
+
+def test_release_state_requires_clean_annotated_tag(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    _git(repo, "init")
+    _git(repo, "config", "user.name", "PyFgsea Figure 2 test")
+    _git(repo, "config", "user.email", "figure2-test@example.invalid")
+    (repo / "tracked.txt").write_text("release\n", encoding="utf-8")
+    _git(repo, "add", "tracked.txt")
+    _git(repo, "commit", "-m", "release")
+    commit = _git(repo, "rev-parse", "HEAD").lower()
+    _git(repo, "tag", "-a", "v0.2.0-rc2", "-m", "RC2")
+    monkeypatch.setattr(figure2, "REPO_ROOT", repo)
+
+    state = figure2._capture_release_git_state(commit, "v0.2.0-rc2")
+    assert state["clean"] is True
+    assert state["release_tag"]["annotated"] is True
+    assert state["release_tag"]["peeled_commit"] == commit
+
+    (repo / "untracked.txt").write_text("dirty\n", encoding="utf-8")
+    with pytest.raises(figure2.BindingError, match="clean"):
+        figure2._capture_release_git_state(commit, "v0.2.0-rc2")
+
+
+def test_result_audit_requires_complete_resolved_grid_and_independent_bh() -> None:
+    pathways = [f"Pathway {index:02d}" for index in range(figure2.EXPECTED_N_PATHWAYS)]
+    rows = []
+    for window_id in range(figure2.EXPECTED_N_WINDOWS):
+        for pathway_index, pathway in enumerate(pathways, start=1):
+            rows.append(
+                {
+                    "Pathway": pathway,
+                    "NES": float(pathway_index),
+                    "P-value": pathway_index / 1000.0,
+                    "padj": figure2.EXPECTED_N_PATHWAYS / 1000.0,
+                    "status": "resolved",
+                    "window_id": window_id,
+                    "pt_mid": window_id / 100.0,
+                }
+            )
+    results = pd.DataFrame(rows)
+    audit = figure2._audit_results(results)
+    assert audit["n_rows"] == 2666
+    assert audit["complete_grid"] is True
+    assert audit["duplicate_key_count"] == 0
+    assert audit["status_counts"] == {"resolved": 2666}
+    assert audit["bh"]["max_absolute_difference"] <= figure2.BH_ATOL
+
+    unresolved = results.copy()
+    unresolved.loc[0, "status"] = "eps_floor"
+    with pytest.raises(figure2.BindingError, match="all rows resolved"):
+        figure2._audit_results(unresolved)
+
+    incomplete = results.iloc[:-1].copy()
+    with pytest.raises(figure2.BindingError, match="expected 2666 rows"):
+        figure2._audit_results(incomplete)
+
+    invalid_p = results.copy()
+    invalid_p.loc[0, "P-value"] = 1.01
+    with pytest.raises(figure2.BindingError, match=r"p-values in \(0, 1\]"):
+        figure2._audit_results(invalid_p)
+
+    invalid_padj = results.copy()
+    invalid_padj.loc[0, "padj"] = -0.01
+    with pytest.raises(figure2.BindingError, match=r"padj in \[0, 1\]"):
+        figure2._audit_results(invalid_padj)
+
+
+def test_artifact_receipt_binds_sdist_wheel_core_and_tag(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    sdist = tmp_path / "pyfgsea-0.2.0.tar.gz"
+    sdist.write_bytes(b"sdist")
+    core = b"MZ-formal-core"
+    wheel = tmp_path / "pyfgsea-0.2.0-cp38-abi3-win_amd64.whl"
+    with zipfile.ZipFile(wheel, "w") as archive:
+        archive.writestr("pyfgsea/_core.pyd", core)
+    core_sha = hashlib.sha256(core).hexdigest()
+    commit = "1" * 40
+    tree = "2" * 40
+    tag_object = "3" * 40
+    tag = {
+        "name": "v0.2.0-rc2",
+        "annotated": True,
+        "tag_object": tag_object,
+        "peeled_commit": commit,
+    }
+    payload = {
+        "schema_version": 1,
+        "status": "passed",
+        "all_release_gates_passed": True,
+        "expected": {
+            "pyfgsea_version": "0.2.0",
+            "algorithm_revision": "fgsea-1.38-pr178-v1",
+        },
+        "git": {
+            "commit": commit,
+            "tree": tree,
+            "clean_before_and_after": True,
+            "release_tag": tag,
+            "source_manifest": {},
+        },
+        "artifact_chain": {
+            "sdist": {
+                "path": str(sdist),
+                "sha256": _sha256(sdist),
+                "verified_source_manifest_sha256": "4" * 64,
+                "pyfgsea_source_set_exact": True,
+                "native_binary_count": 0,
+                "cargo_version": "0.2.0",
+                "metadata_version": "0.2.0",
+            },
+            "wheel": {
+                "path": str(wheel),
+                "sha256": _sha256(wheel),
+                "build_input_sdist_sha256": _sha256(sdist),
+                "wheel_built_from_verified_sdist": True,
+                "wheel_member_boundary_exact": True,
+                "pyfgsea_source_set_exact": True,
+                "metadata_version": "0.2.0",
+                "verified_source_manifest_sha256": "4" * 64,
+                "core_member": "pyfgsea/_core.pyd",
+                "core_sha256": core_sha,
+            },
+            "installed": {
+                "core_sha256": core_sha,
+                "direct_url_wheel_sha256": _sha256(wheel),
+                "pyfgsea_version": "0.2.0",
+                "distribution_version": "0.2.0",
+                "algorithm_revision": "fgsea-1.38-pr178-v1",
+                "package_and_core_inside_venv": True,
+            },
+        },
+    }
+    receipt = tmp_path / "receipt.json"
+    receipt.write_text(json.dumps(payload), encoding="utf-8")
+    git_state = {"commit": commit, "tree": tree, "release_tag": tag}
+    monkeypatch.setattr(
+        figure2,
+        "_reverify_release_artifacts",
+        lambda *args: {
+            "source_manifest_sha256": "4" * 64,
+            "source_file_count": 0,
+            "source_manifest_matches_commit": True,
+            "sdist_reverified": True,
+            "wheel_reverified": True,
+        },
+    )
+    evidence = figure2._verify_artifact_receipt(receipt, git_state)
+    assert evidence["wheel"]["core_sha256"] == core_sha
+
+    missing_manifest = json.loads(json.dumps(payload))
+    del missing_manifest["git"]["source_manifest"]
+    receipt.write_text(json.dumps(missing_manifest), encoding="utf-8")
+    with pytest.raises(figure2.BindingError, match="source manifest"):
+        figure2._verify_artifact_receipt(receipt, git_state)
+
+    false_exact = json.loads(json.dumps(payload))
+    false_exact["artifact_chain"]["wheel"]["pyfgsea_source_set_exact"] = False
+    receipt.write_text(json.dumps(false_exact), encoding="utf-8")
+    with pytest.raises(figure2.BindingError, match="wheel package source boundary"):
+        figure2._verify_artifact_receipt(receipt, git_state)
+
+    receipt.write_text(json.dumps(payload), encoding="utf-8")
+    with zipfile.ZipFile(wheel, "a") as archive:
+        archive.writestr("changed.txt", "changed")
+    with pytest.raises(figure2.BindingError, match="wheel is missing or has changed"):
+        figure2._verify_artifact_receipt(receipt, git_state)
+
+
+def test_failed_publication_leaves_no_success_receipt(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    staging = tmp_path / ".formal.incomplete-test"
+    output = tmp_path / "formal"
+    staging.mkdir()
+    (staging / "trajectory_results.csv").write_text("result\n", encoding="utf-8")
+    original_replace = figure2.os.replace
+
+    def fail_manifest_replace(source: str | Path, destination: str | Path) -> None:
+        if str(source).endswith(".run_manifest.json.pending"):
+            raise OSError("simulated manifest publication failure")
+        original_replace(source, destination)
+
+    monkeypatch.setattr(figure2.os, "replace", fail_manifest_replace)
+    with pytest.raises(OSError, match="simulated"):
+        figure2._publish_evidence(staging, output, {"binding_status": "bound"})
+    assert not staging.exists()
+    assert not output.exists()
+    assert not (output / "run_manifest.json").exists()
