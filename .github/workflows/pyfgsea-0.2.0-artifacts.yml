@@ -1,0 +1,649 @@
+name: PyFgsea artifact verification
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pyfgsea-artifact-verification-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  PYTHON_VERSION: "3.11"
+  RUST_VERSION: "1.92.0"
+  MATURIN_VERSION: "1.10.2"
+  CARGO_REGISTRIES_CRATES_IO_PROTOCOL: sparse
+  CARGO_NET_RETRY: "10"
+  CARGO_HTTP_TIMEOUT: "60"
+
+jobs:
+  release-ref-gate:
+    name: Require an annotated PyFgsea release tag
+    runs-on: ubuntu-24.04
+    outputs:
+      release_tag: ${{ steps.verify.outputs.release_tag }}
+      release_tag_object: ${{ steps.verify.outputs.release_tag_object }}
+      release_commit: ${{ steps.verify.outputs.release_commit }}
+    steps:
+      - name: Check out the event ref with tag objects and no credentials
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ github.ref }}
+          fetch-depth: 0
+          fetch-tags: true
+          persist-credentials: false
+
+      - name: Verify annotated tag and immutable event commit
+        id: verify
+        shell: bash
+        env:
+          EVENT_REF_NAME: ${{ github.ref_name }}
+          EVENT_REF_TYPE: ${{ github.ref_type }}
+          EVENT_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          if [[ "$EVENT_REF_TYPE" != "tag" ]]; then
+            echo "Artifact verification requires a tag ref." >&2
+            exit 1
+          fi
+          if [[ ! "$EVENT_REF_NAME" =~ ^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-rc[1-9][0-9]*)?$ ]]; then
+            echo "Unexpected release tag: $EVENT_REF_NAME" >&2
+            exit 1
+          fi
+          tag_ref="refs/tags/$EVENT_REF_NAME"
+          test "$(git cat-file -t "$tag_ref")" = "tag"
+          peeled="$(git rev-parse "$tag_ref^{commit}")"
+          test "$peeled" = "$EVENT_SHA"
+          test "$(git rev-parse HEAD)" = "$EVENT_SHA"
+          test -z "$(git status --porcelain=v1 --untracked-files=all)"
+          echo "release_tag=$EVENT_REF_NAME" >> "$GITHUB_OUTPUT"
+          echo "release_tag_object=$(git rev-parse "$tag_ref")" >> "$GITHUB_OUTPUT"
+          echo "release_commit=$peeled" >> "$GITHUB_OUTPUT"
+
+  artifact-chain:
+    name: Artifact chain (${{ matrix.key }})
+    needs: release-ref-gate
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - key: linux-x86_64
+            runner: ubuntu-24.04
+          - key: windows-x86_64
+            runner: windows-2022
+          - key: macos-arm64
+            runner: macos-14
+
+    steps:
+      - name: Check out the immutable tag commit without credentials
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: refs/tags/${{ needs.release-ref-gate.outputs.release_tag }}
+          fetch-depth: 1
+          fetch-tags: true
+          persist-credentials: false
+
+      - name: Require detached, clean event commit
+        shell: bash
+        env:
+          RELEASE_COMMIT: ${{ needs.release-ref-gate.outputs.release_commit }}
+          RELEASE_TAG: ${{ needs.release-ref-gate.outputs.release_tag }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$RELEASE_COMMIT"
+          test "$(git cat-file -t "refs/tags/$RELEASE_TAG")" = "tag"
+          test "$(git rev-parse "refs/tags/$RELEASE_TAG^{commit}")" = "$RELEASE_COMMIT"
+          if git symbolic-ref -q HEAD >/dev/null; then
+            echo "Artifact verification must run from a detached commit." >&2
+            exit 1
+          fi
+          test -z "$(git status --porcelain=v1 --untracked-files=all)"
+
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@87eb139fed4b08a67bd1fa429a21d1f5d523e03e # 1.92.0
+        with:
+          toolchain: ${{ env.RUST_VERSION }}
+
+      - name: Build artifacts and verify the installed wheel test suite
+        shell: bash
+        env:
+          CHAIN_ROOT: ${{ runner.temp }}/pyfgsea-chain-${{ matrix.key }}
+          RELEASE_TAG: ${{ needs.release-ref-gate.outputs.release_tag }}
+          CARGO_HOME: ${{ runner.temp }}/pyfgsea-cargo-home-${{ matrix.key }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import sys
+          if sys.version_info[:2] != (3, 11):
+              raise SystemExit(f"expected Python 3.11, found {sys.version}")
+          PY
+          test "$(rustc --version | awk '{print $2}')" = "$RUST_VERSION"
+          python -m pip install --disable-pip-version-check "maturin==$MATURIN_VERSION"
+          test "$(python -m maturin --version | awk '{print $2}')" = "$MATURIN_VERSION"
+          commit="$(git rev-parse HEAD)"
+          python scripts/verify_pyfgsea_artifacts.py \
+            --repo "$GITHUB_WORKSPACE" \
+            --commit "$commit" \
+            --release-tag "$RELEASE_TAG" \
+            --output-dir "$CHAIN_ROOT/dist" \
+            --venv "$CHAIN_ROOT/venv" \
+            --work-dir "$CHAIN_ROOT/work" \
+            --receipt "$CHAIN_ROOT/evidence/receipt.json"
+
+      - name: Hash the complete platform evidence bundle
+        shell: bash
+        env:
+          CHAIN_ROOT: ${{ runner.temp }}/pyfgsea-chain-${{ matrix.key }}
+          PLATFORM_KEY: ${{ matrix.key }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib
+          import json
+          import os
+          from pathlib import Path
+
+          root = Path(os.environ["CHAIN_ROOT"])
+          files = sorted(
+              path for directory in (root / "dist", root / "evidence")
+              for path in directory.iterdir()
+              if path.is_file() and path.name != "bundle-sha256.json"
+          )
+          records = {
+              path.relative_to(root).as_posix(): {
+                  "bytes": path.stat().st_size,
+                  "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
+              }
+              for path in files
+          }
+          payload = {
+              "schema_version": 1,
+              "status": "passed",
+              "platform_key": os.environ["PLATFORM_KEY"],
+              "files": records,
+          }
+          (root / "evidence" / "bundle-sha256.json").write_text(
+              json.dumps(payload, indent=2, sort_keys=True) + "\n",
+              encoding="utf-8",
+          )
+          PY
+
+      - name: Upload verified artifacts and receipts
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: pyfgsea-artifact-chain-${{ matrix.key }}
+          path: |
+            ${{ runner.temp }}/pyfgsea-chain-${{ matrix.key }}/dist/*
+            ${{ runner.temp }}/pyfgsea-chain-${{ matrix.key }}/evidence/*
+          if-no-files-found: error
+          retention-days: 30
+
+  reference-oci:
+    name: Reference OCI (${{ matrix.profile }})
+    needs: release-ref-gate
+    runs-on: ubuntu-24.04
+    timeout-minutes: 240
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - profile: legacy-publication
+            manifest_profile: legacy_publication
+            dockerfile: Dockerfile.reference-fgsea-1.32.2
+            reference_id: legacy-publication
+            r_version: "4.4.3"
+            bioc_version: "3.20"
+            fgsea_version: "1.32.2"
+            base_digest: sha256:089317f336a61255bb35f1efd799820cef37136d2acf2a76ba4abb74af51d4a3
+          - profile: current-conformance
+            manifest_profile: current_conformance
+            dockerfile: Dockerfile.reference-fgsea-1.38.0
+            reference_id: current-conformance
+            r_version: "4.6.0"
+            bioc_version: "3.23"
+            fgsea_version: "1.38.0"
+            base_digest: sha256:dc3c818ba1a6a58cbc5c450878bb4d9a6385feef60bbbfa5f8d62e54f544e566
+
+    steps:
+      - name: Check out the immutable event commit without credentials
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: refs/tags/${{ needs.release-ref-gate.outputs.release_tag }}
+          fetch-depth: 1
+          fetch-tags: true
+          persist-credentials: false
+
+      - name: Require detached, clean event commit
+        env:
+          RELEASE_TAG: ${{ needs.release-ref-gate.outputs.release_tag }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          test "$(git cat-file -t "refs/tags/$RELEASE_TAG")" = "tag"
+          test "$(git rev-parse "refs/tags/$RELEASE_TAG^{commit}")" = "$GITHUB_SHA"
+          if git symbolic-ref -q HEAD >/dev/null; then
+            echo "Reference verification must run from a detached commit." >&2
+            exit 1
+          fi
+          test -z "$(git status --porcelain=v1 --untracked-files=all)"
+
+      - name: Set up an isolated Buildx builder
+        id: buildx
+        uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
+        with:
+          driver: docker-container
+
+      - name: Build without cache and export OCI layout only
+        env:
+          PROFILE: ${{ matrix.profile }}
+          DOCKERFILE: ${{ matrix.dockerfile }}
+          OCI_ROOT: ${{ runner.temp }}/reference-${{ matrix.profile }}
+        run: |
+          set -euo pipefail
+          mkdir -p "$OCI_ROOT"
+          docker buildx build \
+            --builder "${{ steps.buildx.outputs.name }}" \
+            --file "$DOCKERFILE" \
+            --platform linux/amd64 \
+            --pull \
+            --no-cache \
+            --provenance=false \
+            --sbom=false \
+            --metadata-file "$OCI_ROOT/build-metadata.json" \
+            --output "type=oci,dest=$OCI_ROOT/$PROFILE.oci.tar" \
+            "$GITHUB_WORKSPACE"
+
+      - name: Inspect OCI structure and extract reference evidence
+        env:
+          PROFILE: ${{ matrix.profile }}
+          MANIFEST_PROFILE: ${{ matrix.manifest_profile }}
+          REFERENCE_ID: ${{ matrix.reference_id }}
+          EXPECTED_R: ${{ matrix.r_version }}
+          EXPECTED_BIOC: ${{ matrix.bioc_version }}
+          EXPECTED_FGSEA: ${{ matrix.fgsea_version }}
+          EXPECTED_BASE_DIGEST: ${{ matrix.base_digest }}
+          DOCKERFILE: ${{ matrix.dockerfile }}
+          OCI_ROOT: ${{ runner.temp }}/reference-${{ matrix.profile }}
+          COMMIT: ${{ github.sha }}
+          RELEASE_TAG: ${{ needs.release-ref-gate.outputs.release_tag }}
+          RELEASE_TAG_OBJECT: ${{ needs.release-ref-gate.outputs.release_tag_object }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib
+          import json
+          import os
+          import re
+          import shutil
+          import subprocess
+          import tarfile
+          from pathlib import Path, PurePosixPath
+
+          def sha256_file(path):
+              digest = hashlib.sha256()
+              with path.open("rb") as handle:
+                  for block in iter(lambda: handle.read(1024 * 1024), b""):
+                      digest.update(block)
+              return digest.hexdigest()
+
+          def safe_parts(name, context):
+              if "\\" in name:
+                  raise RuntimeError(f"{context} uses a backslash path: {name!r}")
+              path = PurePosixPath(name)
+              if path.is_absolute() or any(part in ("", ".", "..") for part in path.parts):
+                  raise RuntimeError(f"unsafe {context} path: {name!r}")
+              return path.parts
+
+          root = Path(os.environ["OCI_ROOT"])
+          archive = root / f"{os.environ['PROFILE']}.oci.tar"
+          layout = root / "oci-layout-expanded"
+          evidence = root / "evidence" / "opt" / "reference"
+          layout.mkdir(parents=True, exist_ok=False)
+
+          # Extract the OCI layout with explicit path/type checks.
+          with tarfile.open(archive, "r:*") as outer:
+              for member in outer:
+                  parts = safe_parts(member.name, "OCI archive member")
+                  target = layout.joinpath(*parts)
+                  if member.isdir():
+                      target.mkdir(parents=True, exist_ok=True)
+                  elif member.isfile():
+                      target.parent.mkdir(parents=True, exist_ok=True)
+                      source = outer.extractfile(member)
+                      if source is None:
+                          raise RuntimeError(f"cannot read OCI member {member.name!r}")
+                      with source, target.open("wb") as sink:
+                          shutil.copyfileobj(source, sink)
+                  else:
+                      raise RuntimeError(f"unsupported OCI member type: {member.name!r}")
+
+          index_path = layout / "index.json"
+          index_bytes = index_path.read_bytes()
+          index = json.loads(index_bytes)
+          descriptors = index.get("manifests", [])
+          if len(descriptors) != 1:
+              raise RuntimeError(f"expected one OCI index descriptor, found {len(descriptors)}")
+
+          def blob_for(digest):
+              algorithm, separator, value = digest.partition(":")
+              if separator != ":" or algorithm != "sha256" or not re.fullmatch(r"[0-9a-f]{64}", value):
+                  raise RuntimeError(f"unsupported OCI digest: {digest!r}")
+              path = layout / "blobs" / algorithm / value
+              if not path.is_file() or sha256_file(path) != value:
+                  raise RuntimeError(f"missing or corrupt OCI blob: {digest}")
+              return path
+
+          descriptor = descriptors[0]
+          descriptor_platform = descriptor.get("platform", {})
+          if descriptor_platform and (
+              descriptor_platform.get("os") != "linux" or descriptor_platform.get("architecture") != "amd64"
+          ):
+              raise RuntimeError(f"unexpected OCI platform: {descriptor_platform}")
+          manifest_path = blob_for(descriptor["digest"])
+          manifest = json.loads(manifest_path.read_bytes())
+          if "manifests" in manifest:
+              nested = [
+                  item for item in manifest["manifests"]
+                  if item.get("platform", {}).get("os") == "linux"
+                  and item.get("platform", {}).get("architecture") == "amd64"
+              ]
+              if len(nested) != 1:
+                  raise RuntimeError(f"expected one linux/amd64 nested manifest, found {len(nested)}")
+              descriptor = nested[0]
+              manifest_path = blob_for(descriptor["digest"])
+              manifest = json.loads(manifest_path.read_bytes())
+          if "layers" not in manifest or "config" not in manifest:
+              raise RuntimeError("OCI descriptor does not resolve to an image manifest")
+
+          config_path = blob_for(manifest["config"]["digest"])
+          config = json.loads(config_path.read_bytes())
+          env = {}
+          for item in config.get("config", {}).get("Env", []):
+              key, separator, value = item.partition("=")
+              if separator:
+                  env[key] = value
+          expected_env = {
+              "FGSEA_REFERENCE_ID": os.environ["REFERENCE_ID"],
+              "FGSEA_REFERENCE_R_VERSION": os.environ["EXPECTED_R"],
+              "FGSEA_REFERENCE_BIOC_VERSION": os.environ["EXPECTED_BIOC"],
+              "FGSEA_REFERENCE_VERSION": os.environ["EXPECTED_FGSEA"],
+          }
+          for key, value in expected_env.items():
+              if env.get(key) != value:
+                  raise RuntimeError(f"image config {key}={env.get(key)!r}, expected {value!r}")
+
+          # Reconstruct the final /opt/reference view from ordered OCI layers.
+          state = {}
+          reference_root = PurePosixPath("opt/reference")
+          for layer in manifest["layers"]:
+              layer_path = blob_for(layer["digest"])
+              with tarfile.open(layer_path, "r:*") as layer_tar:
+                  for member in layer_tar:
+                      raw = member.name[2:] if member.name.startswith("./") else member.name
+                      parts = safe_parts(raw, "layer member")
+                      path = PurePosixPath(*parts)
+                      basename = path.name
+                      if basename == ".wh..wh..opq":
+                          parent = path.parent
+                          if parent == reference_root or reference_root.is_relative_to(parent):
+                              state.clear()
+                          elif parent.is_relative_to(reference_root):
+                              prefix = parent.relative_to(reference_root).as_posix().rstrip("/") + "/"
+                              state = {key: value for key, value in state.items() if not key.startswith(prefix)}
+                          continue
+                      if basename.startswith(".wh."):
+                          target = path.parent / basename[4:]
+                          if target == reference_root or reference_root.is_relative_to(target):
+                              state.clear()
+                          elif target.is_relative_to(reference_root):
+                              relative = target.relative_to(reference_root).as_posix()
+                              state = {
+                                  key: value for key, value in state.items()
+                                  if key != relative and not key.startswith(relative.rstrip("/") + "/")
+                              }
+                          continue
+                      if not path.is_relative_to(reference_root) or path == reference_root:
+                          continue
+                      relative = path.relative_to(reference_root).as_posix()
+                      if member.isdir():
+                          continue
+                      if not member.isfile():
+                          raise RuntimeError(f"non-regular /opt/reference member: {path}")
+                      source = layer_tar.extractfile(member)
+                      if source is None:
+                          raise RuntimeError(f"cannot read layer member {path}")
+                      state[relative] = source.read()
+
+          required = {
+              "fgsea.tar.gz",
+              "renv.resolved.lock",
+              "reference-verification.txt",
+              "R-sessionInfo.txt",
+              "dpkg-packages.tsv",
+              "evidence-sha256.txt",
+          }
+          missing = sorted(required - state.keys())
+          if missing:
+              raise RuntimeError(f"OCI image lacks reference evidence: {missing}")
+          for relative, data in state.items():
+              target = evidence.joinpath(*PurePosixPath(relative).parts)
+              target.parent.mkdir(parents=True, exist_ok=True)
+              target.write_bytes(data)
+
+          verification = {}
+          for line in (evidence / "reference-verification.txt").read_text(encoding="utf-8").splitlines():
+              key, separator, value = line.partition("=")
+              if separator:
+                  verification[key] = value
+          expected_verification = {
+              "REFERENCE_ID": os.environ["REFERENCE_ID"],
+              "R_VERSION": os.environ["EXPECTED_R"],
+              "BIOCONDUCTOR_VERSION": os.environ["EXPECTED_BIOC"],
+              "FGSEA_VERSION": os.environ["EXPECTED_FGSEA"],
+          }
+          for key, value in expected_verification.items():
+              if verification.get(key) != value:
+                  raise RuntimeError(f"reference verification {key}={verification.get(key)!r}, expected {value!r}")
+
+          recorded_hashes = {}
+          for line in (evidence / "evidence-sha256.txt").read_text(encoding="utf-8").splitlines():
+              digest, separator, raw_path = line.partition("  ")
+              if not separator or not re.fullmatch(r"[0-9a-f]{64}", digest):
+                  raise RuntimeError(f"invalid evidence hash line: {line!r}")
+              recorded_hashes[PurePosixPath(raw_path).name] = digest
+          for filename in ("fgsea.tar.gz", "renv.resolved.lock"):
+              actual = sha256_file(evidence / filename)
+              if recorded_hashes.get(filename) != actual:
+                  raise RuntimeError(f"recorded hash mismatch for {filename}")
+
+          workspace = Path(os.environ["GITHUB_WORKSPACE"])
+          dockerfile = workspace / os.environ["DOCKERFILE"]
+          dockerfile_text = dockerfile.read_text(encoding="utf-8")
+          expected_from = f"@{os.environ['EXPECTED_BASE_DIGEST']}"
+          first_instruction = next(
+              line.strip() for line in dockerfile_text.splitlines()
+              if line.strip() and not line.lstrip().startswith("#")
+          )
+          if not first_instruction.startswith("FROM ") or expected_from not in first_instruction:
+              raise RuntimeError("Dockerfile does not use the declared pinned base digest")
+
+          reference_manifest = workspace / "reference_manifest.json"
+          manifest_payload = json.loads(reference_manifest.read_text(encoding="utf-8"))
+          manifest_contract = manifest_payload["profiles"][os.environ["MANIFEST_PROFILE"]]
+          expected_manifest = {
+              "r_version": os.environ["EXPECTED_R"],
+              "bioconductor_version": os.environ["EXPECTED_BIOC"],
+              "fgsea_version": os.environ["EXPECTED_FGSEA"],
+              "dockerfile": os.environ["DOCKERFILE"],
+              "docker_base_image_digest": os.environ["EXPECTED_BASE_DIGEST"],
+              "docker_platform": "linux/amd64",
+          }
+          for key, value in expected_manifest.items():
+              if manifest_contract.get(key) != value:
+                  raise RuntimeError(
+                      f"reference manifest {key}={manifest_contract.get(key)!r}, expected {value!r}"
+                  )
+          input_paths = [
+              dockerfile,
+              reference_manifest,
+              workspace / "scripts/install_fgsea_reference.R",
+              workspace / "scripts/verify_fgsea_reference.R",
+              workspace / manifest_contract["bootstrap_lockfile"],
+          ]
+          reference_inputs = {
+              path.relative_to(workspace).as_posix(): {
+                  "bytes": path.stat().st_size,
+                  "sha256": sha256_file(path),
+              }
+              for path in input_paths
+          }
+
+          metadata_path = root / "build-metadata.json"
+          metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
+          metadata_digest = metadata.get("containerimage.digest")
+          digest_candidates = {
+              descriptor["digest"],
+              "sha256:" + sha256_file(index_path),
+              "sha256:" + sha256_file(manifest_path),
+          }
+          if metadata_digest not in digest_candidates:
+              raise RuntimeError(
+                  f"Buildx image digest {metadata_digest!r} does not match inspected OCI descriptors {sorted(digest_candidates)}"
+              )
+
+          observed_commit = subprocess.check_output(
+              ["git", "rev-parse", "HEAD"], cwd=workspace, text=True
+          ).strip().lower()
+          if observed_commit != os.environ["COMMIT"].lower():
+              raise RuntimeError(f"checkout commit changed during OCI build: {observed_commit}")
+          tag_ref = f"refs/tags/{os.environ['RELEASE_TAG']}"
+          observed_tag_type = subprocess.check_output(
+              ["git", "cat-file", "-t", tag_ref], cwd=workspace, text=True
+          ).strip()
+          observed_tag_object = subprocess.check_output(
+              ["git", "rev-parse", tag_ref], cwd=workspace, text=True
+          ).strip().lower()
+          observed_tag_commit = subprocess.check_output(
+              ["git", "rev-parse", f"{tag_ref}^{{commit}}"], cwd=workspace, text=True
+          ).strip().lower()
+          if observed_tag_type != "tag":
+              raise RuntimeError("release ref is not an annotated tag object")
+          if observed_tag_object != os.environ["RELEASE_TAG_OBJECT"].lower():
+              raise RuntimeError("release tag object changed during OCI build")
+          if observed_tag_commit != observed_commit:
+              raise RuntimeError("release tag no longer peels to the OCI source commit")
+          status = subprocess.check_output(
+              ["git", "status", "--porcelain=v1", "--untracked-files=all"],
+              cwd=workspace,
+              text=True,
+          )
+          if status:
+              raise RuntimeError("checkout became dirty during OCI build")
+          git_tree = subprocess.check_output(
+              ["git", "rev-parse", "HEAD^{tree}"], cwd=workspace, text=True
+          ).strip().lower()
+          docker_version = subprocess.check_output(
+              ["docker", "version", "--format", "{{.Client.Version}}"], text=True
+          ).strip()
+          buildx_version = subprocess.check_output(
+              ["docker", "buildx", "version"], text=True
+          ).strip()
+
+          evidence_files = {}
+          for path in sorted(evidence.rglob("*")):
+              if path.is_file():
+                  evidence_files[path.relative_to(evidence).as_posix()] = {
+                      "bytes": path.stat().st_size,
+                      "sha256": sha256_file(path),
+                  }
+          receipt = {
+              "schema_version": 1,
+              "status": "passed",
+              "profile": os.environ["PROFILE"],
+              "git_commit": observed_commit,
+              "git_tree": git_tree,
+              "release_tag": os.environ["RELEASE_TAG"],
+              "release_tag_object": observed_tag_object,
+              "platform": "linux/amd64",
+              "dockerfile": os.environ["DOCKERFILE"],
+              "dockerfile_sha256": sha256_file(dockerfile),
+              "reference_manifest_sha256": sha256_file(reference_manifest),
+              "reference_manifest_profile": os.environ["MANIFEST_PROFILE"],
+              "reference_inputs": reference_inputs,
+              "base_image_digest": os.environ["EXPECTED_BASE_DIGEST"],
+              "built_image_digest": metadata_digest,
+              "oci_manifest_digest": descriptor["digest"],
+              "oci_index_sha256": sha256_file(index_path),
+              "oci_archive": {
+                  "filename": archive.name,
+                  "bytes": archive.stat().st_size,
+                  "sha256": sha256_file(archive),
+              },
+              "reference_verification": verification,
+              "evidence_files": evidence_files,
+              "build_metadata": metadata,
+              "tool_versions": {
+                  "docker_client": docker_version,
+                  "docker_buildx": buildx_version,
+              },
+              "build_command": [
+                  "docker", "buildx", "build",
+                  "--builder", "${{ steps.buildx.outputs.name }}",
+                  "--file", os.environ["DOCKERFILE"],
+                  "--platform", "linux/amd64",
+                  "--pull", "--no-cache", "--provenance=false", "--sbom=false",
+                  "--metadata-file", str(root / "build-metadata.json"),
+                  "--output", f"type=oci,dest={archive}",
+                  os.environ["GITHUB_WORKSPACE"],
+              ],
+              "registry_push_performed": False,
+          }
+          receipt_path = root / "evidence" / "oci-receipt.json"
+          receipt_path.write_text(json.dumps(receipt, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+          PY
+
+      - name: Upload the OCI evidence receipt
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: pyfgsea-reference-${{ matrix.profile }}-receipt
+          if-no-files-found: error
+          retention-days: 30
+          path: |
+            ${{ runner.temp }}/reference-${{ matrix.profile }}/build-metadata.json
+            ${{ runner.temp }}/reference-${{ matrix.profile }}/evidence/**
+
+      - name: Upload the OCI archive without recompression
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: pyfgsea-reference-${{ matrix.profile }}-oci
+          if-no-files-found: error
+          retention-days: 14
+          compression-level: 0
+          path: ${{ runner.temp }}/reference-${{ matrix.profile }}/${{ matrix.profile }}.oci.tar
+
+  cross-platform-gate:
+    name: Artifact and reference OCI gate
+    if: ${{ always() }}
+    needs: [artifact-chain, reference-oci]
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Require every platform chain to pass
+        shell: bash
+        env:
+          ARTIFACT_CHAIN_RESULT: ${{ needs.artifact-chain.result }}
+          REFERENCE_OCI_RESULT: ${{ needs.reference-oci.result }}
+        run: |
+          set -euo pipefail
+          test "$ARTIFACT_CHAIN_RESULT" = "success"
+          test "$REFERENCE_OCI_RESULT" = "success"

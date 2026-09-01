@@ -1,7 +1,22 @@
 import click
-from ..api import run as run_pipeline
-from ..io.anndata_io import load_adata
-from ..io.meta_merge import merge_metadata_safe
+
+
+def load_adata(*args, **kwargs):
+    from ..io.anndata_io import load_adata as implementation
+
+    return implementation(*args, **kwargs)
+
+
+def merge_metadata_safe(*args, **kwargs):
+    from ..io.meta_merge import merge_metadata_safe as implementation
+
+    return implementation(*args, **kwargs)
+
+
+def run_pipeline(*args, **kwargs):
+    from ..api import run as implementation
+
+    return implementation(*args, **kwargs)
 
 
 @click.group()
@@ -25,7 +40,13 @@ def cli():
 def run(h5ad, gmt, out, pseudotime_key, meta, allow_positional_merge):
     """Run the Universal Trajectory GSEA pipeline."""
     print(f"Loading {h5ad}...")
-    adata = load_adata(h5ad)
+    try:
+        adata = load_adata(h5ad)
+    except ImportError as error:
+        raise click.ClickException(
+            "trajectory support is not installed; run "
+            "pip install 'pyfgsea[trajectory]'"
+        ) from error
 
     if meta:
         print(f"Merging metadata from {meta}...")
@@ -33,7 +54,7 @@ def run(h5ad, gmt, out, pseudotime_key, meta, allow_positional_merge):
             adata, meta, allow_positional_merge=allow_positional_merge
         )
 
-    run_pipeline(adata, gmt_path=gmt, pseudotime_key=pseudotime_key, outdir=out)
+    run_pipeline(adata, gmt_path=gmt, pseudotime_key=pseudotime_key, output_dir=out)
 
 
 if __name__ == "__main__":

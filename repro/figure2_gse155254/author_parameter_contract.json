@@ -1,0 +1,31 @@
+{
+  "accepted_at_date": "2026-09-01",
+  "acceptance_basis": "Explicit project-author confirmation in the Codex task on 2026-09-01",
+  "accepted_values": {
+    "bin_width": 0,
+    "nperm_nes": 2000,
+    "score_type": "std",
+    "step": 50,
+    "use_nes_cache": false,
+    "window_size": 500
+  },
+  "author_parameter_contract_status": "accepted",
+  "contract_id": "pyfgsea-0.2.0-gse155254-figure2",
+  "dataset_accession": "GSE155254",
+  "pathway_size_semantics": {
+    "enforced_by": {
+      "bin_width": 0,
+      "mode": "aligned"
+    },
+    "policy": "exact"
+  },
+  "publication_accepted": false,
+  "publication_status": "pending-formal-recalculation-and-manuscript-impact-adjudication",
+  "research_context": {
+    "claim_boundary": "publication-pending computational recalculation",
+    "input_provenance": "processed single-cell data derived from public accession GSE155254",
+    "operation": "in-silico rolling-window trajectory GSEA recalculation",
+    "physical_experiment_requested": false
+  },
+  "schema_version": 1
+}

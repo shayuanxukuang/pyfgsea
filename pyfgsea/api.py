@@ -20,7 +20,7 @@ def run_pipeline(
     output_dir: str = "results/run1",
     pseudotime_key: str = "dpt_pseudotime",
     force_rerun: bool = False,
-    window_size: int = 800,
+    window_size: int = 500,
     step: int = 50,
     min_size: int = 15,
 ) -> pd.DataFrame:

@@ -3,7 +3,7 @@ import numpy as np
 import os
 import logging
 from typing import Any, Optional
-from .wrapper import load_gmt, prepare_pathways, GseaRunner
+from .wrapper import GseaRunner, _normalize_run_options, load_gmt, prepare_pathways
 
 logger = logging.getLogger(__name__)
 
@@ -105,22 +105,49 @@ def run_trajectory_gsea(
     lineage_keyword: Optional[str] = None,
     root_gene: Optional[str] = None,
     window_size: int = 500,
-    step: int = 100,
+    step: int = 50,
     out_csv: Optional[str] = None,
     min_size: int = 15,
     max_size: int = 500,
     sample_size: int = 101,
     seed: int = 42,
     eps: float = 1e-50,
-    nperm_nes: int = 100,
+    nperm_nes: int = 2000,
     pseudotime_key: str = "dpt_pseudotime",
-    bin_width: int = 10,
+    bin_width: Optional[int] = 0,
     calculate_nes: bool = True,
-    use_nes_cache: bool = True,
+    use_nes_cache: bool = False,
+    gsea_param: float = 1.0,
+    mode: str = "aligned",
+    score_type: str = "std",
+    tie_policy: str = "gene_id",
+    nperm_simple: Optional[int] = None,
+    max_levels: Optional[int] = None,
+    precheck_n: Optional[int] = None,
+    precheck_eps: Optional[float] = None,
 ) -> pd.DataFrame:
     """
     Rolling-window GSEA along pseudotime (Trajectory Analysis).
     """
+    options = _normalize_run_options(
+        sample_size=sample_size,
+        seed=seed,
+        nperm_nes=nperm_nes,
+        gsea_param=gsea_param,
+        eps=eps,
+        score_type=score_type,
+        mode=mode,
+        tie_policy=tie_policy,
+        bin_width=bin_width,
+        calculate_nes=calculate_nes,
+        nperm_simple=nperm_simple,
+        max_levels=max_levels,
+        precheck_n=precheck_n,
+        precheck_eps=precheck_eps,
+    )
+    if not isinstance(use_nes_cache, (bool, np.bool_)):
+        raise TypeError("use_nes_cache must be boolean")
+
     if not HAS_SCANPY:
         raise ImportError("scanpy is required for trajectory analysis")
 
@@ -160,7 +187,14 @@ def run_trajectory_gsea(
         return pd.DataFrame()
 
     # Initialize Runner
-    runner = GseaRunner(pathway_names, pathway_indices, min_size, max_size)
+    runner = GseaRunner(
+        pathway_names,
+        pathway_indices,
+        min_size,
+        max_size,
+        gene_ids=[str(gene) for gene in genes],
+        tie_policy=options["tie_policy"],
+    )
 
     X = adata.X
     n_all = X.shape[0]
@@ -184,13 +218,20 @@ def run_trajectory_gsea(
         # Stateful Run
         res = runner.run(
             scores,
-            sample_size=sample_size,
-            seed=seed + wi,
-            eps=eps,
-            nperm_nes=nperm_nes,
-            bin_width=bin_width,
-            calculate_nes=calculate_nes,
+            sample_size=options["sample_size"],
+            seed=options["seed"],
+            eps=options["eps"],
+            nperm_nes=options["nperm_nes"],
+            gsea_param=options["gsea_param"],
+            score_type=options["score_type"],
+            bin_width=options["bin_width"],
+            calculate_nes=options["calculate_nes"],
             use_nes_cache=use_nes_cache,
+            mode=options["mode"],
+            nperm_simple=options["nperm_simple"],
+            max_levels=options["max_levels"],
+            precheck_n=options["precheck_n"],
+            precheck_eps=options["precheck_eps"],
         )
 
         if not res.empty:
@@ -214,6 +255,14 @@ def run_trajectory_gsea(
         return pd.DataFrame()
 
     df = pd.concat(all_rows, ignore_index=True)
+    df.attrs["params"] = {
+        "window_size": window_size,
+        "step": step,
+        "min_size": min_size,
+        "max_size": max_size,
+        "use_nes_cache": bool(use_nes_cache),
+        **options,
+    }
     if out_csv:
         dirpath = os.path.dirname(out_csv)
         if dirpath:
