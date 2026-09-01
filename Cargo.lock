@@ -288,7 +288,7 @@ dependencies = [
 
 [[package]]
 name = "pyfgsea"
-version = "0.2.0-rc6"
+version = "0.2.0-rc7"
 dependencies = [
  "numpy",
  "pyo3",

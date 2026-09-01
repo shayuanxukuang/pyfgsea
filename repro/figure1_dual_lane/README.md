@@ -14,7 +14,7 @@ paper update.
 | Lane | Installed PyFgsea | Module version | R | Bioconductor | fgsea | Algorithm revision |
 | --- | --- | --- | --- | --- | --- | --- |
 | `legacy` | 0.1.4 | 0.1.3 | 4.4.3 | 3.20 | 1.32.2 | no revision API |
-| `current` | 0.2.0rc6 | 0.2.0rc6 | 4.6.0 | 3.23 | 1.38.0 | `fgsea-1.38-pr178-v1` |
+| `current` | 0.2.0rc7 | 0.2.0rc7 | 4.6.0 | 3.23 | 1.38.0 | `fgsea-1.38-pr178-v1` |
 
 The 0.1.4 distribution metadata and 0.1.3 module declaration are the recorded
 historical packaging state. The legacy verifier checks both values. It accepts
@@ -127,10 +127,10 @@ python "${PYFGSEA_EVIDENCE_REPO}/repro/figure1_dual_lane/run_lane.py" \
   --reference-receipt "${EVIDENCE_ROOT}/legacy-oci/oci-receipt.json" \
   --output-dir "${EVIDENCE_ROOT}/figure1-legacy" \
   --expected-git-commit FULL_40_CHARACTER_RC_COMMIT \
-  --expected-git-tag v0.2.0-rc6
+  --expected-git-tag v0.2.0-rc7
 ```
 
-### Current lane: PyFgsea 0.2.0rc6 / fgsea 1.38.0
+### Current lane: PyFgsea 0.2.0rc7 / fgsea 1.38.0
 
 ```bash
 export FGSEA_REFERENCE_VERSION=1.38.0
@@ -145,7 +145,7 @@ python "${PYFGSEA_EVIDENCE_REPO}/repro/figure1_dual_lane/run_lane.py" \
   --reference-receipt "${EVIDENCE_ROOT}/current-oci/oci-receipt.json" \
   --output-dir "${EVIDENCE_ROOT}/figure1-current" \
   --expected-git-commit FULL_40_CHARACTER_RC_COMMIT \
-  --expected-git-tag v0.2.0-rc6
+  --expected-git-tag v0.2.0-rc7
 ```
 
 ### Compare the two reference runs
@@ -161,7 +161,7 @@ python "${PYFGSEA_EVIDENCE_REPO}/repro/figure1_dual_lane/compare_results.py" \
   --input-manifest "${EVIDENCE_ROOT}/figure1-inputs/input_manifest.json" \
   --output-dir "${EVIDENCE_ROOT}/figure1-compared" \
   --expected-git-commit FULL_40_CHARACTER_RC_COMMIT \
-  --expected-git-tag v0.2.0-rc6
+  --expected-git-tag v0.2.0-rc7
 ```
 
 ## Outputs

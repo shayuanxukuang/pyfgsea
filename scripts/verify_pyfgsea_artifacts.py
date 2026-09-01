@@ -420,7 +420,7 @@ def _verify_sdist(
         missing = sorted(expected_members - actual_members)
         extra = sorted(actual_members - expected_members)
         raise VerificationError(
-            "sdist source boundary differs from the committed release inputs; "
+            "sdist sources differ from the committed release inputs; "
             f"missing={missing!r}, extra={extra!r}"
         )
 
@@ -1306,7 +1306,7 @@ def _parser() -> argparse.ArgumentParser:
         description=(
             "Build a PyFgsea sdist from a clean commit, build its wheel, install "
             "that wheel with its trajectory extra into a fresh venv, run the "
-            "commit-bound installed test suite, and emit a fail-closed JSON receipt."
+            "installed test suite, and write a JSON run record."
         )
     )
     parser.add_argument("--repo", type=Path, required=True, help="Clean Git worktree")

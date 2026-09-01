@@ -22,7 +22,8 @@ SPEC.loader.exec_module(figure2)
 
 
 def test_release_tag_version() -> None:
-    assert figure2.RELEASE_TAG_PATTERN.fullmatch("v0.2.0-rc6")
+    assert figure2.RELEASE_TAG_PATTERN.fullmatch("v0.2.0-rc7")
+    assert not figure2.RELEASE_TAG_PATTERN.fullmatch("v0.2.0-rc6")
     assert not figure2.RELEASE_TAG_PATTERN.fullmatch("v0.2.0-rc5")
     assert not figure2.RELEASE_TAG_PATTERN.fullmatch("v0.2.0-rc4")
     assert not figure2.RELEASE_TAG_PATTERN.fullmatch("v0.2.0")
@@ -88,17 +89,17 @@ def test_clean_annotated_tag(
     _git(repo, "add", "tracked.txt")
     _git(repo, "commit", "-m", "release")
     commit = _git(repo, "rev-parse", "HEAD").lower()
-    _git(repo, "tag", "-a", "v0.2.0-rc6", "-m", "RC6")
+    _git(repo, "tag", "-a", "v0.2.0-rc7", "-m", "RC7")
     monkeypatch.setattr(figure2, "REPO_ROOT", repo)
 
-    state = figure2._capture_release_git_state(commit, "v0.2.0-rc6")
+    state = figure2._capture_release_git_state(commit, "v0.2.0-rc7")
     assert state["clean"] is True
     assert state["release_tag"]["annotated"] is True
     assert state["release_tag"]["peeled_commit"] == commit
 
     (repo / "untracked.txt").write_text("dirty\n", encoding="utf-8")
     with pytest.raises(figure2.Figure2Error, match="checkout contains"):
-        figure2._capture_release_git_state(commit, "v0.2.0-rc6")
+        figure2._capture_release_git_state(commit, "v0.2.0-rc7")
 
 
 def test_result_validation() -> None:
@@ -155,10 +156,10 @@ def test_artifact_receipt(
     evidence_dir = bundle / "evidence"
     dist.mkdir(parents=True)
     evidence_dir.mkdir()
-    sdist = dist / "pyfgsea-0.2.0rc6.tar.gz"
+    sdist = dist / "pyfgsea-0.2.0rc7.tar.gz"
     sdist.write_bytes(b"sdist")
     core = b"MZ-figure2-core"
-    wheel = dist / "pyfgsea-0.2.0rc6-cp38-abi3-win_amd64.whl"
+    wheel = dist / "pyfgsea-0.2.0rc7-cp38-abi3-win_amd64.whl"
     with zipfile.ZipFile(wheel, "w") as archive:
         archive.writestr("pyfgsea/_core.pyd", core)
     junit = evidence_dir / "installed-tests.junit.xml"
@@ -172,7 +173,7 @@ def test_artifact_receipt(
     tree = "2" * 40
     tag_object = "3" * 40
     tag = {
-        "name": "v0.2.0-rc6",
+        "name": "v0.2.0-rc7",
         "annotated": True,
         "tag_object": tag_object,
         "peeled_commit": commit,
@@ -182,8 +183,8 @@ def test_artifact_receipt(
         "status": "passed",
         "all_artifact_chain_gates_passed": True,
         "expected": {
-            "cargo_version": "0.2.0-rc6",
-            "pyfgsea_version": "0.2.0rc6",
+            "cargo_version": "0.2.0-rc7",
+            "pyfgsea_version": "0.2.0rc7",
             "algorithm_revision": "fgsea-1.38-pr178-v1",
         },
         "artifact_bundle": {
@@ -203,24 +204,24 @@ def test_artifact_receipt(
         },
         "artifact_chain": {
             "sdist": {
-                "path": "/expired/runner/path/pyfgsea-0.2.0rc6.tar.gz",
+                "path": "/expired/runner/path/pyfgsea-0.2.0rc7.tar.gz",
                 "bundle_path": f"dist/{sdist.name}",
                 "sha256": _sha256(sdist),
                 "verified_source_manifest_sha256": "4" * 64,
                 "pyfgsea_source_set_exact": True,
                 "native_binary_count": 0,
-                "cargo_version": "0.2.0-rc6",
-                "metadata_version": "0.2.0rc6",
+                "cargo_version": "0.2.0-rc7",
+                "metadata_version": "0.2.0rc7",
             },
             "wheel": {
-                "path": "/expired/runner/path/pyfgsea-0.2.0rc6.whl",
+                "path": "/expired/runner/path/pyfgsea-0.2.0rc7.whl",
                 "bundle_path": f"dist/{wheel.name}",
                 "sha256": _sha256(wheel),
                 "build_input_sdist_sha256": _sha256(sdist),
                 "wheel_built_from_verified_sdist": True,
                 "wheel_member_boundary_exact": True,
                 "pyfgsea_source_set_exact": True,
-                "metadata_version": "0.2.0rc6",
+                "metadata_version": "0.2.0rc7",
                 "verified_source_manifest_sha256": "4" * 64,
                 "core_member": "pyfgsea/_core.pyd",
                 "core_sha256": core_sha,
@@ -228,8 +229,8 @@ def test_artifact_receipt(
             "installed": {
                 "core_sha256": core_sha,
                 "direct_url_wheel_sha256": _sha256(wheel),
-                "pyfgsea_version": "0.2.0rc6",
-                "distribution_version": "0.2.0rc6",
+                "pyfgsea_version": "0.2.0rc7",
+                "distribution_version": "0.2.0rc7",
                 "algorithm_revision": "fgsea-1.38-pr178-v1",
                 "package_and_core_inside_venv": True,
             },

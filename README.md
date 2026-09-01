@@ -4,7 +4,7 @@ PyFgsea runs preranked Gene Set Enrichment Analysis (GSEA) from Python with a
 Rust numerical core. It supports single analyses and rolling-window pathway
 analysis along an ordered trajectory.
 
-The current development version is `0.2.0rc6`. It is a prerelease, not the
+The current development version is `0.2.0rc7`. It is a prerelease, not the
 final `0.2.0` distribution.
 
 ## Features
@@ -146,7 +146,7 @@ Paper reproduction uses two separate reference lanes:
 | Purpose | PyFgsea | R | Bioconductor | fgsea |
 | --- | --- | --- | --- | --- |
 | Reproduce the published comparison | 0.1.4 | 4.4.3 | 3.20 | 1.32.2 |
-| Test current conformance | 0.2.0rc6 | 4.6.0 | 3.23 | 1.38.0 |
+| Test current conformance | 0.2.0rc7 | 4.6.0 | 3.23 | 1.38.0 |
 
 The lanes are not interchangeable. Do not relabel a result against fgsea
 1.32.2 as a comparison against fgsea 1.38.0, or combine the two references
@@ -170,7 +170,7 @@ but is not a complete reference comparison. A skipped R comparison remains incom
 
 ## Current limitations
 
-- `0.2.0rc6` is a prerelease; final PyPI, GitHub Release, and Zenodo artifacts
+- `0.2.0rc7` is a prerelease; final PyPI, GitHub Release, and Zenodo artifacts
   are not yet published.
 - Figure 1, Figure 2, supplementary results, and manuscript values still need
   to be recalculated separately from the source-level tests.
