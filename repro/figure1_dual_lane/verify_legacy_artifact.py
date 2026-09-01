@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Bind a public PyFgsea 0.1.4 wheel to the immutable v0.1.4 source tag."""
+"""Check a public PyFgsea 0.1.4 wheel against the v0.1.4 source tag."""
 
 from __future__ import annotations
 

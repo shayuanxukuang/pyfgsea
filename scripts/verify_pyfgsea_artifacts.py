@@ -1,15 +1,5 @@
 #!/usr/bin/env python3
-"""Build and verify the PyFgsea release artifact chain.
-
-The verifier deliberately owns the complete chain:
-
-    clean Git commit -> sdist -> wheel built from that sdist -> fresh venv install
-    -> full commit-bound installed-wheel test suite
-
-A success receipt is written only after every check passes.  On failure the
-program exits non-zero and leaves no receipt that could be mistaken for release
-evidence.
-"""
+"""Build an sdist, build and install its wheel, then run the release tests."""
 
 from __future__ import annotations
 
