@@ -1,0 +1,45 @@
+{
+  "R": {
+    "Version": "4.4.3",
+    "Repositories": [
+      {
+        "Name": "CRAN",
+        "URL": "https://cloud.r-project.org"
+      }
+    ]
+  },
+  "Bioconductor": {
+    "Version": "3.20"
+  },
+  "Packages": {
+    "BiocManager": {
+      "Package": "BiocManager",
+      "Version": "1.30.27",
+      "Source": "Repository",
+      "Repository": "CRAN"
+    },
+    "fgsea": {
+      "Package": "fgsea",
+      "Version": "1.32.2",
+      "Source": "Bioconductor",
+      "Repository": "Bioconductor 3.20",
+      "Requirements": [
+        "BH",
+        "BiocParallel",
+        "Matrix",
+        "Rcpp",
+        "cowplot",
+        "data.table",
+        "fastmatch",
+        "ggplot2",
+        "scales"
+      ]
+    },
+    "renv": {
+      "Package": "renv",
+      "Version": "1.2.4",
+      "Source": "Repository",
+      "Repository": "CRAN"
+    }
+  }
+}

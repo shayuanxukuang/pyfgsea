@@ -10,9 +10,17 @@ permissions:
   contents: read
 
 env:
+  RUST_VERSION: "1.92.0"
+  MATURIN_VERSION: "1.10.2"
+  PYTEST_VERSION: "8.4.2"
+  MYPY_VERSION: "1.19.1"
+  RUFF_VERSION: "0.11.6"
   CARGO_REGISTRIES_CRATES_IO_PROTOCOL: sparse
   CARGO_NET_RETRY: 10
   CARGO_HTTP_TIMEOUT: 60
+  # The extension targets CPython's stable ABI from 3.8 onward. PyO3 0.20
+  # otherwise rejects newer build interpreters before applying that ABI contract.
+  PYO3_USE_ABI3_FORWARD_COMPATIBILITY: "1"
 
 jobs:
   test:
@@ -22,31 +30,67 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
-        python-version: ["3.10", "3.11"]
+        # Exercise every CPython line covered by the current release gate.
+        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
       with:
         python-version: ${{ matrix.python-version }}
 
     - name: Install Rust toolchain
-      uses: dtolnay/rust-toolchain@stable
+      shell: bash
+      run: |
+        rustup toolchain install "$RUST_VERSION" --profile minimal --component rustfmt
+        rustup default "$RUST_VERSION"
+        test "$(rustc --version | awk '{print $2}')" = "$RUST_VERSION"
 
     - name: Install dependencies
+      shell: bash
       run: |
+        set -euo pipefail
         python -m pip install --upgrade pip
-        pip install maturin pytest mypy ruff pandas numpy
+        python -m pip install \
+          "maturin==$MATURIN_VERSION" \
+          "pytest==$PYTEST_VERSION" \
+          "mypy==$MYPY_VERSION" \
+          "ruff==$RUFF_VERSION" \
+          pandas numpy
+        python - <<'PY'
+        import importlib.metadata
+        import os
 
-    - name: Run Static Checks
-      run: |
-        ruff check pyfgsea
-        mypy pyfgsea --ignore-missing-imports
+        expected = {
+            "maturin": os.environ["MATURIN_VERSION"],
+            "pytest": os.environ["PYTEST_VERSION"],
+            "mypy": os.environ["MYPY_VERSION"],
+            "ruff": os.environ["RUFF_VERSION"],
+        }
+        for distribution, version in expected.items():
+            observed = importlib.metadata.version(distribution)
+            if observed != version:
+                raise SystemExit(
+                    f"{distribution} version drifted: {observed}; expected {version}"
+                )
+        PY
+
+    - name: Verify Rust formatting
+      run: cargo fmt --check
+
+    - name: Run Rust tests
+      run: cargo test --locked
+
+    - name: Run Ruff
+      run: python -m ruff check pyfgsea
+
+    - name: Run mypy
+      run: python -m mypy pyfgsea --ignore-missing-imports
 
     - name: Build wheel
-      run: maturin build --release --out dist
+      run: maturin build --release --locked --out dist
 
     - name: Install wheel
       shell: bash
@@ -56,10 +100,59 @@ jobs:
         whls = glob.glob("dist/*.whl")
         assert whls, "No wheel found in dist/"
         print("Installing:", whls[0])
-        subprocess.check_call([sys.executable, "-m", "pip", "install", "--force-reinstall", whls[0]])
+        subprocess.check_call(
+            [
+                sys.executable,
+                "-m",
+                "pip",
+                "install",
+                "--force-reinstall",
+                whls[0] + "[trajectory]",
+            ]
+        )
         PY
 
-    - name: Run Tests
-      # Run from root (or a different dir) to test installed package
+    - name: Run tests against the installed wheel
+      shell: bash
       run: |
-        pytest -q tests
+        python -I - <<'PY'
+        import importlib.metadata
+        import os
+        import sys
+        from pathlib import Path
+
+        workspace = Path(os.environ["GITHUB_WORKSPACE"]).resolve()
+        os.chdir(os.environ["RUNNER_TEMP"])
+        os.environ["PYTEST_DISABLE_PLUGIN_AUTOLOAD"] = "1"
+
+        import pyfgsea
+        import pyfgsea._core as pyfgsea_core
+        import pytest
+
+        package_file = Path(pyfgsea.__file__).resolve()
+        core_file = Path(pyfgsea_core.__file__).resolve()
+        assert workspace not in package_file.parents, (
+            f"source checkout shadowed installed wheel: {package_file}"
+        )
+        assert workspace not in core_file.parents, (
+            f"source checkout shadowed installed native core: {core_file}"
+        )
+        assert pyfgsea.__version__ == importlib.metadata.version("pyfgsea")
+
+        # The Figure 1 test imports commit-bound helpers from repro/.  Append the
+        # checkout only after the installed package and native core are loaded.
+        sys.path.append(str(workspace))
+
+        raise SystemExit(
+            pytest.main(
+                [
+                    "-q",
+                    "--import-mode=importlib",
+                    "-p",
+                    "no:cacheprovider",
+                    str(workspace / "tests"),
+                    str(workspace / "repro" / "figure1_dual_lane" / "test_pipeline.py"),
+                ]
+            )
+        )
+        PY

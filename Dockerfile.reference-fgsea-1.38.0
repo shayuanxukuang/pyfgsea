@@ -1,0 +1,50 @@
+FROM --platform=linux/amd64 r-base:4.6.0@sha256:dc3c818ba1a6a58cbc5c450878bb4d9a6385feef60bbbfa5f8d62e54f544e566
+
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+
+ARG BIOCMANAGER_URL=https://cran.r-project.org/src/contrib/BiocManager_1.30.27.tar.gz
+ARG BIOCMANAGER_SHA256=acbfdcf09602c8279085556ca54531c2ada0ac3c1775d54ce2c3b9a3dc03fbb5
+ARG RENV_URL=https://cran.r-project.org/src/contrib/renv_1.2.4.tar.gz
+ARG RENV_SHA256=e63c637dc785d55848d9dbc6c9599378103803efd47c1f3f1f82057c00575e8c
+ARG FGSEA_URL=https://bioconductor.org/packages/3.23/bioc/src/contrib/fgsea_1.38.0.tar.gz
+ARG FGSEA_SHA256=223eede5c1c1c8f8a5979e51a40d7f373f0476aefc5c3525c323af5cf871798f
+
+ENV FGSEA_REFERENCE_ID=current-conformance \
+    FGSEA_REFERENCE_R_VERSION=4.6.0 \
+    FGSEA_REFERENCE_BIOC_VERSION=3.23 \
+    FGSEA_REFERENCE_VERSION=1.38.0
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        ca-certificates \
+        curl \
+        libcurl4-openssl-dev \
+        libssl-dev \
+        libxml2-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN curl -fsSLo /tmp/BiocManager.tar.gz "${BIOCMANAGER_URL}" \
+    && echo "${BIOCMANAGER_SHA256}  /tmp/BiocManager.tar.gz" | sha256sum -c - \
+    && R CMD INSTALL /tmp/BiocManager.tar.gz \
+    && curl -fsSLo /tmp/renv.tar.gz "${RENV_URL}" \
+    && echo "${RENV_SHA256}  /tmp/renv.tar.gz" | sha256sum -c - \
+    && R CMD INSTALL /tmp/renv.tar.gz
+
+COPY scripts/install_fgsea_reference.R /opt/reference/install_fgsea_reference.R
+COPY scripts/verify_fgsea_reference.R /opt/reference/verify_fgsea_reference.R
+COPY renv.lock /opt/reference/renv.bootstrap.lock
+
+RUN curl -fsSLo /opt/reference/fgsea.tar.gz "${FGSEA_URL}" \
+    && echo "${FGSEA_SHA256}  /opt/reference/fgsea.tar.gz" | sha256sum -c - \
+    && Rscript /opt/reference/install_fgsea_reference.R /opt/reference/fgsea.tar.gz \
+    && Rscript /opt/reference/verify_fgsea_reference.R \
+        | tee /opt/reference/reference-verification.txt \
+    && Rscript -e 'renv::snapshot(project = "/opt/reference", lockfile = "/opt/reference/renv.resolved.lock", type = "all", prompt = FALSE, force = TRUE)' \
+    && Rscript -e 'writeLines(capture.output(sessionInfo()), "/opt/reference/R-sessionInfo.txt")' \
+    && dpkg-query -W -f='${Package}\t${Version}\n' \
+        | LC_ALL=C sort > /opt/reference/dpkg-packages.tsv \
+    && sha256sum /opt/reference/fgsea.tar.gz /opt/reference/renv.resolved.lock \
+        > /opt/reference/evidence-sha256.txt
+
+WORKDIR /work
+CMD ["Rscript", "/opt/reference/verify_fgsea_reference.R"]

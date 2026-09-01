@@ -1,26 +1,28 @@
 [build-system]
-requires = ["maturin>=1.0,<2.0"]
+requires = ["maturin==1.10.2"]
 build-backend = "maturin"
 
 [project]
 name = "pyfgsea"
-version = "0.1.4"
-description = "Universal Trajectory GSEA Framework"
+dynamic = ["version"]
+description = "Python-first, Rust-backed gene set enrichment analysis with trajectory support"
+readme = "README.md"
+license = { file = "LICENSE" }
 requires-python = ">=3.9"
 dependencies = [
-    "scanpy",
-    "anndata",
-    "pandas",
     "numpy",
+    "pandas",
     "scipy",
-    "matplotlib",
-    "seaborn",
-    "statsmodels",
-    "scikit-learn",
     "click"
 ]
 
 [project.optional-dependencies]
+trajectory = [
+    "anndata",
+    "scanpy",
+    "matplotlib",
+    "seaborn"
+]
 dev = [
     "ruff",
     "mypy",
@@ -34,5 +36,11 @@ dev = [
 [project.scripts]
 pyfgsea-traj = "pyfgsea.cli.main:cli"
 
+[project.urls]
+Homepage = "https://github.com/shayuanxukuang/pyfgsea"
+Repository = "https://github.com/shayuanxukuang/pyfgsea"
+Issues = "https://github.com/shayuanxukuang/pyfgsea/issues"
+
 [tool.maturin]
 module-name = "pyfgsea._core"
+locked = true

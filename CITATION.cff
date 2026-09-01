@@ -1,0 +1,30 @@
+cff-version: 1.2.0
+message: "If you use PyFgsea, please cite the software and its accompanying article."
+title: "PyFgsea: GSEA in Python and Rust"
+type: software
+authors:
+  - family-names: "Wang"
+    given-names: "K"
+  - family-names: "Shi"
+    given-names: "H"
+version: "0.2.0rc6"
+repository-code: "https://github.com/shayuanxukuang/pyfgsea"
+url: "https://pypi.org/project/pyfgsea/"
+license: MIT
+identifiers:
+  - type: doi
+    value: "10.5281/zenodo.19446446"
+    description: "PyFgsea software archive"
+preferred-citation:
+  type: article
+  authors:
+    - family-names: "Wang"
+      given-names: "K"
+    - family-names: "Shi"
+      given-names: "H"
+  title: "PyFgsea: a Rust-powered, fgseaMultilevel-aligned GSEA framework with rolling-window enrichment along single-cell trajectories"
+  journal: "Bioinformatics"
+  year: 2026
+  volume: 42
+  issue: 5
+  doi: "10.1093/bioinformatics/btag257"
