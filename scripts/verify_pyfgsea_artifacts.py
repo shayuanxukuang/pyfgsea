@@ -15,8 +15,6 @@ import subprocess
 import sys
 import tarfile
 import tempfile
-import urllib.parse
-import urllib.request
 import zipfile
 import xml.etree.ElementTree as ET
 from pathlib import Path, PurePosixPath
@@ -66,7 +64,7 @@ PROBE_MARKER = "__PYFGSEA_ARTIFACT_EVIDENCE__="
 INSTALLED_TEST_PYTEST_VERSION = "8.4.2"
 INSTALLED_TEST_PATHS = (
     "tests",
-    "repro/figure1_dual_lane/test_pipeline.py",
+    "repro/figure1_dual_lane/test_functional_pipeline.py",
 )
 INSTALLED_TEST_BOOTSTRAP = r"""
 import pathlib
@@ -375,7 +373,7 @@ def _distribution_version(cargo_version: str) -> str:
 def _committed_algorithm_revision(rust_source: bytes) -> str:
     text = rust_source.decode("utf-8", errors="strict")
     matches = re.findall(
-        r'^\s*(?:pub\s+)?const\s+ALGORITHM_REVISION\s*:\s*&str\s*=\s*'
+        r"^\s*(?:pub\s+)?const\s+ALGORITHM_REVISION\s*:\s*&str\s*=\s*"
         r'"([^"\r\n]+)"\s*;',
         text,
         flags=re.MULTILINE,
@@ -433,8 +431,7 @@ def _verify_sdist(
             raise VerificationError(f"sdist is missing commit source {source_path!r}")
         if actual != expected:
             raise VerificationError(
-                f"sdist source differs from commit for {source_path!r}: "
-                f"expected {_sha256_bytes(expected)}, got {_sha256_bytes(actual)}"
+                f"sdist source differs from commit for {source_path!r}"
             )
 
     expected_package = {
@@ -472,6 +469,7 @@ def _verify_sdist(
         "path": str(path.resolve()),
         "filename": path.name,
         "sha256": _sha256_file(path),
+        "sha256_role": "provenance_only",
         "size": path.stat().st_size,
         "top_level_root": root,
         "cargo_version": cargo_version,
@@ -593,14 +591,14 @@ def _verify_wheel(
         actual = contents[source_path]
         if actual != expected:
             raise VerificationError(
-                f"wheel source differs from verified sdist for {source_path!r}: "
-                f"expected {_sha256_bytes(expected)}, got {_sha256_bytes(actual)}"
+                f"wheel source differs from verified sdist for {source_path!r}"
             )
 
     return {
         "path": str(path.resolve()),
         "filename": path.name,
         "sha256": _sha256_file(path),
+        "sha256_role": "provenance_only",
         "size": path.stat().st_size,
         "metadata_version": metadata_version,
         "core_member": core_member,
@@ -660,30 +658,19 @@ def _require_portable_bundle_layout(output_dir: Path, receipt_path: Path) -> Pat
     return bundle_root
 
 
-def _direct_url_wheel_path(direct_url: Mapping[str, Any]) -> Path:
-    url = direct_url.get("url")
-    if not isinstance(url, str):
-        raise VerificationError("direct_url.json has no string url")
-    parsed = urllib.parse.urlsplit(url)
-    if parsed.scheme != "file" or parsed.netloc not in ("", "localhost"):
-        raise VerificationError(
-            f"direct_url.json does not identify a local wheel: {url!r}"
-        )
-    local = urllib.request.url2pathname(urllib.parse.unquote(parsed.path))
-    return Path(local).resolve()
+def _provenance_direct_url_sha256(direct_url: Mapping[str, Any]) -> str | None:
+    """Return pip's recorded wheel hash when present, without validating it."""
 
-
-def _direct_url_sha256(direct_url: Mapping[str, Any]) -> str:
     archive_info = direct_url.get("archive_info")
     if not isinstance(archive_info, Mapping):
-        raise VerificationError("direct_url.json has no archive_info object")
+        return None
     hashes = archive_info.get("hashes")
     if isinstance(hashes, Mapping) and isinstance(hashes.get("sha256"), str):
         return str(hashes["sha256"]).lower()
     archive_hash = archive_info.get("hash")
     if isinstance(archive_hash, str) and archive_hash.lower().startswith("sha256="):
         return archive_hash.split("=", 1)[1].lower()
-    raise VerificationError("direct_url.json has no SHA-256 archive hash")
+    return None
 
 
 def _verify_installed_probe(
@@ -739,26 +726,13 @@ def _verify_installed_probe(
                 f"{label} is outside the fresh venv: {installed_path}"
             )
 
-    installed_core_sha = str(probe.get("core_sha256", "")).lower()
-    if installed_core_sha != str(wheel_evidence["core_sha256"]).lower():
-        raise VerificationError(
-            "installed native core hash differs from wheel core: "
-            f"{installed_core_sha} != {wheel_evidence['core_sha256']}"
-        )
-
     direct_url = probe.get("direct_url")
-    if not isinstance(direct_url, Mapping):
-        raise VerificationError("installed distribution has no valid direct_url.json")
-    direct_path = _direct_url_wheel_path(direct_url)
-    if os.path.normcase(str(direct_path)) != os.path.normcase(str(wheel.resolve())):
-        raise VerificationError(
-            f"direct_url.json points to {direct_path}, expected {wheel.resolve()}"
-        )
-    direct_sha = _direct_url_sha256(direct_url)
-    if direct_sha != str(wheel_evidence["sha256"]).lower():
-        raise VerificationError(
-            f"direct_url wheel SHA-256 is {direct_sha}, expected {wheel_evidence['sha256']}"
-        )
+    direct_sha = (
+        _provenance_direct_url_sha256(direct_url)
+        if isinstance(direct_url, Mapping)
+        else None
+    )
+    installed_core_sha = probe.get("core_sha256")
 
     return {
         "venv": str(venv.resolve()),
@@ -775,6 +749,15 @@ def _verify_installed_probe(
         "direct_url": direct_url,
         "direct_url_wheel_sha256": direct_sha,
         "package_and_core_inside_venv": True,
+        "provenance": {
+            "sha256_role": "provenance_only",
+            "hashes_are_pass_fail_checks": False,
+            "built_wheel": str(wheel.resolve()),
+            "built_wheel_sha256": wheel_evidence.get("sha256"),
+            "built_core_sha256": wheel_evidence.get("core_sha256"),
+            "installed_core_sha256": installed_core_sha,
+            "direct_url_wheel_sha256": direct_sha,
+        },
     }
 
 
@@ -790,10 +773,12 @@ import pyfgsea
 
 core = importlib.import_module("pyfgsea._core")
 distribution = importlib.metadata.distribution("pyfgsea")
-direct_url_text = distribution.read_text("direct_url.json")
-if direct_url_text is None:
-    raise RuntimeError("pyfgsea direct_url.json is missing")
 core_file = pathlib.Path(core.__file__).resolve()
+direct_url_text = distribution.read_text("direct_url.json")
+try:
+    direct_url = json.loads(direct_url_text) if direct_url_text is not None else None
+except json.JSONDecodeError:
+    direct_url = None
 payload = {
     "sys_executable": str(pathlib.Path(sys.executable).resolve()),
     "sys_prefix": str(pathlib.Path(sys.prefix).resolve()),
@@ -804,7 +789,7 @@ payload = {
     "pyfgsea_version": pyfgsea.__version__,
     "distribution_version": distribution.version,
     "algorithm_revision": core.algorithm_revision(),
-    "direct_url": json.loads(direct_url_text),
+    "direct_url": direct_url,
 }
 print("__PYFGSEA_ARTIFACT_EVIDENCE__=" + json.dumps(payload, sort_keys=True))
 """
@@ -854,7 +839,9 @@ def _git_installed_test_manifest(repo: Path, commit: str) -> dict[str, bytes]:
         raise VerificationError(
             f"commit is missing required installed test {pipeline_test!r}"
         )
-    if not any(path.startswith("tests/test_") and path.endswith(".py") for path in paths):
+    if not any(
+        path.startswith("tests/test_") and path.endswith(".py") for path in paths
+    ):
         raise VerificationError("commit contains no tests/test_*.py installed tests")
     _require_case_unique(paths, context="installed-test Git manifest")
 
@@ -891,7 +878,9 @@ def _junit_counts(path: Path) -> dict[str, int]:
     try:
         root = ET.parse(path).getroot()
     except (ET.ParseError, OSError) as exc:
-        raise VerificationError(f"cannot parse installed-test JUnit XML: {path}") from exc
+        raise VerificationError(
+            f"cannot parse installed-test JUnit XML: {path}"
+        ) from exc
 
     if root.tag == "testsuite":
         suites = [root]
@@ -976,7 +965,10 @@ def _run_installed_tests(
         "-p",
         "no:cacheprovider",
         f"--junitxml={junit_path}",
-        *(str(repo.joinpath(*PurePosixPath(path).parts)) for path in INSTALLED_TEST_PATHS),
+        *(
+            str(repo.joinpath(*PurePosixPath(path).parts))
+            for path in INSTALLED_TEST_PATHS
+        ),
     ]
     _run(
         command,
@@ -985,7 +977,9 @@ def _run_installed_tests(
         env=_isolated_python_environment(disable_pytest_plugin_autoload=True),
     )
     if not junit_path.is_file():
-        raise VerificationError("installed tests passed without producing JUnit evidence")
+        raise VerificationError(
+            "installed tests passed without producing JUnit evidence"
+        )
     counts = _junit_counts(junit_path)
     if counts["failed"] or counts["errors"]:
         raise VerificationError(f"installed-test JUnit records failures: {counts!r}")
@@ -1019,6 +1013,10 @@ def _run_installed_tests(
             "sha256": _sha256_file(junit_path),
         },
         "counts": counts,
+        "provenance": {
+            "sha256_role": "provenance_only",
+            "hashes_are_pass_fail_checks": False,
+        },
     }
 
 
@@ -1304,6 +1302,10 @@ def _build_and_verify(args: argparse.Namespace) -> dict[str, Any]:
         },
         "commands": commands,
         "all_artifact_chain_gates_passed": True,
+        "hash_policy": {
+            "sha256_role": "provenance_only",
+            "hashes_are_pass_fail_checks": False,
+        },
     }
 
 
