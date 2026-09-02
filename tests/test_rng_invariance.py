@@ -25,22 +25,26 @@ def _fixture():
 
 
 def _run(data, pathways, *, use_batched=True):
-    return run_gsea(
-        data,
-        pathways,
-        gene_col="gene",
-        score_col="score",
-        min_size=5,
-        max_size=50,
-        sample_size=21,
-        nperm_simple=101,
-        nperm_nes=30,
-        calculate_nes=False,
-        score_type="std",
-        eps=1e-12,
-        seed=2025,
-        use_batched=use_batched,
-    ).sort_values("Pathway").reset_index(drop=True)
+    return (
+        run_gsea(
+            data,
+            pathways,
+            gene_col="gene",
+            score_col="score",
+            min_size=5,
+            max_size=50,
+            sample_size=21,
+            nperm_simple=101,
+            nperm_nes=30,
+            calculate_nes=False,
+            score_type="std",
+            eps=1e-12,
+            seed=2025,
+            use_batched=use_batched,
+        )
+        .sort_values("Pathway")
+        .reset_index(drop=True)
+    )
 
 
 def test_pathway_dictionary_order_does_not_change_results():

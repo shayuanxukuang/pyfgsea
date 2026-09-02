@@ -1,14 +1,12 @@
-.PHONY: check lint test build
+.PHONY: check build
 
-check: lint test
-
-lint:
-	ruff check pyfgsea repro
-	ruff format pyfgsea repro
-	mypy pyfgsea --ignore-missing-imports
-
-test:
-	pytest -q
+check:
+	cargo fmt --check
+	cargo test --locked
+	python -m ruff check pyfgsea tests
+	python -m ruff format --check pyfgsea tests
+	python -m mypy pyfgsea --ignore-missing-imports
+	python -m pytest -q
 
 build:
-	maturin build --release
+	maturin build --release --locked

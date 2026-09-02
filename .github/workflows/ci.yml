@@ -84,7 +84,10 @@ jobs:
       run: cargo test --locked
 
     - name: Run Ruff
-      run: python -m ruff check pyfgsea
+      run: python -m ruff check pyfgsea tests
+
+    - name: Verify Python formatting
+      run: python -m ruff format --check pyfgsea tests
 
     - name: Run mypy
       run: python -m mypy pyfgsea --ignore-missing-imports

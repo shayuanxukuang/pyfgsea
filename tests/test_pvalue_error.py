@@ -10,9 +10,7 @@ from pyfgsea.wrapper import multilevel_error
 
 def _extreme_fixture(n_genes=600, pathway_size=8):
     genes = [f"G{index:04d}" for index in range(n_genes)]
-    data = pd.DataFrame(
-        {"gene": genes, "score": np.linspace(20.0, -5.0, n_genes)}
-    )
+    data = pd.DataFrame({"gene": genes, "score": np.linspace(20.0, -5.0, n_genes)})
     return data, {"top": genes[:pathway_size]}
 
 

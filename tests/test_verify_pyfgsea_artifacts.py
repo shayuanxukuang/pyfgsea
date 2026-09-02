@@ -179,7 +179,9 @@ def test_artifact_bundle_layout_is_relocatable(tmp_path: Path) -> None:
     output_dir = bundle / "dist"
     receipt = bundle / "evidence" / "receipt.json"
 
-    assert verify._require_portable_bundle_layout(output_dir, receipt) == bundle.resolve()
+    assert (
+        verify._require_portable_bundle_layout(output_dir, receipt) == bundle.resolve()
+    )
 
     with pytest.raises(verify.VerificationError, match="portable <bundle>/dist"):
         verify._require_portable_bundle_layout(bundle / "other-dist", receipt)
@@ -483,7 +485,9 @@ def test_installed_test_evidence_binds_junit_tests_commit_and_wheel(
     assert pytest_command[4:6] == [str(repo.resolve()), "-q"]
     assert "--import-mode=importlib" in pytest_command
     assert str(repo / "tests") in pytest_command
-    assert str(repo / "repro" / "figure1_dual_lane" / "test_pipeline.py") in pytest_command
+    assert (
+        str(repo / "repro" / "figure1_dual_lane" / "test_pipeline.py") in pytest_command
+    )
     assert evidence["git_commit"] == "a" * 40
     assert evidence["wheel_sha256"] == "b" * 64
     assert evidence["artifact_import_preloaded_before_test_support_path"] is True

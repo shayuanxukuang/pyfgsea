@@ -50,9 +50,7 @@ def test_legacy_tail_curve_is_explicitly_approximate_and_warns_on_query():
     ("score_type", "sign", "message"),
     [("pos", -1, "score_type mismatch"), ("std", 1, "sign mismatch")],
 )
-def test_legacy_tail_curve_rejects_query_contract_mismatch(
-    score_type, sign, message
-):
+def test_legacy_tail_curve_rejects_query_contract_mismatch(score_type, sign, message):
     curve = _build_curve(score_type="std", sign=-1)
 
     with pytest.warns(DeprecationWarning):

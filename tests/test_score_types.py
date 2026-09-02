@@ -175,9 +175,7 @@ def test_std_equal_positive_and_negative_excursions_return_zero_es():
     # before the block and +0.5 at its end. Current fgsea std semantics return
     # zero when those magnitudes are exactly equal.
     genes = [f"G{index:03d}" for index in range(100)]
-    data = pd.DataFrame(
-        {"gene": genes, "score": np.linspace(10.0, -10.0, len(genes))}
-    )
+    data = pd.DataFrame({"gene": genes, "score": np.linspace(10.0, -10.0, len(genes))})
     result = run_gsea(
         data,
         {"centered": genes[40:60]},
@@ -224,9 +222,7 @@ def test_public_tail_curve_directional_modes_ignore_legacy_sign_switch(
     assert np.asarray(positive_sign.populations[-1]).min() >= 0.0
     assert query_tail_curve(
         positive_sign, observed, score_type=score_type, sign=1
-    ) == query_tail_curve(
-        positive_sign, observed, score_type=score_type, sign=-1
-    )
+    ) == query_tail_curve(positive_sign, observed, score_type=score_type, sign=-1)
 
 
 def test_public_tail_curve_applies_eps_floor_without_precision_claim():
