@@ -43,8 +43,8 @@ LANE_CONTRACTS: dict[str, dict[str, str | None]] = {
         "bioconductor_version": "3.20",
     },
     "current": {
-        "pyfgsea_distribution_version": "0.2.0rc7",
-        "pyfgsea_module_version": "0.2.0rc7",
+        "pyfgsea_distribution_version": "0.2.0rc8",
+        "pyfgsea_module_version": "0.2.0rc8",
         "algorithm_revision": "fgsea-1.38-pr178-v1",
         "fgsea_version": "1.38.0",
         "r_version": "4.6.0",

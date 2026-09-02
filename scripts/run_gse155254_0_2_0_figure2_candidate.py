@@ -33,8 +33,8 @@ import pandas as pd
 REPO_ROOT = Path(__file__).resolve().parents[1]
 PARAMETER_PATH = REPO_ROOT / "repro" / "figure2_gse155254" / "figure2_parameters.json"
 REFERENCE_MANIFEST_PATH = REPO_ROOT / "reference_manifest.json"
-EXPECTED_VERSION = "0.2.0rc7"
-EXPECTED_CARGO_VERSION = "0.2.0-rc7"
+EXPECTED_VERSION = "0.2.0rc8"
+EXPECTED_CARGO_VERSION = "0.2.0-rc8"
 EXPECTED_ALGORITHM_REVISION = "fgsea-1.38-pr178-v1"
 EXPECTED_FGSEA_REFERENCE = "1.38.0"
 EXPECTED_DATASET_SHA256 = "9d9d1db60fe06037c5bfcf1a6ce06adfa74fe6ef715d910ef8b7e004d05cd21e"
@@ -44,7 +44,7 @@ EXPECTED_N_WINDOWS = 62
 EXPECTED_N_PATHWAYS = 43
 EXPECTED_N_ROWS = EXPECTED_N_WINDOWS * EXPECTED_N_PATHWAYS
 BH_ATOL = 1e-14
-RELEASE_TAG_PATTERN = re.compile(r"v0\.2\.0-rc7")
+RELEASE_TAG_PATTERN = re.compile(r"v0\.2\.0-rc8")
 
 PARAMETERS: dict[str, Any] = {
     "pseudotime_key": "dpt_pseudotime",
@@ -176,7 +176,7 @@ def _capture_release_git_state(expected_commit: str, expected_tag: str) -> dict[
         )
     if RELEASE_TAG_PATTERN.fullmatch(expected_tag) is None:
         raise Figure2Error(
-            "The expected tag is not v0.2.0-rc7. Pass the RC7 tag and rerun."
+            "The expected tag is not v0.2.0-rc8. Pass the RC8 tag and rerun."
         )
 
     head = str(_git("rev-parse", "HEAD")).strip().lower()
@@ -297,7 +297,7 @@ def _load_reference_contract() -> dict[str, Any]:
     }
     if any(current.get(key) != value for key, value in expected.items()):
         raise Figure2Error(
-            "The current reference profile does not specify PyFgsea 0.2.0rc7, "
+            "The current reference profile does not specify PyFgsea 0.2.0rc8, "
             "fgsea 1.38.0, and the expected algorithm revision. Restore those "
             "values in reference_manifest.json and rerun."
         )
@@ -587,17 +587,17 @@ def _verify_artifact_receipt(
     if expected.get("cargo_version") != EXPECTED_CARGO_VERSION:
         raise Figure2Error(
             f"The artifact receipt does not record Cargo version "
-            f"{EXPECTED_CARGO_VERSION}. Rebuild RC7 artifacts and rerun."
+            f"{EXPECTED_CARGO_VERSION}. Rebuild RC8 artifacts and rerun."
         )
     if expected.get("pyfgsea_version") != EXPECTED_VERSION:
         raise Figure2Error(
             f"The artifact receipt does not record PyFgsea {EXPECTED_VERSION}. "
-            "Use the RC7 artifact bundle and rerun."
+            "Use the RC8 artifact bundle and rerun."
         )
     if expected.get("algorithm_revision") != EXPECTED_ALGORITHM_REVISION:
         raise Figure2Error(
             "The artifact receipt names a different algorithm revision. Rebuild "
-            "the RC7 artifacts with the expected Rust core and rerun."
+            "the RC8 artifacts with the expected Rust core and rerun."
         )
 
     chain = _require_mapping(payload.get("artifact_chain"), "artifact chain")
@@ -704,7 +704,7 @@ def _verify_artifact_receipt(
     if installed.get("algorithm_revision") != EXPECTED_ALGORITHM_REVISION:
         raise Figure2Error(
             "The installed native core reports a different algorithm revision. "
-            "Install the RC7 wheel from the checked bundle and rerun."
+            "Install the RC8 wheel from the checked bundle and rerun."
         )
     if installed.get("package_and_core_inside_venv") is not True:
         raise Figure2Error(
@@ -807,7 +807,7 @@ def _verify_installed_pyfgsea(artifact: Mapping[str, Any]) -> dict[str, Any]:
     if revision != EXPECTED_ALGORITHM_REVISION:
         raise Figure2Error(
             f"The native core reports revision {revision!r}, not "
-            f"{EXPECTED_ALGORITHM_REVISION!r}. Install the checked RC7 wheel and rerun."
+            f"{EXPECTED_ALGORITHM_REVISION!r}. Install the checked RC8 wheel and rerun."
         )
     core_sha256 = sha256_file(core_path)
     wheel = _require_mapping(artifact.get("wheel"), "receipt wheel")
@@ -1100,7 +1100,7 @@ def plot_target_curves(results: pd.DataFrame, png_path: Path, pdf_path: Path) ->
         axis.set_ylabel("NES")
         axis.legend(loc="best", frameon=False, fontsize=8)
     axes[-1].set_xlabel("Pseudotime midpoint")
-    fig.suptitle("PyFgsea 0.2.0rc7 Figure 2 reproduction")
+    fig.suptitle("PyFgsea 0.2.0rc8 Figure 2 reproduction")
     fig.tight_layout()
     fig.savefig(png_path, dpi=300, bbox_inches="tight")
     fig.savefig(pdf_path, bbox_inches="tight")
