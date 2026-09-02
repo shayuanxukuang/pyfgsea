@@ -76,15 +76,6 @@ TARGET_PATHWAYS = ("heme Metabolism", "E2F Targets")
 class Figure2Error(RuntimeError):
     """Raised when Figure 2 inputs or verification checks are invalid."""
 
-    def __init__(self, message: str) -> None:
-        if "rerun" not in message.lower():
-            separator = "" if message.rstrip().endswith((".", "!", "?")) else "."
-            message = (
-                f"{message}{separator} Correct the reported input, artifact, or "
-                "configuration and rerun."
-            )
-        super().__init__(message)
-
 
 # Compatibility for callers that imported the previous exception name.
 BindingError = Figure2Error
