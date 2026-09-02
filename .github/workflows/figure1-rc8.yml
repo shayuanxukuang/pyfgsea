@@ -30,7 +30,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 240
     env:
-      EVIDENCE_ROOT: ${{ runner.temp }}/pyfgsea-figure1-v0.2.0-rc8
+      EVIDENCE_ROOT: /tmp/pyfgsea-figure1-v0.2.0-rc8
 
     steps:
       - name: Check out the immutable RC8 source
