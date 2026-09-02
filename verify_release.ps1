@@ -3,20 +3,20 @@ param(
     [string]$ReleaseTag,
 
     [Parameter(Mandatory = $true)]
-    [string]$EvidenceRoot
+    [string]$OutputRoot
 )
 
 $ErrorActionPreference = 'Stop'
 $repoRoot = (Resolve-Path -LiteralPath $PSScriptRoot).Path
-$evidencePath = [System.IO.Path]::GetFullPath($EvidenceRoot)
-$relativeEvidencePath = [System.IO.Path]::GetRelativePath($repoRoot, $evidencePath)
+$outputPath = [System.IO.Path]::GetFullPath($OutputRoot)
+$relativeOutputPath = [System.IO.Path]::GetRelativePath($repoRoot, $outputPath)
 $parentPrefix = '..' + [System.IO.Path]::DirectorySeparatorChar
 
 if (
-    $relativeEvidencePath -eq '.' -or
-    -not $relativeEvidencePath.StartsWith($parentPrefix, [System.StringComparison]::Ordinal)
+    $relativeOutputPath -eq '.' -or
+    -not $relativeOutputPath.StartsWith($parentPrefix, [System.StringComparison]::Ordinal)
 ) {
-    throw 'EvidenceRoot must be outside the verified Git worktree.'
+    throw 'OutputRoot must be outside the verified Git worktree.'
 }
 
 $status = git -C $repoRoot status --porcelain=v1 --untracked-files=all
@@ -35,11 +35,11 @@ if ($LASTEXITCODE -ne 0 -or $tagCommit -ne $commit) {
     throw "ReleaseTag does not peel to HEAD: $ReleaseTag"
 }
 
-$distPath = Join-Path $evidencePath 'dist'
-$venvPath = Join-Path $evidencePath 'venv'
-$workPath = Join-Path $evidencePath 'work'
-$evidenceDirectory = Join-Path $evidencePath 'evidence'
-$receiptPath = Join-Path $evidenceDirectory 'receipt.json'
+$distPath = Join-Path $outputPath 'dist'
+$venvPath = Join-Path $outputPath 'venv'
+$workPath = Join-Path $outputPath 'work'
+$reportDirectory = Join-Path $outputPath 'evidence'
+$reportPath = Join-Path $reportDirectory 'receipt.json'
 
 python (Join-Path $repoRoot 'scripts\verify_pyfgsea_artifacts.py') `
     --repo $repoRoot `
@@ -48,9 +48,9 @@ python (Join-Path $repoRoot 'scripts\verify_pyfgsea_artifacts.py') `
     --output-dir $distPath `
     --venv $venvPath `
     --work-dir $workPath `
-    --receipt $receiptPath
+    --receipt $reportPath
 if ($LASTEXITCODE -ne 0) { throw 'Local sdist-to-wheel verification failed.' }
 
-Write-Host 'Local artifact-chain and installed-test verification passed.' -ForegroundColor Green
-Write-Host "Receipt: $receiptPath"
-Write-Host 'This is not the cross-platform, reference-OCI, Figure 1, Figure 2, or manuscript-closure gate.' -ForegroundColor Yellow
+Write-Host 'Local package checks passed.' -ForegroundColor Green
+Write-Host "Report: $reportPath"
+Write-Host 'Paper figures are checked separately.'

@@ -6,6 +6,7 @@ from typing import Any, Optional
 from .wrapper import GseaRunner, _normalize_run_options, load_gmt, prepare_pathways
 
 logger = logging.getLogger(__name__)
+DEFAULT_PSEUDOTIME_KEY = "dpt_pseudotime"
 
 HAS_SCANPY = False
 try:
@@ -13,7 +14,7 @@ try:
 
     HAS_SCANPY = True
 except ImportError:
-    pass
+    sc = None  # type: ignore[assignment]
 
 
 def _ensure_log1p(adata):
@@ -28,30 +29,133 @@ def _ensure_log1p(adata):
     return adata
 
 
-def _subset_lineage(adata, lineage_col=None, lineage_keyword=None):
-    if lineage_col and lineage_keyword:
-        m = (
+def _subset_lineage(
+    adata,
+    lineage_col=None,
+    lineage_keyword=None,
+    *,
+    root_index=None,
+):
+    if (lineage_col is None) != (lineage_keyword is None):
+        raise ValueError("lineage_col and lineage_keyword must be provided together")
+    if lineage_col is not None:
+        if lineage_col not in adata.obs:
+            raise ValueError(f"Lineage column is missing: {lineage_col}")
+        mask = (
             adata.obs[lineage_col]
             .astype(str)
             .str.contains(lineage_keyword, case=False, na=False)
+            .to_numpy()
         )
-        adata = adata[m].copy()
+        if not mask.any():
+            raise ValueError(f"Lineage subset contains no cells: {lineage_keyword}")
+        if root_index is not None:
+            if not 0 <= root_index < adata.n_obs:
+                raise ValueError(
+                    f"Root cell index must be between 0 and {adata.n_obs - 1}"
+                )
+            if not mask[root_index]:
+                raise ValueError("The DPT root cell is excluded by the lineage subset")
+        adata = adata[mask].copy()
+        if root_index is not None:
+            adata.uns["iroot"] = int(np.count_nonzero(mask[:root_index]))
         logger.info(f"Subset lineage '{lineage_keyword}': {adata.n_obs} cells")
     return adata
+
+
+def _explicit_root_index(adata) -> int:
+    root_idx = adata.uns.get("iroot")
+    if isinstance(root_idx, (bool, np.bool_)) or not isinstance(
+        root_idx, (int, np.integer)
+    ):
+        raise ValueError(
+            "DPT requires an explicit root cell. Set adata.uns['iroot'], "
+            "provide root_gene, or provide a precomputed pseudotime column."
+        )
+    root_idx = int(root_idx)
+    if not 0 <= root_idx < adata.n_obs:
+        raise ValueError(f"adata.uns['iroot'] must be between 0 and {adata.n_obs - 1}")
+    return root_idx
+
+
+def _explicit_root_source(adata) -> str:
+    if "iroot" in adata.uns:
+        _explicit_root_index(adata)
+        return "iroot"
+    for source, value in (
+        ("xroot_uns", adata.uns.get("xroot")),
+        ("xroot_var", adata.var["xroot"] if "xroot" in adata.var else None),
+    ):
+        if value is None:
+            continue
+        if hasattr(value, "toarray"):
+            value = value.toarray()
+        values = np.asarray(value).ravel()
+        if values.size != adata.n_vars:
+            raise ValueError(
+                f"{source} must contain one value for each of {adata.n_vars} genes"
+            )
+        if not np.isfinite(values).all():
+            raise ValueError(f"{source} contains non-finite values")
+        return source
+    raise ValueError(
+        "DPT requires an explicit root. Set adata.uns['iroot'], "
+        "adata.uns['xroot'], or adata.var['xroot']; provide root_gene; "
+        "or provide a precomputed pseudotime column."
+    )
+
+
+def _expression_root_index(adata, source: str) -> int:
+    value = adata.uns["xroot"] if source == "xroot_uns" else adata.var["xroot"]
+    if hasattr(value, "toarray"):
+        value = value.toarray()
+    root = np.asarray(value, dtype=float).ravel()
+    distances = []
+    for index in range(adata.n_obs):
+        row = adata.X[index]
+        if hasattr(row, "toarray"):
+            row = row.toarray()
+        values = np.asarray(row, dtype=float).ravel()
+        distances.append(float(np.square(values - root).sum()))
+    return int(np.argmin(distances))
+
+
+def _root_index_from_source(adata, source: str) -> int:
+    if source == "iroot":
+        return _explicit_root_index(adata)
+    if source in {"xroot_uns", "xroot_var"}:
+        return _expression_root_index(adata, source)
+    raise ValueError(f"Unsupported DPT root source: {source}")
 
 
 def _compute_dpt(adata, root_gene=None, n_top_genes=2000, n_pcs=30, n_neighbors=15):
     if not HAS_SCANPY:
         raise ImportError("scanpy is required for pseudotime computation")
 
-    if "dpt_pseudotime" in adata.obs:
+    if DEFAULT_PSEUDOTIME_KEY in adata.obs:
         logger.info("Using existing 'dpt_pseudotime' in adata.obs.")
         return adata
+    if root_gene is not None and root_gene not in adata.var_names:
+        raise ValueError(f"root_gene is not present in adata.var_names: {root_gene}")
+    root_source = "root_gene" if root_gene is not None else _explicit_root_source(adata)
 
-    adata = _ensure_log1p(adata)
+    root_idx = (
+        None if root_gene is not None else _root_index_from_source(adata, root_source)
+    )
+
     logger.info("Re-processing manifold (PCA -> Neighbors -> Diffmap)...")
 
     adata_graph = adata.copy()
+    adata_graph = _ensure_log1p(adata_graph)
+    if root_gene is not None:
+        x = adata_graph[:, root_gene].X
+        if hasattr(x, "toarray"):
+            x = x.toarray()
+        root_idx = int(np.asarray(x).ravel().argmax())
+        logger.info(f"Using root gene {root_gene}, iroot={root_idx}")
+    elif root_source != "iroot":
+        logger.info(f"Using {root_source}, resolved iroot={root_idx}")
+
     sc.pp.highly_variable_genes(adata_graph, n_top_genes=n_top_genes, subset=True)
 
     try:
@@ -61,22 +165,14 @@ def _compute_dpt(adata, root_gene=None, n_top_genes=2000, n_pcs=30, n_neighbors=
 
     sc.pp.neighbors(adata_graph, n_neighbors=n_neighbors, n_pcs=n_pcs)
     sc.tl.diffmap(adata_graph)
-
-    if root_gene is not None and root_gene in adata.var_names:
-        x = adata[:, root_gene].X
-        if hasattr(x, "todense"):
-            x_dense = x.todense()
-        elif hasattr(x, "toarray"):
-            x_dense = x.toarray()
-        else:
-            x_dense = x
-
-        root_idx = int(np.asarray(x_dense).ravel().argmax())
-        adata_graph.uns["iroot"] = root_idx
-        logger.info(f"Using root gene {root_gene}, iroot={root_idx}")
+    adata_graph.uns["iroot"] = root_idx
 
     sc.tl.dpt(adata_graph)
-    adata.obs["dpt_pseudotime"] = adata_graph.obs["dpt_pseudotime"]
+    if DEFAULT_PSEUDOTIME_KEY not in adata_graph.obs:
+        raise RuntimeError("Scanpy DPT did not produce 'dpt_pseudotime'")
+    root_idx = _explicit_root_index(adata_graph)
+    adata.obs[DEFAULT_PSEUDOTIME_KEY] = adata_graph.obs[DEFAULT_PSEUDOTIME_KEY]
+    adata.uns["iroot"] = root_idx
     return adata
 
 
@@ -154,11 +250,45 @@ def run_trajectory_gsea(
     if isinstance(adata, str):
         adata = sc.read_h5ad(adata)
 
-    adata = _subset_lineage(adata, lineage_col, lineage_keyword)
+    if root_gene is not None and root_gene not in adata.var_names:
+        raise ValueError(f"root_gene is not present in adata.var_names: {root_gene}")
+    if pseudotime_key not in adata.obs and pseudotime_key != DEFAULT_PSEUDOTIME_KEY:
+        raise ValueError(
+            f"Pseudotime column is missing: {pseudotime_key}. Custom "
+            "pseudotime columns must be computed before calling "
+            "run_trajectory_gsea."
+        )
 
+    needs_dpt = pseudotime_key not in adata.obs or root_gene is not None
+    root_source = None
+    root_index = None
+    if needs_dpt:
+        if root_gene is not None:
+            root_source = "root_gene"
+        else:
+            root_source = _explicit_root_source(adata)
+            root_index = _root_index_from_source(adata, root_source)
+
+    adata = _subset_lineage(
+        adata,
+        lineage_col,
+        lineage_keyword,
+        root_index=root_index,
+    )
+    if needs_dpt:
+        adata = adata.copy()
+        if root_index is not None and lineage_col is None:
+            adata.uns["iroot"] = root_index
+
+    pseudotime_source = "precomputed"
     if pseudotime_key not in adata.obs:
         adata = _compute_dpt(adata, root_gene=root_gene)
+        pseudotime_source = "computed_dpt"
     elif root_gene is not None:
+        if pseudotime_key != DEFAULT_PSEUDOTIME_KEY:
+            raise ValueError(
+                "root_gene recomputation requires pseudotime_key='dpt_pseudotime'"
+            )
         # If root_gene is explicitly provided, we assume the user wants to recompute DPT
         # based on this new root, even if pseudotime_key exists.
         logger.info(
@@ -168,11 +298,20 @@ def run_trajectory_gsea(
         if "dpt_pseudotime" in adata.obs:
             del adata.obs["dpt_pseudotime"]
         adata = _compute_dpt(adata, root_gene=root_gene)
+        pseudotime_source = "computed_dpt"
 
     pt = adata.obs[pseudotime_key].to_numpy()
     ok = np.isfinite(pt)
     if not ok.all():
+        remapped_root_idx = None
+        if pseudotime_source == "computed_dpt":
+            root_idx = _explicit_root_index(adata)
+            if not ok[root_idx]:
+                raise RuntimeError("The computed DPT root has non-finite pseudotime")
+            remapped_root_idx = int(np.count_nonzero(ok[:root_idx]))
         adata = adata[ok].copy()
+        if remapped_root_idx is not None:
+            adata.uns["iroot"] = remapped_root_idx
         pt = pt[ok]
 
     order = np.argsort(pt)
@@ -260,6 +399,15 @@ def run_trajectory_gsea(
         "step": step,
         "min_size": min_size,
         "max_size": max_size,
+        "pseudotime_key": pseudotime_key,
+        "pseudotime_source": pseudotime_source,
+        "root_source": root_source,
+        "root_gene": root_gene,
+        "root_index": (
+            int(adata.uns["iroot"])
+            if pseudotime_source == "computed_dpt" and "iroot" in adata.uns
+            else None
+        ),
         "use_nes_cache": bool(use_nes_cache),
         **options,
     }

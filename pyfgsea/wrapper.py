@@ -340,7 +340,9 @@ def _public_ranking_hash(results: pd.DataFrame, fallback: str) -> str:
     return str(hashes[0])
 
 
-def _validate_binning(bin_width: int, pathway_sizes: Sequence[int], n_genes: int) -> None:
+def _validate_binning(
+    bin_width: int, pathway_sizes: Sequence[int], n_genes: int
+) -> None:
     if bin_width <= 0:
         return
     if bin_width > n_genes:
@@ -493,7 +495,9 @@ def _format_results(
                 nes = 0.0
 
         debug = _result_value(result, "debug_info", None)
-        debug_levels = _result_value(debug, "current_level", 0) if debug is not None else 0
+        debug_levels = (
+            _result_value(debug, "current_level", 0) if debug is not None else 0
+        )
         debug_rates = (
             list(_result_value(debug, "accept_rates", [])) if debug is not None else []
         )
@@ -529,9 +533,7 @@ def _format_results(
         approximate_default = (
             mode == "fast" or bin_width > 0 or score_type in _LEGACY_SCORE_TYPES
         )
-        approximate = bool(
-            _result_value(result, "approximate", approximate_default)
-        )
+        approximate = bool(_result_value(result, "approximate", approximate_default))
         records.append(
             {
                 "Pathway": str(name),
@@ -687,7 +689,9 @@ class GseaRunner:
         scores = _validate_score_vector(scores)
         if self._gene_ids is not None and scores.size != self._gene_ids.size:
             raise ValueError("scores and gene_ids must have equal length")
-        if any(pathway and pathway[-1] >= scores.size for pathway in self.pathway_indices):
+        if any(
+            pathway and pathway[-1] >= scores.size for pathway in self.pathway_indices
+        ):
             raise ValueError("pathway index is outside scores")
         if any(size == scores.size for size in self.sizes):
             raise ValueError("pathway size cannot equal the ranked gene count")
@@ -721,7 +725,10 @@ class GseaRunner:
         max_levels: Optional[int] = None,
         tie_policy: Optional[TiePolicy] = None,
     ) -> pd.DataFrame:
-        if tie_policy is not None and _normalize_tie_policy(tie_policy) != self.tie_policy:
+        if (
+            tie_policy is not None
+            and _normalize_tie_policy(tie_policy) != self.tie_policy
+        ):
             raise ValueError(
                 "tie_policy is fixed when GseaRunner is constructed; create a new "
                 "runner to use a different policy"
@@ -804,7 +811,9 @@ class GseaRunner:
             options["max_levels"],
         )
         if len(multi_results) != len(self.pathway_names):
-            raise RuntimeError("Rust core returned a result count that does not match pathways")
+            raise RuntimeError(
+                "Rust core returned a result count that does not match pathways"
+            )
         result = _format_results(
             self.pathway_names,
             self.sizes,
@@ -893,7 +902,9 @@ def run_gsea(
         numeric_scores = pd.to_numeric(df[score_c], errors="raise").astype(float)
         gene_values = df[gene_c]
     except (IndexError, KeyError) as exc:
-        raise ValueError("gene_col or score_col does not identify an input column") from exc
+        raise ValueError(
+            "gene_col or score_col does not identify an input column"
+        ) from exc
     except (TypeError, ValueError) as exc:
         raise ValueError("score column must contain numeric values") from exc
     if gene_values.isna().any():
@@ -910,7 +921,9 @@ def run_gsea(
     duplicated = df[gene_c].duplicated(keep=False)
     if duplicated.any() and dedup_genes == "error":
         examples = ", ".join(df.loc[duplicated, gene_c].astype(str).head(5))
-        raise ValueError(f"duplicate gene identifiers are not allowed. Examples: {examples}")
+        raise ValueError(
+            f"duplicate gene identifiers are not allowed. Examples: {examples}"
+        )
     if duplicated.any() and dedup_genes == "max_abs":
         df = df.assign(
             __pyfgsea_abs_score=df[score_c].abs(),
@@ -1002,7 +1015,9 @@ def run_gsea(
             options["precheck_eps"],
         )
     if len(multi_results) != len(pathway_names):
-        raise RuntimeError("Rust core returned a result count that does not match pathways")
+        raise RuntimeError(
+            "Rust core returned a result count that does not match pathways"
+        )
     result = _format_results(
         pathway_names,
         sizes,

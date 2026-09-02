@@ -36,6 +36,7 @@ def test_max_level_limit_is_not_reported_as_a_small_pvalue():
     assert np.isnan(row["P-value"])
     assert np.isnan(row["log2err"])
 
+
 @pytest.mark.parametrize("bad", [np.nan, np.inf, -np.inf])
 def test_nonfinite_ranked_statistics_are_rejected(bad):
     scores = np.linspace(1.0, -1.0, 100)

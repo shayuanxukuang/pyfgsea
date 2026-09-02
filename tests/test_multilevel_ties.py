@@ -21,22 +21,26 @@ def _tied_fixture(order):
 
 def _run(frame, pathways):
     with pytest.warns(UserWarning, match="non-zero ties"):
-        return run_gsea(
-            frame,
-            pathways,
-            gene_col="gene",
-            score_col="score",
-            min_size=5,
-            max_size=50,
-            sample_size=21,
-            nperm_simple=101,
-            nperm_nes=20,
-            calculate_nes=False,
-            tie_policy="gene_id",
-            mode="aligned",
-            eps=0.0,
-            seed=178,
-        ).sort_values("Pathway").reset_index(drop=True)
+        return (
+            run_gsea(
+                frame,
+                pathways,
+                gene_col="gene",
+                score_col="score",
+                min_size=5,
+                max_size=50,
+                sample_size=21,
+                nperm_simple=101,
+                nperm_nes=20,
+                calculate_nes=False,
+                tie_policy="gene_id",
+                mode="aligned",
+                eps=0.0,
+                seed=178,
+            )
+            .sort_values("Pathway")
+            .reset_index(drop=True)
+        )
 
 
 def test_gene_id_tie_policy_is_storage_order_invariant():

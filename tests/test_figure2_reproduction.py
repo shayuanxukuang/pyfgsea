@@ -77,9 +77,7 @@ def test_output_directory(tmp_path: Path) -> None:
         figure2._require_external_output(external)
 
 
-def test_clean_annotated_tag(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_clean_annotated_tag(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     repo = tmp_path / "repo"
     repo.mkdir()
     _git(repo, "init")
@@ -148,9 +146,7 @@ def test_result_validation() -> None:
         figure2._validate_results(invalid_padj)
 
 
-def test_artifact_receipt(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_artifact_receipt(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     bundle = tmp_path / "downloaded-bundle"
     dist = bundle / "dist"
     evidence_dir = bundle / "evidence"
@@ -316,9 +312,7 @@ def test_artifact_receipt(
         figure2._verify_artifact_receipt(receipt, git_state)
 
 
-def test_atomic_output(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_atomic_output(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     staging = tmp_path / ".figure2.incomplete-test"
     output = tmp_path / "figure2"
     staging.mkdir()

@@ -12,8 +12,7 @@ requires-python = ">=3.9"
 dependencies = [
     "numpy",
     "pandas",
-    "scipy",
-    "click"
+    "scipy"
 ]
 
 [project.optional-dependencies]
@@ -32,9 +31,6 @@ dev = [
     "build",
     "maturin"
 ]
-
-[project.scripts]
-pyfgsea-traj = "pyfgsea.cli.main:cli"
 
 [project.urls]
 Homepage = "https://github.com/shayuanxukuang/pyfgsea"

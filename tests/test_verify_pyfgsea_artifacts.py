@@ -153,6 +153,19 @@ def test_wheel_sources_and_native_core_are_hashed(tmp_path: Path) -> None:
     assert evidence["wheel_member_boundary_exact"] is True
 
 
+def test_wheel_rejects_entry_points(tmp_path: Path) -> None:
+    sources = _sources()
+    path = tmp_path / "pyfgsea-0.2.0-cp38-abi3-win_amd64.whl"
+    _write_wheel(path, sources)
+    with zipfile.ZipFile(path, "a") as archive:
+        archive.writestr(
+            "pyfgsea-0.2.0.dist-info/entry_points.txt",
+            "[console_scripts]\npyfgsea-traj=pyfgsea.cli.main:cli\n",
+        )
+    with pytest.raises(verify.VerificationError, match="must not define"):
+        verify._verify_wheel(path, sources, expected_version="0.2.0")
+
+
 @pytest.mark.parametrize("extra_member", ["injected.pth", "otherpkg/__init__.py"])
 def test_wheel_rejects_unexpected_top_level_members(
     tmp_path: Path, extra_member: str
@@ -179,7 +192,9 @@ def test_artifact_bundle_layout_is_relocatable(tmp_path: Path) -> None:
     output_dir = bundle / "dist"
     receipt = bundle / "evidence" / "receipt.json"
 
-    assert verify._require_portable_bundle_layout(output_dir, receipt) == bundle.resolve()
+    assert (
+        verify._require_portable_bundle_layout(output_dir, receipt) == bundle.resolve()
+    )
 
     with pytest.raises(verify.VerificationError, match="portable <bundle>/dist"):
         verify._require_portable_bundle_layout(bundle / "other-dist", receipt)
@@ -483,7 +498,9 @@ def test_installed_test_evidence_binds_junit_tests_commit_and_wheel(
     assert pytest_command[4:6] == [str(repo.resolve()), "-q"]
     assert "--import-mode=importlib" in pytest_command
     assert str(repo / "tests") in pytest_command
-    assert str(repo / "repro" / "figure1_dual_lane" / "test_pipeline.py") in pytest_command
+    assert (
+        str(repo / "repro" / "figure1_dual_lane" / "test_pipeline.py") in pytest_command
+    )
     assert evidence["git_commit"] == "a" * 40
     assert evidence["wheel_sha256"] == "b" * 64
     assert evidence["artifact_import_preloaded_before_test_support_path"] is True
