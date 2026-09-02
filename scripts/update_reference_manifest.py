@@ -1,4 +1,4 @@
-"""Bind one reference profile to a clean commit and complete evidence receipt.
+"""Bind one reference profile to a clean commit and recorded run artifacts.
 
 The checked-in manifest deliberately leaves run-specific fields unbound.  This
 command fills them only after the working tree is clean and the caller provides
