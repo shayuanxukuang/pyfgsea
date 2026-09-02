@@ -7,7 +7,7 @@ authors:
     given-names: "Kuanghao"
   - family-names: "Shi"
     given-names: "Hong"
-version: "0.2.0rc7"
+version: "0.2.0rc8"
 repository-code: "https://github.com/shayuanxukuang/pyfgsea"
 url: "https://pypi.org/project/pyfgsea/"
 license: MIT
