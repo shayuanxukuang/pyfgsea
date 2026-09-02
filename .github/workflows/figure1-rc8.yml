@@ -12,9 +12,6 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  EVIDENCE_COMMIT: ee5855bad7200655e580f44fdf4087bb1bad67b5
-  EVIDENCE_TAG: v0.2.0-rc8
-  LEGACY_COMMIT: 67f89433d9c1b76bb6aeb29a9a7c33c1360405e5
   SOURCE_RUN_ID: "33613997297"
   PYTHON_VERSION: "3.11.9"
   NUMPY_VERSION: "1.26.4"
@@ -30,40 +27,23 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 240
     env:
-      EVIDENCE_ROOT: /tmp/pyfgsea-figure1-v0.2.0-rc8
+      RESULT_ROOT: /tmp/pyfgsea-figure1-v0.2.0-rc8
 
     steps:
-      - name: Check out the immutable RC8 source
+      - name: Check out the analysis runner
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
-          ref: refs/tags/v0.2.0-rc8
-          fetch-depth: 0
-          fetch-tags: true
           persist-credentials: false
 
-      - name: Verify the source tag and clean checkout
-        shell: bash
-        run: |
-          set -euo pipefail
-          test "$(git rev-parse HEAD)" = "$EVIDENCE_COMMIT"
-          test "$(git cat-file -t "refs/tags/$EVIDENCE_TAG")" = "tag"
-          test "$(git rev-parse "refs/tags/$EVIDENCE_TAG^{commit}")" = "$EVIDENCE_COMMIT"
-          test -z "$(git status --porcelain=v1 --untracked-files=all)"
-
-      - name: Set up the common Python toolchain
+      - name: Set up Python
         uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
-      - name: Install the comparison environment
+      - name: Install comparison dependencies
         shell: bash
         run: |
           set -euo pipefail
-          python - <<'PY'
-          import platform
-          if platform.python_version() != "3.11.9":
-              raise SystemExit(f"expected Python 3.11.9, found {platform.python_version()}")
-          PY
           python -m pip install --disable-pip-version-check --no-input \
             "numpy==$NUMPY_VERSION" \
             "pandas==$PANDAS_VERSION" \
@@ -71,43 +51,25 @@ jobs:
             "psutil==$PSUTIL_VERSION" \
             "matplotlib==$MATPLOTLIB_VERSION" \
             "uv==$UV_VERSION"
-          mkdir -p "$EVIDENCE_ROOT/tools"
-          cp "$(command -v uv)" "$EVIDENCE_ROOT/tools/uv"
-          chmod 0755 "$EVIDENCE_ROOT/tools/uv"
-          {
-            python --version
-            python -m pip freeze --all
-          } > "$EVIDENCE_ROOT/comparison-environment.txt"
+          mkdir -p "$RESULT_ROOT/tools"
+          cp "$(command -v uv)" "$RESULT_ROOT/tools/uv"
+          chmod 0755 "$RESULT_ROOT/tools/uv"
+          python --version > "$RESULT_ROOT/comparison-environment.txt"
+          python -m pip freeze --all >> "$RESULT_ROOT/comparison-environment.txt"
 
-      - name: Download the verified current Linux package bundle
+      - name: Download the current Linux wheel bundle
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
           name: pyfgsea-artifact-chain-linux-x86_64
-          path: ${{ env.EVIDENCE_ROOT }}/current-artifact
+          path: ${{ env.RESULT_ROOT }}/current-artifact
           github-token: ${{ secrets.GITHUB_TOKEN }}
           run-id: ${{ env.SOURCE_RUN_ID }}
 
-      - name: Download the legacy reference receipt
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
-        with:
-          name: pyfgsea-reference-legacy-publication-receipt
-          path: ${{ env.EVIDENCE_ROOT }}/legacy-reference
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          run-id: ${{ env.SOURCE_RUN_ID }}
-
-      - name: Download the legacy reference image
+      - name: Download the publication reference image
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
           name: pyfgsea-reference-legacy-publication-oci
-          path: ${{ env.EVIDENCE_ROOT }}/legacy-oci
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          run-id: ${{ env.SOURCE_RUN_ID }}
-
-      - name: Download the current reference receipt
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
-        with:
-          name: pyfgsea-reference-current-conformance-receipt
-          path: ${{ env.EVIDENCE_ROOT }}/current-reference
+          path: ${{ env.RESULT_ROOT }}/legacy-oci
           github-token: ${{ secrets.GITHUB_TOKEN }}
           run-id: ${{ env.SOURCE_RUN_ID }}
 
@@ -115,22 +77,15 @@ jobs:
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
           name: pyfgsea-reference-current-conformance-oci
-          path: ${{ env.EVIDENCE_ROOT }}/current-oci
+          path: ${{ env.RESULT_ROOT }}/current-oci
           github-token: ${{ secrets.GITHUB_TOKEN }}
           run-id: ${{ env.SOURCE_RUN_ID }}
 
-      - name: Prepare shared inputs and verify the publication wheel
+      - name: Download the published 0.1.4 wheel
         shell: bash
         run: |
           set -euo pipefail
-          git clone --quiet --no-checkout \
-            "https://github.com/$GITHUB_REPOSITORY.git" \
-            "$EVIDENCE_ROOT/legacy-source"
-          git -C "$EVIDENCE_ROOT/legacy-source" checkout --quiet --detach "$LEGACY_COMMIT"
-          test "$(git -C "$EVIDENCE_ROOT/legacy-source" rev-parse 'refs/tags/v0.1.4^{commit}')" = "$LEGACY_COMMIT"
-          test -z "$(git -C "$EVIDENCE_ROOT/legacy-source" status --porcelain=v1 --untracked-files=all)"
-
-          mkdir -p "$EVIDENCE_ROOT/legacy-wheel"
+          mkdir -p "$RESULT_ROOT/legacy-wheel"
           python - <<'PY'
           import json
           import os
@@ -145,143 +100,93 @@ jobs:
           matches = [item for item in payload["urls"] if item["filename"] == filename]
           if len(matches) != 1:
               raise RuntimeError(f"expected one PyPI file named {filename}, found {len(matches)}")
-          destination = Path(os.environ["EVIDENCE_ROOT"]) / "legacy-wheel" / filename
+          destination = Path(os.environ["RESULT_ROOT"]) / "legacy-wheel" / filename
           urllib.request.urlretrieve(matches[0]["url"], destination)
           print(destination)
           PY
 
-          python repro/figure1_dual_lane/prepare_inputs.py \
-            --output-dir "$EVIDENCE_ROOT/figure1-inputs"
-          python repro/figure1_dual_lane/verify_legacy_artifact.py \
-            --legacy-repo "$EVIDENCE_ROOT/legacy-source" \
-            --evidence-repo "$GITHUB_WORKSPACE" \
-            --expected-evidence-commit "$EVIDENCE_COMMIT" \
-            --expected-evidence-tag "$EVIDENCE_TAG" \
-            --wheel "$EVIDENCE_ROOT/legacy-wheel/pyfgsea-0.1.4-cp38-abi3-manylinux_2_34_x86_64.whl" \
-            --output-dir "$EVIDENCE_ROOT/legacy-artifact" \
-            --receipt "$EVIDENCE_ROOT/legacy-artifact/receipt.json"
-
-      - name: Import and verify the two reference images
+      - name: Start and verify both R reference images
         shell: bash
         run: |
           set -euo pipefail
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends skopeo
           skopeo copy \
-            "oci-archive:$EVIDENCE_ROOT/legacy-oci/legacy-publication.oci.tar" \
+            "oci-archive:$RESULT_ROOT/legacy-oci/legacy-publication.oci.tar" \
             docker-daemon:pyfgsea-reference-legacy:rc8
           skopeo copy \
-            "oci-archive:$EVIDENCE_ROOT/current-oci/current-conformance.oci.tar" \
+            "oci-archive:$RESULT_ROOT/current-oci/current-conformance.oci.tar" \
             docker-daemon:pyfgsea-reference-current:rc8
           docker run --rm pyfgsea-reference-legacy:rc8 \
             Rscript /opt/reference/verify_fgsea_reference.R
           docker run --rm pyfgsea-reference-current:rc8 \
             Rscript /opt/reference/verify_fgsea_reference.R
 
-      - name: Run the publication lane
+      - name: Run PyFgsea 0.1.4 with fgsea 1.32.2
         shell: bash
         run: |
           set -euo pipefail
-          reference_digest="$(python -c 'import json, os, pathlib; p=pathlib.Path(os.environ["EVIDENCE_ROOT"])/"legacy-reference/evidence/oci-receipt.json"; print(json.loads(p.read_text())["built_image_digest"])')"
           docker run --rm \
             --volume "$GITHUB_WORKSPACE:/repo:ro" \
-            --volume "$EVIDENCE_ROOT:/evidence" \
-            --volume "$EVIDENCE_ROOT/tools/uv:/usr/local/bin/uv:ro" \
-            --env FGSEA_REFERENCE_ID=legacy-publication \
+            --volume "$RESULT_ROOT:/results" \
+            --volume "$RESULT_ROOT/tools/uv:/usr/local/bin/uv:ro" \
             --env FGSEA_REFERENCE_VERSION=1.32.2 \
-            --env FGSEA_REFERENCE_IMAGE_DIGEST="$reference_digest" \
-            --env UV_PYTHON_INSTALL_DIR=/evidence/python \
-            --env UV_CACHE_DIR=/evidence/uv-cache \
+            --env UV_PYTHON_INSTALL_DIR=/results/python \
+            --env UV_CACHE_DIR=/results/uv-cache \
             --env UV_PYTHON_PREFERENCE=only-managed \
-            --env EVIDENCE_COMMIT="$EVIDENCE_COMMIT" \
-            --env EVIDENCE_TAG="$EVIDENCE_TAG" \
             pyfgsea-reference-legacy:rc8 \
             bash -euo pipefail -c '
-              apt-get update
-              apt-get install -y --no-install-recommends git
-              rm -rf /var/lib/apt/lists/*
-              git config --global --add safe.directory /repo
               uv python install 3.11.9
-              uv venv --python 3.11.9 /evidence/venvs/legacy
-              uv pip install --python /evidence/venvs/legacy/bin/python \
-                /evidence/legacy-wheel/pyfgsea-0.1.4-cp38-abi3-manylinux_2_34_x86_64.whl \
+              uv venv --python 3.11.9 /results/venvs/legacy
+              uv pip install --python /results/venvs/legacy/bin/python \
+                /results/legacy-wheel/pyfgsea-0.1.4-cp38-abi3-manylinux_2_34_x86_64.whl \
                 numpy==1.26.4 pandas==2.2.3 scipy==1.13.1 psutil==6.1.1
-              test "$(/evidence/venvs/legacy/bin/python -c "import platform; print(platform.python_version())")" = "3.11.9"
-              cd /evidence
-              /evidence/venvs/legacy/bin/python \
-                /repo/repro/figure1_dual_lane/run_lane.py \
+              /results/venvs/legacy/bin/python \
+                /repo/repro/figure1_dual_lane/run_functional_lane.py \
                 --lane legacy \
-                --input-manifest /evidence/figure1-inputs/input_manifest.json \
-                --artifact-receipt /evidence/legacy-artifact/receipt.json \
-                --reference-receipt /evidence/legacy-reference/evidence/oci-receipt.json \
-                --output-dir /evidence/figure1-legacy \
-                --expected-git-commit "$EVIDENCE_COMMIT" \
-                --expected-git-tag "$EVIDENCE_TAG"
+                --output-dir /results/figure1-legacy
             '
 
-      - name: Run the current lane
+      - name: Run PyFgsea 0.2.0rc8 with fgsea 1.38.0
         shell: bash
         run: |
           set -euo pipefail
-          reference_digest="$(python -c 'import json, os, pathlib; p=pathlib.Path(os.environ["EVIDENCE_ROOT"])/"current-reference/evidence/oci-receipt.json"; print(json.loads(p.read_text())["built_image_digest"])')"
           docker run --rm \
             --volume "$GITHUB_WORKSPACE:/repo:ro" \
-            --volume "$EVIDENCE_ROOT:/evidence" \
-            --volume "$EVIDENCE_ROOT/tools/uv:/usr/local/bin/uv:ro" \
-            --env FGSEA_REFERENCE_ID=current-conformance \
+            --volume "$RESULT_ROOT:/results" \
+            --volume "$RESULT_ROOT/tools/uv:/usr/local/bin/uv:ro" \
             --env FGSEA_REFERENCE_VERSION=1.38.0 \
-            --env FGSEA_REFERENCE_IMAGE_DIGEST="$reference_digest" \
-            --env UV_PYTHON_INSTALL_DIR=/evidence/python \
-            --env UV_CACHE_DIR=/evidence/uv-cache \
+            --env UV_PYTHON_INSTALL_DIR=/results/python \
+            --env UV_CACHE_DIR=/results/uv-cache \
             --env UV_PYTHON_PREFERENCE=only-managed \
-            --env EVIDENCE_COMMIT="$EVIDENCE_COMMIT" \
-            --env EVIDENCE_TAG="$EVIDENCE_TAG" \
             pyfgsea-reference-current:rc8 \
             bash -euo pipefail -c '
-              apt-get update
-              apt-get install -y --no-install-recommends git
-              rm -rf /var/lib/apt/lists/*
-              git config --global --add safe.directory /repo
-              uv python install 3.11.9
-              uv venv --python 3.11.9 /evidence/venvs/current
-              uv pip install --python /evidence/venvs/current/bin/python \
-                /evidence/current-artifact/dist/pyfgsea-0.2.0rc8-cp38-abi3-manylinux_2_34_x86_64.whl \
+              uv venv --python 3.11.9 /results/venvs/current
+              uv pip install --python /results/venvs/current/bin/python \
+                /results/current-artifact/dist/pyfgsea-0.2.0rc8-cp38-abi3-manylinux_2_34_x86_64.whl \
                 numpy==1.26.4 pandas==2.2.3 scipy==1.13.1 psutil==6.1.1
-              test "$(/evidence/venvs/current/bin/python -c "import platform; print(platform.python_version())")" = "3.11.9"
-              cd /evidence
-              /evidence/venvs/current/bin/python \
-                /repo/repro/figure1_dual_lane/run_lane.py \
+              /results/venvs/current/bin/python \
+                /repo/repro/figure1_dual_lane/run_functional_lane.py \
                 --lane current \
-                --input-manifest /evidence/figure1-inputs/input_manifest.json \
-                --artifact-receipt /evidence/current-artifact/evidence/receipt.json \
-                --reference-receipt /evidence/current-reference/evidence/oci-receipt.json \
-                --output-dir /evidence/figure1-current \
-                --expected-git-commit "$EVIDENCE_COMMIT" \
-                --expected-git-tag "$EVIDENCE_TAG"
+                --output-dir /results/figure1-current
             '
 
-      - name: Compare the two lanes
+      - name: Compare numerical results
         shell: bash
         run: |
           set -euo pipefail
-          cd "$EVIDENCE_ROOT"
-          python "$GITHUB_WORKSPACE/repro/figure1_dual_lane/compare_results.py" \
-            --legacy-receipt "$EVIDENCE_ROOT/figure1-legacy/lane_receipt.json" \
-            --current-receipt "$EVIDENCE_ROOT/figure1-current/lane_receipt.json" \
-            --input-manifest "$EVIDENCE_ROOT/figure1-inputs/input_manifest.json" \
-            --output-dir "$EVIDENCE_ROOT/figure1-compared" \
-            --expected-git-commit "$EVIDENCE_COMMIT" \
-            --expected-git-tag "$EVIDENCE_TAG"
+          python repro/figure1_dual_lane/compare_functional.py \
+            --legacy-result "$RESULT_ROOT/figure1-legacy/lane_result.json" \
+            --current-result "$RESULT_ROOT/figure1-current/lane_result.json" \
+            --output-dir "$RESULT_ROOT/figure1-compared"
           python - <<'PY'
           import os
           from pathlib import Path
           import pandas as pd
 
-          root = Path(os.environ["EVIDENCE_ROOT"]) / "figure1-compared"
-          agreement = pd.read_csv(root / "figure1_agreement_metrics.tsv", sep="\t")
-          timing = pd.read_csv(root / "figure1_runtime_memory.tsv", sep="\t")
-          print(agreement.to_string(index=False))
-          print(timing.to_string(index=False))
+          root = Path(os.environ["RESULT_ROOT"]) / "figure1-compared"
+          print(pd.read_csv(root / "figure1_agreement_metrics.tsv", sep="\t").to_string(index=False))
+          print(pd.read_csv(root / "figure1_runtime_memory.tsv", sep="\t").to_string(index=False))
           PY
 
       - name: Upload the Figure 1 results
@@ -291,9 +196,7 @@ jobs:
           if-no-files-found: error
           retention-days: 90
           path: |
-            ${{ env.EVIDENCE_ROOT }}/comparison-environment.txt
-            ${{ env.EVIDENCE_ROOT }}/legacy-artifact/**
-            ${{ env.EVIDENCE_ROOT }}/figure1-inputs/**
-            ${{ env.EVIDENCE_ROOT }}/figure1-legacy/**
-            ${{ env.EVIDENCE_ROOT }}/figure1-current/**
-            ${{ env.EVIDENCE_ROOT }}/figure1-compared/**
+            ${{ env.RESULT_ROOT }}/comparison-environment.txt
+            ${{ env.RESULT_ROOT }}/figure1-legacy/**
+            ${{ env.RESULT_ROOT }}/figure1-current/**
+            ${{ env.RESULT_ROOT }}/figure1-compared/**

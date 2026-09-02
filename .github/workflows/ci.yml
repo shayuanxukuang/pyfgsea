@@ -142,8 +142,9 @@ jobs:
         )
         assert pyfgsea.__version__ == importlib.metadata.version("pyfgsea")
 
-        # The Figure 1 test imports commit-bound helpers from repro/.  Append the
-        # checkout only after the installed package and native core are loaded.
+        # The Figure 1 test imports numerical comparison helpers from repro/.
+        # Append the checkout only after the installed package and native core
+        # are loaded.
         sys.path.append(str(workspace))
 
         raise SystemExit(
@@ -154,7 +155,12 @@ jobs:
                     "-p",
                     "no:cacheprovider",
                     str(workspace / "tests"),
-                    str(workspace / "repro" / "figure1_dual_lane" / "test_pipeline.py"),
+                    str(
+                        workspace
+                        / "repro"
+                        / "figure1_dual_lane"
+                        / "test_functional_pipeline.py"
+                    ),
                 ]
             )
         )
