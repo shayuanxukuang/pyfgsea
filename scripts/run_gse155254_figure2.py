@@ -19,7 +19,7 @@ import pandas as pd
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 PARAMETER_PATH = REPO_ROOT / "repro" / "figure2_gse155254" / "figure2_parameters.json"
-DEFAULT_EXPECTED_VERSION = "0.2.0rc8"
+DEFAULT_EXPECTED_VERSION = "0.2.0"
 EXPECTED_ALGORITHM_REVISION = "fgsea-1.38-pr178-v1"
 EXPECTED_DATASET_SHAPE = (3576, 3000)
 EXPECTED_N_WINDOWS = 62
