@@ -6,7 +6,7 @@ question and must be reported separately.
 | Lane | PyFgsea | R | Bioconductor | fgsea | Purpose |
 | --- | --- | --- | --- | --- | --- |
 | `legacy_publication` | 0.1.4 | 4.4.3 | 3.20 | 1.32.2 | Reproduce the comparison declared in the published paper |
-| `current_conformance` | 0.2.0rc8 candidate; 0.2.0 target | 4.6.0 | 3.23 | 1.38.0 | Test the repaired implementation against the current reference |
+| `current_conformance` | 0.2.0 | 4.6.0 | 3.23 | 1.38.0 | Test the repaired implementation against the current reference |
 
 Do not pool these lanes or describe them as one unspecified fgsea reference.
 A result against fgsea 1.32.2 does not establish conformance with fgsea 1.38.0,

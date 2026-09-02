@@ -1,55 +1,176 @@
-name: Manual release-build preview (no publication)
+name: Publish PyFgsea 0.2.0
 
 on:
   workflow_dispatch:
+    inputs:
+      verification_run_id:
+        description: Successful PyFgsea release-check run ID
+        required: true
+        type: string
+      tag:
+        description: Annotated release tag
+        required: true
+        default: v0.2.0
+        type: string
 
 permissions:
-  contents: read
+  actions: read
+  contents: write
+
+concurrency:
+  group: publish-pyfgsea-${{ inputs.tag }}
+  cancel-in-progress: false
 
 jobs:
-  #构建 Linux, Windows, macOS 的 Wheels
-  build_wheels:
-    name: Build wheels on ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          # Build the abi3 wheels from the declared minimum Python release.
-          python-version: '3.9'
-      
-      - name: Build wheels
-        uses: PyO3/maturin-action@v1
-        with:
-          args: --release --out dist
-          sccache: 'true'
-          
-      - name: Upload wheels
-        uses: actions/upload-artifact@v4
-        with:
-          name: wheels-${{ matrix.os }}
-          path: dist
+  publish:
+    name: Publish checked packages
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      GH_TOKEN: ${{ github.token }}
+      RELEASE_TAG: ${{ inputs.tag }}
+      VERIFICATION_RUN_ID: ${{ inputs.verification_run_id }}
 
-  #构建源码包
-  build_sdist:
-    name: Build sdist
-    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - name: Build sdist
-        uses: PyO3/maturin-action@v1
+      - name: Check out the release tag
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
-          command: sdist
-          args: --out dist
-      - name: Upload sdist
-        uses: actions/upload-artifact@v4
-        with:
-          name: wheels-sdist
-          path: dist
+          ref: refs/tags/${{ inputs.tag }}
+          fetch-depth: 0
+          fetch-tags: true
+          persist-credentials: false
 
-  # Publication is intentionally absent. The final workflow must consume the
-  # exact artifacts and receipts produced by the artifact-chain gate rather
-  # than rebuilding unrelated files in a second workflow.
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: "3.11"
+
+      - name: Match the successful check run to the release tag
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$RELEASE_TAG" = "v0.2.0"
+          test "$(git cat-file -t "refs/tags/$RELEASE_TAG")" = "tag"
+          commit="$(git rev-parse "refs/tags/$RELEASE_TAG^{commit}")"
+          test "$(git rev-parse HEAD)" = "$commit"
+          test "$(python - <<'PY'
+          import tomllib
+          with open("Cargo.toml", "rb") as handle:
+              print(tomllib.load(handle)["package"]["version"])
+          PY
+          )" = "0.2.0"
+          run_json="$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$VERIFICATION_RUN_ID")"
+          test "$(jq -r .conclusion <<<"$run_json")" = "success"
+          test "$(jq -r .head_sha <<<"$run_json")" = "$commit"
+          test "$(jq -r .path <<<"$run_json")" = ".github/workflows/pyfgsea-0.2.0-artifacts.yml"
+
+      - name: Download the checked packages and reference records
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh run download "$VERIFICATION_RUN_ID" \
+            --repo "$GITHUB_REPOSITORY" \
+            --name pyfgsea-artifact-chain-linux-x86_64 \
+            --dir incoming/linux
+          gh run download "$VERIFICATION_RUN_ID" \
+            --repo "$GITHUB_REPOSITORY" \
+            --name pyfgsea-artifact-chain-windows-x86_64 \
+            --dir incoming/windows
+          gh run download "$VERIFICATION_RUN_ID" \
+            --repo "$GITHUB_REPOSITORY" \
+            --name pyfgsea-artifact-chain-macos-arm64 \
+            --dir incoming/macos
+          gh run download "$VERIFICATION_RUN_ID" \
+            --repo "$GITHUB_REPOSITORY" \
+            --name pyfgsea-reference-legacy-publication-receipt \
+            --dir incoming/reference-legacy
+          gh run download "$VERIFICATION_RUN_ID" \
+            --repo "$GITHUB_REPOSITORY" \
+            --name pyfgsea-reference-current-conformance-receipt \
+            --dir incoming/reference-current
+
+      - name: Assemble the release files
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import shutil
+          from pathlib import Path
+
+          incoming = Path("incoming")
+          packages = Path("release/packages")
+          records = Path("release/records")
+          packages.mkdir(parents=True)
+          records.mkdir(parents=True)
+
+          linux_sdists = list((incoming / "linux").rglob("pyfgsea-0.2.0.tar.gz"))
+          if len(linux_sdists) != 1:
+              raise SystemExit(f"expected one Linux sdist, found {len(linux_sdists)}")
+          selected = [linux_sdists[0]]
+          for platform in ("linux", "windows", "macos"):
+              wheels = list((incoming / platform).rglob("pyfgsea-0.2.0-*.whl"))
+              if len(wheels) != 1:
+                  raise SystemExit(
+                      f"expected one {platform} wheel, found {len(wheels)}"
+                  )
+              selected.append(wheels[0])
+          names = [path.name for path in selected]
+          if len(names) != len(set(names)):
+              raise SystemExit(f"duplicate release filenames: {names}")
+          for path in selected:
+              shutil.copy2(path, packages / path.name)
+          PY
+          tar -czf release/records/pyfgsea-reference-legacy-publication.tar.gz \
+            -C incoming/reference-legacy .
+          tar -czf release/records/pyfgsea-reference-current-conformance.tar.gz \
+            -C incoming/reference-current .
+          printf 'tag=%s\ncommit=%s\nverification_run_id=%s\n' \
+            "$RELEASE_TAG" "$(git rev-parse HEAD)" "$VERIFICATION_RUN_ID" \
+            > release/records/release-verification.txt
+
+      - name: Check package metadata
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check --no-input "twine==7.0.0"
+          python -m twine check release/packages/*
+
+      - name: Create or update the draft GitHub release
+        shell: bash
+        run: |
+          set -euo pipefail
+          if gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            test "$(gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --json isDraft --jq .isDraft)" = "true"
+            gh release upload "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --clobber \
+              release/packages/* release/records/*
+            gh release edit "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" \
+              --title "PyFgsea 0.2.0" \
+              --notes-file docs/releases/0.2.0.md
+          else
+            gh release create "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" \
+              --verify-tag \
+              --draft \
+              --title "PyFgsea 0.2.0" \
+              --notes-file docs/releases/0.2.0.md \
+              release/packages/* release/records/*
+          fi
+
+      - name: Publish the checked packages to PyPI
+        shell: bash
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
+        run: |
+          set -euo pipefail
+          test -n "$TWINE_PASSWORD"
+          python -m twine upload --non-interactive --skip-existing release/packages/*
+
+      - name: Publish the GitHub release
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh release edit "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" \
+            --draft=false \
+            --latest \
+            --title "PyFgsea 0.2.0" \
+            --notes-file docs/releases/0.2.0.md

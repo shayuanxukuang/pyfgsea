@@ -27,8 +27,8 @@ def _run_summary() -> dict[str, object]:
         "artifact_type": "pyfgsea-figure2-panel-d-table",
         "status": "complete",
         "runtime": {
-            "package_version": "0.2.0rc8",
-            "distribution_version": "0.2.0rc8",
+            "package_version": "0.2.0",
+            "distribution_version": "0.2.0",
             "algorithm_revision": figure2.EXPECTED_ALGORITHM_REVISION,
         },
         "dataset": {"shape": list(figure2.EXPECTED_DATASET_SHAPE)},

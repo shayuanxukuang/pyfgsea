@@ -82,7 +82,7 @@ def _write_result(root: Path) -> tuple[Path, pd.DataFrame]:
         "status": "complete",
         "lanes": {
             "legacy": {"pyfgsea": "0.1.4", "fgsea": "1.32.2"},
-            "current": {"pyfgsea": "0.2.0rc8", "fgsea": "1.38.0"},
+            "current": {"pyfgsea": "0.2.0", "fgsea": "1.38.0"},
         },
         "validation": {
             "installed_wheels_executed": True,

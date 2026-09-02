@@ -1079,8 +1079,8 @@ def assemble_figure2(
                 cell_source,
                 marker_profiles,
                 pathway_profiles,
-                staging / "figure2_full_rc8.png",
-                staging / "figure2_full_rc8.pdf",
+                staging / "figure2_full.png",
+                staging / "figure2_full.pdf",
             )
 
         rows_by_name = {
@@ -1094,7 +1094,7 @@ def assemble_figure2(
             "figure2_pathway_profiles.csv",
         ]
         if render_figure:
-            artifact_names[:0] = ["figure2_full_rc8.png", "figure2_full_rc8.pdf"]
+            artifact_names[:0] = ["figure2_full.png", "figure2_full.pdf"]
         artifacts = {
             name: _file_record(
                 staging / name,
