@@ -25,7 +25,7 @@ import pandas as pd
 EXPECTED_COUNTS = {"publication_main": 100, "ties_predeclared": 60}
 EXPECTED_LANES = {
     "legacy": {"pyfgsea": "0.1.4", "fgsea": "1.32.2"},
-    "current": {"pyfgsea": "0.2.0rc8", "fgsea": "1.38.0"},
+    "current": {"pyfgsea": "0.2.0", "fgsea": "1.38.0"},
 }
 LANES = tuple(EXPECTED_LANES)
 SCENARIOS = tuple(EXPECTED_COUNTS)
@@ -416,7 +416,7 @@ def _render(raw: pd.DataFrame, summary: pd.DataFrame, png: Path, pdf: Path) -> N
             lane_label = (
                 "0.1.4 / fgsea 1.32.2"
                 if lane == "legacy"
-                else "0.2.0rc8 / fgsea 1.38.0"
+                else "0.2.0 / fgsea 1.38.0"
             )
             scenario_label = (
                 "publication input"

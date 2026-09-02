@@ -4,8 +4,7 @@ PyFgsea runs preranked Gene Set Enrichment Analysis (GSEA) from Python with a
 Rust numerical core. It supports single analyses and rolling-window pathway
 analysis along an ordered trajectory.
 
-The current development version is `0.2.0rc8`. It is a prerelease, not the
-final `0.2.0` distribution.
+The current stable release is `0.2.0`.
 
 ## Features
 
@@ -153,10 +152,10 @@ See:
 
 ## Current limitations
 
-- `0.2.0rc8` is a prerelease; final PyPI, GitHub Release, and Zenodo artifacts
-  are not yet published.
-- Figure 1, Figure 2, supplementary results, and manuscript values still need
-  to be recalculated separately from the source-level tests.
+- The formal Figure 1 comparison covers the publication input and a separate
+  tie-heavy sensitivity case; it is not a universal equivalence claim.
+- Figure 2 is a descriptive analysis of a processed, mixed-assignment subset;
+  it is not a control-versus-mutant comparison.
 - Fast mode and the legacy empirical helpers are approximate.
 - Runtime and peak-memory values depend on the recorded hardware and software
   environment.

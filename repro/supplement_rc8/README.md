@@ -36,7 +36,7 @@ python repro/supplement_rc8/run_null_calibration.py \
 
 The default run uses 20 predetermined seeds. Each replicate independently
 permutes the fixed Figure 1 scores across gene labels, preserves the score
-distribution and pathway definitions, and calls the installed 0.2.0rc8 wheel.
+distribution and pathway definitions, and calls the installed 0.2.0 wheel.
 It reports per-replicate and pooled descriptive P-value summaries plus QQ and
 ECDF plots. It does not encode an equivalence margin, a statistical acceptance
 threshold, or an inferential KS test over overlapping pathways. Unit-test

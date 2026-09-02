@@ -1,18 +1,23 @@
-name: Figure 1 RC8 rerun
+name: Figure 1 dual-lane rerun
 
 on:
   workflow_dispatch:
+    inputs:
+      source_run_id:
+        description: Successful PyFgsea release-check run ID
+        required: true
+        type: string
 
 permissions:
   actions: read
   contents: read
 
 concurrency:
-  group: figure1-v0.2.0-rc8
+  group: figure1-${{ inputs.source_run_id }}
   cancel-in-progress: false
 
 env:
-  SOURCE_RUN_ID: "33613997297"
+  SOURCE_RUN_ID: "${{ inputs.source_run_id }}"
   PYTHON_VERSION: "3.11.9"
   NUMPY_VERSION: "1.26.4"
   PANDAS_VERSION: "2.2.3"
@@ -27,12 +32,14 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 240
     env:
-      RESULT_ROOT: /tmp/pyfgsea-figure1-v0.2.0-rc8
+      RESULT_ROOT: /tmp/pyfgsea-figure1-${{ github.run_id }}
 
     steps:
       - name: Check out the analysis runner
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
+          ref: refs/tags/v0.2.0
+          fetch-depth: 1
           persist-credentials: false
 
       - name: Set up Python
@@ -113,13 +120,13 @@ jobs:
           sudo apt-get install -y --no-install-recommends skopeo
           skopeo copy \
             "oci-archive:$RESULT_ROOT/legacy-oci/legacy-publication.oci.tar" \
-            docker-daemon:pyfgsea-reference-legacy:rc8
+            docker-daemon:pyfgsea-reference-legacy:publication
           skopeo copy \
             "oci-archive:$RESULT_ROOT/current-oci/current-conformance.oci.tar" \
-            docker-daemon:pyfgsea-reference-current:rc8
-          docker run --rm pyfgsea-reference-legacy:rc8 \
+            docker-daemon:pyfgsea-reference-current:current
+          docker run --rm pyfgsea-reference-legacy:publication \
             Rscript /opt/reference/verify_fgsea_reference.R
-          docker run --rm pyfgsea-reference-current:rc8 \
+          docker run --rm pyfgsea-reference-current:current \
             Rscript /opt/reference/verify_fgsea_reference.R
 
       - name: Run PyFgsea 0.1.4 with fgsea 1.32.2
@@ -134,7 +141,7 @@ jobs:
             --env UV_PYTHON_INSTALL_DIR=/results/python \
             --env UV_CACHE_DIR=/results/uv-cache \
             --env UV_PYTHON_PREFERENCE=only-managed \
-            pyfgsea-reference-legacy:rc8 \
+            pyfgsea-reference-legacy:publication \
             bash -euo pipefail -c '
               uv python install 3.11.9
               uv venv --python 3.11.9 /results/venvs/legacy
@@ -147,7 +154,7 @@ jobs:
                 --output-dir /results/figure1-legacy
             '
 
-      - name: Run PyFgsea 0.2.0rc8 with fgsea 1.38.0
+      - name: Run PyFgsea 0.2.0 with fgsea 1.38.0
         shell: bash
         run: |
           set -euo pipefail
@@ -159,11 +166,11 @@ jobs:
             --env UV_PYTHON_INSTALL_DIR=/results/python \
             --env UV_CACHE_DIR=/results/uv-cache \
             --env UV_PYTHON_PREFERENCE=only-managed \
-            pyfgsea-reference-current:rc8 \
+            pyfgsea-reference-current:current \
             bash -euo pipefail -c '
               uv venv --python 3.11.9 /results/venvs/current
               uv pip install --python /results/venvs/current/bin/python \
-                /results/current-artifact/dist/pyfgsea-0.2.0rc8-cp38-abi3-manylinux_2_34_x86_64.whl \
+                /results/current-artifact/dist/pyfgsea-0.2.0-cp38-abi3-manylinux_2_34_x86_64.whl \
                 numpy==1.26.4 pandas==2.2.3 scipy==1.13.1 psutil==6.1.1
               /results/venvs/current/bin/python \
                 /repo/repro/figure1_dual_lane/run_functional_lane.py \
@@ -192,7 +199,7 @@ jobs:
       - name: Upload the Figure 1 results
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: pyfgsea-figure1-v0.2.0-rc8-${{ github.run_id }}
+          name: pyfgsea-figure1-v0.2.0-${{ github.run_id }}
           if-no-files-found: error
           retention-days: 90
           path: |

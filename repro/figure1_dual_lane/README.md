@@ -9,7 +9,7 @@ versions, then derives all reported metrics from the pathway-level output.
 | Lane | Installed PyFgsea | Module version | R | Bioconductor | fgsea |
 | --- | --- | --- | --- | --- | --- |
 | `legacy` | 0.1.4 | 0.1.3 | 4.4.3 | 3.20 | 1.32.2 |
-| `current` | 0.2.0rc8 | 0.2.0rc8 | 4.6.0 | 3.23 | 1.38.0 |
+| `current` | 0.2.0 | 0.2.0 | 4.6.0 | 3.23 | 1.38.0 |
 
 The legacy module's internal `0.1.3` declaration is part of the published
 0.1.4 packaging state. The lanes answer different questions: the legacy lane
@@ -32,9 +32,9 @@ uses the arguments available in the published 0.1.4 API.
 
 ## Active workflow
 
-`.github/workflows/figure1-rc8.yml` performs the following steps:
+`.github/workflows/figure1.yml` performs the following steps:
 
-1. install the public 0.1.4 wheel and the verified 0.2.0rc8 wheel in separate
+1. install the public 0.1.4 wheel and the verified 0.2.0 wheel in separate
    Python 3.11.9 environments;
 2. start the fgsea 1.32.2 and 1.38.0 reference images and verify their reported
    R, Bioconductor, and fgsea versions;

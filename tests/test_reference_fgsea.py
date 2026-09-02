@@ -40,7 +40,7 @@ def test_reference_manifest_freezes_legacy_and_current_lanes():
         current["bioconductor_version"],
         current["fgsea_version"],
         current["pyfgsea_version"],
-    ) == ("4.6.0", "3.23", "1.38.0", "0.2.0rc8")
+    ) == ("4.6.0", "3.23", "1.38.0", "0.2.0")
     assert current["pyfgsea_release_target"] == "0.2.0"
     assert current["upstream_alignment_basis"]["merge_commit"] == (
         "9a06694dfc7b54a0a698061a97db15945ede725c"

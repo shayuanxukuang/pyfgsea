@@ -119,8 +119,8 @@ def test_run_calibration_writes_only_completed_real_execution(
         lambda: (
             _valid_engine(calls),
             {
-                "distribution_version": "0.2.0rc8",
-                "module_version": "0.2.0rc8",
+                "distribution_version": "0.2.0",
+                "module_version": "0.2.0",
                 "algorithm_revision": "fgsea-1.38-pr178-v1",
                 "module_path": "installed/pyfgsea/__init__.py",
                 "native_core_path": "installed/pyfgsea/_core.pyd",
@@ -171,7 +171,7 @@ def test_run_calibration_leaves_no_output_after_engine_failure(
     monkeypatch.setattr(
         calibration,
         "_installed_package",
-        lambda: (failed_engine, {"distribution_version": "0.2.0rc8"}),
+        lambda: (failed_engine, {"distribution_version": "0.2.0"}),
     )
     monkeypatch.setattr(
         calibration,
