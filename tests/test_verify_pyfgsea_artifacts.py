@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import importlib.util
 import io
-import json
 import os
 import subprocess
 import tarfile
@@ -80,24 +79,25 @@ def _probe_payload(
     core: Path,
     wheel: Path,
 ) -> tuple[dict[str, object], dict[str, str]]:
-    wheel_sha = verify._sha256_file(wheel)
-    core_sha = verify._sha256_file(core)
     probe: dict[str, object] = {
         "sys_executable": str(executable),
         "sys_prefix": str(venv),
         "base_prefix": str(venv.parent / "base-python"),
         "package_file": str(package),
         "core_file": str(core),
-        "core_sha256": core_sha,
+        "core_sha256": "installed-core-provenance",
         "pyfgsea_version": "0.2.0",
         "distribution_version": "0.2.0",
         "algorithm_revision": "fgsea-test-revision",
         "direct_url": {
             "url": wheel.resolve().as_uri(),
-            "archive_info": {"hashes": {"sha256": wheel_sha}},
+            "archive_info": {"hashes": {"sha256": "wheel-provenance"}},
         },
     }
-    return probe, {"sha256": wheel_sha, "core_sha256": core_sha}
+    return probe, {
+        "sha256": "different-wheel-provenance",
+        "core_sha256": "different-core-provenance",
+    }
 
 
 def test_algorithm_revision_is_derived_from_committed_rust_source() -> None:
@@ -142,15 +142,16 @@ def test_sdist_rejects_extra_nonpackage_release_input(tmp_path: Path) -> None:
         verify._verify_sdist(path, sources, expected_version="0.2.0")
 
 
-def test_wheel_sources_and_native_core_are_hashed(tmp_path: Path) -> None:
+def test_wheel_contains_expected_sources_and_native_core(tmp_path: Path) -> None:
     sources = _sources()
     path = tmp_path / "pyfgsea-0.2.0-cp38-abi3-win_amd64.whl"
-    core = _write_wheel(path, sources)
+    _write_wheel(path, sources)
     evidence = verify._verify_wheel(path, sources, expected_version="0.2.0")
     assert evidence["core_member"] == "pyfgsea/_core.pyd"
-    assert evidence["core_sha256"] == verify._sha256_bytes(core)
+    assert evidence["core_size"] > 0
     assert evidence["pyfgsea_source_set_exact"] is True
     assert evidence["wheel_member_boundary_exact"] is True
+    assert evidence["sha256_role"] == "provenance_only"
 
 
 def test_wheel_rejects_entry_points(tmp_path: Path) -> None:
@@ -232,7 +233,7 @@ def test_release_tag_must_be_annotated_and_peel_to_commit(tmp_path: Path) -> Non
         verify._verify_release_tag(repo, "release-1.2.3", commit)
 
 
-def test_installed_probe_requires_venv_paths_and_direct_url_hash(
+def test_installed_probe_uses_paths_versions_and_revision_not_hashes(
     tmp_path: Path,
 ) -> None:
     venv = tmp_path / "venv"
@@ -246,42 +247,72 @@ def test_installed_probe_requires_venv_paths_and_direct_url_hash(
     python.write_bytes(b"")
     wheel = tmp_path / "pyfgsea.whl"
     wheel.write_bytes(b"wheel")
-    wheel_sha = verify._sha256_file(wheel)
-    core_sha = verify._sha256_file(core)
     probe = {
         "sys_executable": str(python),
         "sys_prefix": str(venv),
         "base_prefix": str(tmp_path / "base-python"),
         "package_file": str(package),
         "core_file": str(core),
-        "core_sha256": core_sha,
+        "core_sha256": "installed-core-provenance",
         "pyfgsea_version": "0.2.0",
         "distribution_version": "0.2.0",
         "algorithm_revision": "fgsea-test-revision",
         "direct_url": {
             "url": wheel.resolve().as_uri(),
-            "archive_info": {"hashes": {"sha256": wheel_sha}},
+            "archive_info": {"hashes": {"sha256": "recorded-only"}},
         },
     }
     evidence = verify._verify_installed_probe(
         probe,
         venv=venv,
         wheel=wheel,
-        wheel_evidence={"sha256": wheel_sha, "core_sha256": core_sha},
+        wheel_evidence={
+            "sha256": "different-wheel-provenance",
+            "core_sha256": "different-core-provenance",
+        },
         expected_version="0.2.0",
         expected_algorithm_revision="fgsea-test-revision",
     )
     assert evidence["package_and_core_inside_venv"] is True
-    assert evidence["direct_url_wheel_sha256"] == wheel_sha
+    assert evidence["provenance"]["hashes_are_pass_fail_checks"] is False
 
-    probe["direct_url"] = json.loads(json.dumps(probe["direct_url"]))
-    probe["direct_url"]["archive_info"]["hashes"]["sha256"] = "0" * 64
-    with pytest.raises(verify.VerificationError, match="direct_url wheel SHA-256"):
+    without_direct_url = dict(probe)
+    without_direct_url["direct_url"] = None
+    no_direct_url = verify._verify_installed_probe(
+        without_direct_url,
+        venv=venv,
+        wheel=wheel,
+        wheel_evidence={},
+        expected_version="0.2.0",
+        expected_algorithm_revision="fgsea-test-revision",
+    )
+    assert no_direct_url["direct_url_wheel_sha256"] is None
+
+    for field, value, message in (
+        ("pyfgsea_version", "0.1.4", "pyfgsea.__version__"),
+        ("distribution_version", "0.1.4", "distribution version"),
+        ("algorithm_revision", "other-revision", "algorithm revision"),
+    ):
+        changed = dict(probe)
+        changed[field] = value
+        with pytest.raises(verify.VerificationError, match=message):
+            verify._verify_installed_probe(
+                changed,
+                venv=venv,
+                wheel=wheel,
+                wheel_evidence={},
+                expected_version="0.2.0",
+                expected_algorithm_revision="fgsea-test-revision",
+            )
+
+    outside_package = dict(probe)
+    outside_package["package_file"] = str(tmp_path / "outside" / "__init__.py")
+    with pytest.raises(verify.VerificationError, match="package.*outside"):
         verify._verify_installed_probe(
-            probe,
+            outside_package,
             venv=venv,
             wheel=wheel,
-            wheel_evidence={"sha256": wheel_sha, "core_sha256": core_sha},
+            wheel_evidence={},
             expected_version="0.2.0",
             expected_algorithm_revision="fgsea-test-revision",
         )
@@ -371,17 +402,12 @@ def test_installed_probe_rejects_wrong_resolved_python_and_core_escape(
     outside_core.write_bytes(b"outside core")
     escaped_core_probe = dict(probe)
     escaped_core_probe["core_file"] = str(outside_core)
-    escaped_core_probe["core_sha256"] = verify._sha256_file(outside_core)
-    escaped_core_evidence = {
-        "sha256": wheel_evidence["sha256"],
-        "core_sha256": verify._sha256_file(outside_core),
-    }
     with pytest.raises(verify.VerificationError, match="native core.*outside"):
         verify._verify_installed_probe(
             escaped_core_probe,
             venv=venv,
             wheel=wheel,
-            wheel_evidence=escaped_core_evidence,
+            wheel_evidence=wheel_evidence,
             expected_version="0.2.0",
             expected_algorithm_revision="fgsea-test-revision",
         )
@@ -390,7 +416,7 @@ def test_installed_probe_rejects_wrong_resolved_python_and_core_escape(
 def test_installed_test_manifest_is_bound_to_commit(tmp_path: Path) -> None:
     repo = tmp_path / "repo"
     (repo / "tests").mkdir(parents=True)
-    pipeline = repo / "repro" / "figure1_dual_lane" / "test_pipeline.py"
+    pipeline = repo / "repro" / "figure1_dual_lane" / "test_functional_pipeline.py"
     pipeline.parent.mkdir(parents=True)
     (repo / "tests" / "test_example.py").write_text(
         "def test_example():\n    assert True\n", encoding="utf-8"
@@ -405,7 +431,7 @@ def test_installed_test_manifest_is_bound_to_commit(tmp_path: Path) -> None:
 
     manifest = verify._git_installed_test_manifest(repo, commit)
     assert sorted(manifest) == [
-        "repro/figure1_dual_lane/test_pipeline.py",
+        "repro/figure1_dual_lane/test_functional_pipeline.py",
         "tests/test_example.py",
     ]
 
@@ -433,7 +459,7 @@ def test_junit_counts_parse_passed_skipped_failed_and_errors(tmp_path: Path) -> 
     }
 
 
-def test_installed_test_evidence_binds_junit_tests_commit_and_wheel(
+def test_installed_test_evidence_records_successful_behavior(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     repo = tmp_path / "repo"
@@ -446,7 +472,7 @@ def test_installed_test_evidence_binds_junit_tests_commit_and_wheel(
     python.write_bytes(b"")
     committed_tests = {
         "tests/test_example.py": b"def test_example():\n    assert True\n",
-        "repro/figure1_dual_lane/test_pipeline.py": (
+        "repro/figure1_dual_lane/test_functional_pipeline.py": (
             b"def test_pipeline():\n    assert True\n"
         ),
     }
@@ -488,7 +514,7 @@ def test_installed_test_evidence_binds_junit_tests_commit_and_wheel(
         cwd=cwd,
         junit_path=junit,
         bundle_root=bundle,
-        wheel_sha256="b" * 64,
+        wheel_sha256="provenance-only",
         commands=[],
     )
 
@@ -499,14 +525,15 @@ def test_installed_test_evidence_binds_junit_tests_commit_and_wheel(
     assert "--import-mode=importlib" in pytest_command
     assert str(repo / "tests") in pytest_command
     assert (
-        str(repo / "repro" / "figure1_dual_lane" / "test_pipeline.py") in pytest_command
+        str(repo / "repro" / "figure1_dual_lane" / "test_functional_pipeline.py")
+        in pytest_command
     )
     assert evidence["git_commit"] == "a" * 40
-    assert evidence["wheel_sha256"] == "b" * 64
     assert evidence["artifact_import_preloaded_before_test_support_path"] is True
     assert evidence["test_support_path_appended_after_site_packages"] is True
     assert evidence["junit"]["bundle_path"] == "evidence/installed-tests.junit.xml"
-    assert evidence["junit"]["sha256"] == verify._sha256_file(junit)
+    assert evidence["junit"]["bytes"] == junit.stat().st_size
+    assert evidence["provenance"]["hashes_are_pass_fail_checks"] is False
     assert evidence["counts"] == {
         "passed": 5,
         "total": 7,
