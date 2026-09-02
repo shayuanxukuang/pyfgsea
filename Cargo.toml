@@ -12,11 +12,14 @@ include = [
     "/Cargo.lock",
     "/Cargo.toml",
     "/CITATION.cff",
+    "/examples/trajectory_demo.py",
     "/LICENSE",
     "/README.md",
     "/pyfgsea/**/*.json",
     "/pyfgsea/**/*.py",
     "/pyproject.toml",
+    "/repro/data/toy_pathways.gmt",
+    "/repro/data/toy_trajectory.h5ad",
     "/src/**/*.rs",
 ]
 

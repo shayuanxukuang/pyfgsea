@@ -123,11 +123,12 @@ Run the included synthetic example:
 ```bash
 python examples/trajectory_demo.py \
   --adata repro/data/toy_trajectory.h5ad \
+  --gmt repro/data/toy_pathways.gmt \
   --pseudotime-key dpt_pseudotime \
+  --window-size 100 \
+  --step 50 \
   --outdir results/
 ```
-
-![Rolling-window trajectory example](docs/assets/trajectory_demo.png)
 
 The example writes:
 
@@ -169,7 +170,7 @@ If you use PyFgsea in academic work, cite:
 - Article: <https://doi.org/10.1093/bioinformatics/btag257>
 - Source: <https://github.com/shayuanxukuang/pyfgsea>
 - PyPI: <https://pypi.org/project/pyfgsea/>
-- Zenodo: <https://doi.org/10.5281/zenodo.19446446>
+- Zenodo concept DOI: <https://doi.org/10.5281/zenodo.19446445>
 
 ## License
 
