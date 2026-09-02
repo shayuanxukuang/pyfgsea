@@ -141,32 +141,14 @@ NES caching off, and `seed=42`. The Python API does not currently expose an
 
 ## Reproducing the paper
 
-Paper reproduction uses two separate reference lanes:
-
-| Purpose | PyFgsea | R | Bioconductor | fgsea |
-| --- | --- | --- | --- | --- |
-| Reproduce the published comparison | 0.1.4 | 4.4.3 | 3.20 | 1.32.2 |
-| Test current conformance | 0.2.0rc7 | 4.6.0 | 3.23 | 1.38.0 |
-
-The lanes are not interchangeable. Do not relabel a result against fgsea
-1.32.2 as a comparison against fgsea 1.38.0, or combine the two references
-under an unspecified fgsea version.
+The paper used PyFgsea 0.1.4 with R fgsea 1.32.2. Current comparisons use
+PyFgsea 0.2.0 with R fgsea 1.38.0. Keep these two reference lanes separate.
 
 See:
 
 - [fgsea reference alignment](docs/fgsea-1.38-alignment.md);
 - [0.2.0 release note](docs/releases/0.2.0.md);
 - [Figure 1 dual-lane protocol](repro/figure1_dual_lane/README.md).
-
-A complete reference comparison requires a clean worktree at a named commit,
-an annotated release-candidate tag, and verified artifacts. The artifact chain
-builds an sdist from the source, builds the wheel from that sdist, installs the
-wheel in a clean environment, checks the installed version and native core, and
-runs the installed-wheel tests. Run records include SHA-256 values for the source,
-sdist, wheel, installed core, inputs, and outputs.
-
-An unpinned local R installation or a Python-only run is useful for exploration
-but is not a complete reference comparison. A skipped R comparison remains incomplete.
 
 ## Current limitations
 
