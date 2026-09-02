@@ -130,7 +130,7 @@ def test_sdist_rejects_uncommitted_package_source(tmp_path: Path) -> None:
     sources = _sources()
     path = tmp_path / "pyfgsea-0.2.0.tar.gz"
     _write_sdist(path, sources, **{"pyfgsea/untracked.py": b"unexpected = True\n"})
-    with pytest.raises(verify.VerificationError, match="source boundary differs"):
+    with pytest.raises(verify.VerificationError, match="sdist sources differ"):
         verify._verify_sdist(path, sources, expected_version="0.2.0")
 
 
@@ -138,7 +138,7 @@ def test_sdist_rejects_extra_nonpackage_release_input(tmp_path: Path) -> None:
     sources = _sources()
     path = tmp_path / "pyfgsea-0.2.0.tar.gz"
     _write_sdist(path, sources, **{"build.rs": b"fn main() {}\n"})
-    with pytest.raises(verify.VerificationError, match="source boundary differs"):
+    with pytest.raises(verify.VerificationError, match="sdist sources differ"):
         verify._verify_sdist(path, sources, expected_version="0.2.0")
 
 

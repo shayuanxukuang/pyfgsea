@@ -1,4 +1,4 @@
-name: PyFgsea artifact verification
+name: PyFgsea release checks
 
 on:
   push:
@@ -22,7 +22,7 @@ env:
 
 jobs:
   release-ref-gate:
-    name: Require an annotated PyFgsea release tag
+    name: Check release tag
     runs-on: ubuntu-24.04
     outputs:
       release_tag: ${{ steps.verify.outputs.release_tag }}
@@ -65,7 +65,7 @@ jobs:
           echo "release_commit=$peeled" >> "$GITHUB_OUTPUT"
 
   artifact-chain:
-    name: Artifact chain (${{ matrix.key }})
+    name: Build and test wheel (${{ matrix.key }})
     needs: release-ref-gate
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 120
@@ -192,7 +192,7 @@ jobs:
           retention-days: 30
 
   reference-oci:
-    name: Reference OCI (${{ matrix.profile }})
+    name: Build reference images (${{ matrix.profile }})
     needs: release-ref-gate
     runs-on: ubuntu-24.04
     timeout-minutes: 240
@@ -635,7 +635,7 @@ jobs:
           path: ${{ runner.temp }}/reference-${{ matrix.profile }}/${{ matrix.profile }}.oci.tar
 
   cross-platform-gate:
-    name: Artifact and reference OCI gate
+    name: Summarize release checks
     if: ${{ always() }}
     needs: [artifact-chain, reference-oci]
     runs-on: ubuntu-24.04

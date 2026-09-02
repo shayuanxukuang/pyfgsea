@@ -1,127 +1,124 @@
-# Figure 1 dual-lane evidence pipeline
+# Figure 1 dual-lane comparison
 
-This directory defines, but does not claim to have executed, the formal
-PyFgsea/R-fgsea comparison needed for the 0.2.0 manuscript audit.  It is
-fail-closed: a missing input, unclean or untagged evidence checkout, source-tree
-import, mismatched wheel/core hash, wrong Python/R/Bioconductor/fgsea version,
-missing R output, or changed output hash stops the run.
+This directory recalculates the PyFgsea/R-fgsea comparisons used in Figure 1.
+It produces pathway-level rows, agreement metrics, pathway overlap,
+extreme-tail cases, runtime and memory measurements, a comparison figure, and a
+run record with SHA-256 values.
 
-The two mandatory lanes are:
+No completed Figure 1 comparison is implied by the presence of these scripts.
+Both lanes must run from verified artifacts before the outputs can be used in a
+paper update.
 
-| Lane | Installed PyFgsea distribution | Module declaration | R | Bioconductor | fgsea | Rust revision |
+## Reference lanes
+
+| Lane | Installed PyFgsea | Module version | R | Bioconductor | fgsea | Algorithm revision |
 | --- | --- | --- | --- | --- | --- | --- |
-| `legacy` | 0.1.4 | 0.1.3 (historical packaging mismatch) | 4.4.3 | 3.20 | 1.32.2 | no revision API (required) |
-| `current` | 0.2.0rc6 | 0.2.0rc6 | 4.6.0 | 3.23 | 1.38.0 | `fgsea-1.38-pr178-v1` |
+| `legacy` | 0.1.4 | 0.1.3 | 4.4.3 | 3.20 | 1.32.2 | no revision API |
+| `current` | 0.2.0rc7 | 0.2.0rc7 | 4.6.0 | 3.23 | 1.38.0 | `fgsea-1.38-pr178-v1` |
 
-The historical mismatch in the legacy row is intentional.  The `v0.1.4` tag's
-Python project metadata declares 0.1.4, while its module and Cargo crate still
-declare 0.1.3.  The runner verifies both identities instead of patching history.
-The legacy lane is an **official PyPI artifact lane**: the verifier requires one
-of PyPI's frozen 0.1.4 wheel SHA-256 values and exact v0.1.4 Python sources.  It
-is not described as a source-reproducible native-core build because no such
-historical build receipt exists.
+The 0.1.4 distribution metadata and 0.1.3 module declaration are the recorded
+historical packaging state. The legacy verifier checks both values. It accepts
+only an official PyPI 0.1.4 wheel with a recorded SHA-256 value and the exact
+`v0.1.4` Python sources. No source-reproducible native-core claim is made for
+that historical wheel.
 
-## Evidence design
+The lanes answer different questions. The legacy lane reproduces the paper's
+fgsea 1.32.2 comparison. The current lane tests the repaired implementation
+against fgsea 1.38.0. Do not pool or relabel them.
 
-`prepare_inputs.py` materializes two byte-hashed scenarios:
+## Input contract
 
-RC5 introduced, and RC6 retains unchanged, the input and receipt contract
-`figure1-dual-lane-v3`. The committed
-input files are the cross-platform source of truth: GitHub functional tests use
-byte equality and semantic invariants, not a predeclared SHA-256 pass/fail
-value. SHA-256 values are still recorded in formal evidence receipts for
-provenance. RC4 v2 remains immutable and is superseded because regenerating its
-12-significant-digit values could still cross a decimal rounding boundary on
-macOS ARM. RC3 v1 is also non-interchangeable because it used raw,
-platform-dependent binary64 normal scores.
+`prepare_inputs.py` copies four committed files into a new output directory:
 
-- `publication_main` transcribes the historical
-  `generate_test_data(n_genes=12000, n_sets=100, seed=42)` call recovered from
-  commit `5cedd4abbc8d399221c741256ec5f3839861686d`. Because that normal generator's
-  final binary64 bits vary with the platform math library, the tagged suite
-  stores one committed CSV whose scores were canonicalized once to 12
-  significant decimal digits. Evidence runs copy those exact bytes instead of
-  regenerating normal scores. The seed, gene identifiers and pathway
-  memberships are unchanged.
-- `ties_predeclared` is a separately labelled quantized-score stress case.  It
-  is never represented as an input from the published paper.
+- `publication_main/ranks.csv`;
+- `publication_main/pathways.gmt`;
+- `ties_predeclared/ranks.csv`;
+- `ties_predeclared/pathways.gmt`.
 
-The tagged Git tree binds the four rank/GMT source files. Formal lane receipts
-record their SHA-256 values and require both lanes to use the same materialized
-files, but cross-platform GitHub functional tests do not compare against a
-hard-coded digest.
+`publication_main` reconstructs the historical
+`generate_test_data(n_genes=12000, n_sets=100, seed=42)` call. The score column
+was canonicalized once to 12 significant decimal digits because the final
+binary64 bits of generated normal values can vary by platform. Gene identifiers
+and pathway membership are unchanged.
 
-Both PyFgsea calls use `min_size=15`, `max_size=500`, `sample_size=101`, Python
-seed 1, `nperm_nes=1800`, `eps=1e-50`, and one thread. Both R calls use
-`set.seed(314)`, the default `scoreType="std"`, and `nproc=1`. The current lane
-also explicitly requires aligned mode, exact pathway sizes (`bin_width=0`),
-`score_type=std`, deterministic gene-ID tie ordering, and `nperm_simple=1000`.
-The legacy call passes only the historical arguments, preserving its historical
-defaults.
+`ties_predeclared` is a separately labelled quantized-score stress case. It is
+not a paper input.
 
-`run_lane.py` retains the separate engine tables and emits
-`pathway_level_raw.tsv`.  `adjudicate.py` verifies both receipts, concatenates
-the raw pathway rows, reads the resulting table back from disk, and derives all
-metrics from that table.  There is no code path for replacing a calculated
-metric with a manuscript value.
+GitHub functional tests check the committed bytes and semantic invariants,
+including generator behavior, ordering, pathway membership, and tie rounding.
+They do not compare the inputs with a predeclared SHA-256 value. Run records
+calculate SHA-256 values for the exact files used and require both lanes to use
+the same materialized bytes.
 
-Derived artifacts cover:
+## Fixed analysis parameters
 
-- maximum ES difference;
-- NES Pearson and Spearman correlation, RMSE, median/p95/maximum absolute
-  difference, and mean signed difference;
-- the same audit vector for raw p-values and the historical
-  `-log10(max(p, 1e-300))` display transform;
-- predeclared extreme-tail rows and the ties scenario;
-- top-10 absolute-NES pathway overlap and strict BH-FDR `<0.05` pathway-set
-  overlap, matching the supplementary-table contract;
-- Python/R elapsed time and externally sampled peak RSS;
-- within-engine legacy/current changes; and
-- a two-lane agreement figure.
+Both PyFgsea calls use:
 
-## Formal run sequence
+- `min_size=15`;
+- `max_size=500`;
+- `sample_size=101`;
+- `seed=1`;
+- `nperm_nes=1800`;
+- `eps=1e-50`; and
+- one thread.
 
-Use the same clean, tagged 0.2.0 evidence checkout for the scripts, but install
-each PyFgsea wheel into a different clean environment.  Run from outside the
-checkout so the source package cannot shadow the wheel.  Obtain wheel and
-native-core hashes from the artifact-verification receipts; do not copy hashes
-from an unverified working build.
+Both R calls use `set.seed(314)`, `scoreType="std"`, and `nproc=1`.
 
-The two Python environments must use the same Python implementation/version,
-OS family and machine architecture, NumPy, pandas, and psutil versions.
-`psutil` is an explicit runner dependency for peak-RSS sampling.  The full
-platform strings are recorded, while the adjudicator rejects a pair when the
-listed comparability fields differ.
+The current PyFgsea lane additionally requires `mode="aligned"`,
+`score_type="std"`, `bin_width=0`, `tie_policy="gene_id"`, and
+`nperm_simple=1000`. The legacy call preserves its historical argument set and
+effective score type.
 
-Starting at the clean evidence-checkout repository root, capture the repository
-and evidence roots, then create the common input bundle once:
+## Requirements
+
+Use one clean checkout for all scripts. The checkout must have:
+
+- no tracked or untracked worktree changes;
+- a full recorded commit and tree;
+- an annotated release-candidate tag that peels to that commit; and
+- no source checkout on the import path before the installed package.
+
+The current package report must record the complete source-to-install sequence:
+
+1. source tests and Rust tests passed;
+2. an sdist was built from the recorded source;
+3. the wheel was built from that verified sdist;
+4. the wheel was installed in a clean environment;
+5. the installed version and native core match the wheel; and
+6. the installed-wheel tests passed.
+
+The legacy package report is produced by `verify_legacy_artifact.py` from an
+official PyPI 0.1.4 wheel. Each lane also requires the matching linux/amd64 OCI
+reference build report and its image digest.
+
+Run the two Python environments with the same Python implementation and
+version, OS family, architecture, NumPy, pandas, and psutil versions. Peak RSS
+sampling requires `psutil`.
+
+## Run sequence
+
+Set paths from the clean checkout and create the shared input bundle:
 
 ```bash
 export PYFGSEA_EVIDENCE_REPO="${PWD}"
 export EVIDENCE_ROOT="${PYFGSEA_EVIDENCE_REPO}/../pyfgsea-evidence"
+
 python "${PYFGSEA_EVIDENCE_REPO}/repro/figure1_dual_lane/prepare_inputs.py" \
   --output-dir "${EVIDENCE_ROOT}/figure1-inputs"
 ```
 
-First bind the downloaded official 0.1.4 wheel to the clean `v0.1.4` checkout
-with `verify_legacy_artifact.py`. The current lane instead consumes the passed
-receipt from `scripts/verify_pyfgsea_artifacts.py`.
+Run each lane inside the linux/amd64 OCI image named by its reference build report,
+or inside a recorded execution image derived directly from that digest without
+changing `/opt/reference`. The execution image may add the common Python
+runtime and the verified wheel.
 
-Run each lane **inside the corresponding linux/amd64 OCI image named by its
-passed reference receipt, or a recorded execution image derived directly from
-that digest without modifying `/opt/reference`**. The reference images are
-R-focused, so the latter may add the common Python runtime and verified wheel.
-Inject the reference receipt's built digest as
-`FGSEA_REFERENCE_IMAGE_DIGEST`; the runner verifies the receipt profile,
-commit/tree, Dockerfile/base/built digests, and all six `/opt/reference` file
-hashes. For the legacy container:
+### Legacy lane: PyFgsea 0.1.4 / fgsea 1.32.2
 
 ```bash
-export PYFGSEA_EVIDENCE_REPO="${PYFGSEA_EVIDENCE_REPO:-${PWD}}"
-export EVIDENCE_ROOT="${EVIDENCE_ROOT:-${PYFGSEA_EVIDENCE_REPO}/../pyfgsea-evidence}"
 export FGSEA_REFERENCE_VERSION=1.32.2
 export FGSEA_REFERENCE_ID=legacy-publication
 export FGSEA_REFERENCE_IMAGE_DIGEST=sha256:BUILT_DIGEST_FROM_RECEIPT
+
 cd "${EVIDENCE_ROOT}"
 python "${PYFGSEA_EVIDENCE_REPO}/repro/figure1_dual_lane/run_lane.py" \
   --lane legacy \
@@ -130,18 +127,16 @@ python "${PYFGSEA_EVIDENCE_REPO}/repro/figure1_dual_lane/run_lane.py" \
   --reference-receipt "${EVIDENCE_ROOT}/legacy-oci/oci-receipt.json" \
   --output-dir "${EVIDENCE_ROOT}/figure1-legacy" \
   --expected-git-commit FULL_40_CHARACTER_RC_COMMIT \
-  --expected-git-tag v0.2.0-rc6
+  --expected-git-tag v0.2.0-rc7
 ```
 
-Run the analogous current command in the 0.2.0rc6 wheel environment with R
-4.6.0/Bioconductor 3.23/fgsea 1.38.0:
+### Current lane: PyFgsea 0.2.0rc7 / fgsea 1.38.0
 
 ```bash
-export PYFGSEA_EVIDENCE_REPO="${PYFGSEA_EVIDENCE_REPO:-${PWD}}"
-export EVIDENCE_ROOT="${EVIDENCE_ROOT:-${PYFGSEA_EVIDENCE_REPO}/../pyfgsea-evidence}"
 export FGSEA_REFERENCE_VERSION=1.38.0
 export FGSEA_REFERENCE_ID=current-conformance
 export FGSEA_REFERENCE_IMAGE_DIGEST=sha256:BUILT_DIGEST_FROM_RECEIPT
+
 cd "${EVIDENCE_ROOT}"
 python "${PYFGSEA_EVIDENCE_REPO}/repro/figure1_dual_lane/run_lane.py" \
   --lane current \
@@ -150,41 +145,61 @@ python "${PYFGSEA_EVIDENCE_REPO}/repro/figure1_dual_lane/run_lane.py" \
   --reference-receipt "${EVIDENCE_ROOT}/current-oci/oci-receipt.json" \
   --output-dir "${EVIDENCE_ROOT}/figure1-current" \
   --expected-git-commit FULL_40_CHARACTER_RC_COMMIT \
-  --expected-git-tag v0.2.0-rc6
+  --expected-git-tag v0.2.0-rc7
 ```
 
-Finally, in a clean analysis environment containing pandas, NumPy, and
-Matplotlib, combine the two receipts:
+### Compare the two reference runs
+
+Run the comparison in a clean environment containing pandas, NumPy, and
+Matplotlib:
 
 ```bash
-export PYFGSEA_EVIDENCE_REPO="${PYFGSEA_EVIDENCE_REPO:-${PWD}}"
-export EVIDENCE_ROOT="${EVIDENCE_ROOT:-${PYFGSEA_EVIDENCE_REPO}/../pyfgsea-evidence}"
 cd "${EVIDENCE_ROOT}"
-python "${PYFGSEA_EVIDENCE_REPO}/repro/figure1_dual_lane/adjudicate.py" \
+python "${PYFGSEA_EVIDENCE_REPO}/repro/figure1_dual_lane/compare_results.py" \
   --legacy-receipt "${EVIDENCE_ROOT}/figure1-legacy/lane_receipt.json" \
   --current-receipt "${EVIDENCE_ROOT}/figure1-current/lane_receipt.json" \
   --input-manifest "${EVIDENCE_ROOT}/figure1-inputs/input_manifest.json" \
-  --output-dir "${EVIDENCE_ROOT}/figure1-adjudicated" \
+  --output-dir "${EVIDENCE_ROOT}/figure1-compared" \
   --expected-git-commit FULL_40_CHARACTER_RC_COMMIT \
-  --expected-git-tag v0.2.0-rc6
+  --expected-git-tag v0.2.0-rc7
 ```
 
-The adjudication receipt binds the lane receipts, raw rows, metrics, plot,
-runtime/memory table, exact commands, scripts, Git commit/tree/tag, wheels,
-native cores, R environments, inputs, and every output by SHA-256.
+## Outputs
 
-## Boundaries
+`compare_results.py` derives every metric from the written pathway-level table
+and creates:
 
-- The original temporary rank/GMT files were not archived, so the publication
-  input is a source-level reconstruction of the recovered generator, not a
-  claim of byte identity to an unavailable historical temporary file.
-- This pipeline adjudicates PyFgsea versus the declared R-fgsea reference.  It
-  does not reproduce the separate GSEApy or BlitzGSEA panels.
-- Peak RSS is sampled externally every 20 ms and is hardware-specific.  It is
-  suitable for a recorded rerun, not a guarantee that a short allocation spike
-  was observed.
-- The legacy implementation's tie ordering was not cross-platform stable.
-  `ties_predeclared` is therefore same-recorded-environment sensitivity evidence,
-  not evidence of cross-platform tie equivalence.
-- A successful run supplies evidence; it does not by itself decide whether the
-  manuscript requires a compatibility note, Author Correction, or corrigendum.
+- `figure1_pathway_level_raw.tsv`;
+- `figure1_agreement_metrics.tsv`;
+- `figure1_pathway_overlap.tsv`;
+- `figure1_extreme_tail_cases.tsv`;
+- `figure1_legacy_current_change.tsv`;
+- `figure1_runtime_memory.tsv`;
+- `figure1_dual_lane_agreement.png`; and
+- `adjudication_receipt.json` (the existing schema filename).
+
+Metrics include maximum ES difference; NES Pearson and Spearman correlation,
+RMSE, signed and absolute differences; p-value and `-log10(P)` agreement;
+extreme-tail and tie cases; top-10 absolute-NES and strict BH-FDR `<0.05`
+pathway overlap; runtime; peak RSS; and within-engine legacy/current changes.
+
+The run record includes the commit, tree, annotated tag, scripts, input run
+records, wheels, native cores, R environments, input files, commands, outputs,
+and their SHA-256 values.
+
+## Failure handling and limitations
+
+The pipeline stops on a dirty or incorrectly tagged checkout, source-tree
+import, artifact or native-core mismatch, failed installed-wheel tests, wrong
+Python/R/Bioconductor/fgsea version, missing R output, changed SHA-256 record,
+or incompatible lane parameters.
+
+Unresolved and failure states remain explicit in the lane output and run record.
+They must be reported rather than dropped from the comparison.
+
+The reconstructed publication input is tied to the recovered generator, not to
+an unavailable historical temporary file. The pipeline does not reproduce the
+separate GSEApy or BlitzGSEA panels. Peak RSS is sampled every 20 ms and remains
+hardware-specific. Legacy tie ordering was not cross-platform stable, so the
+ties scenario is a same-recorded-environment sensitivity result, not a claim of
+cross-platform tie equivalence.

@@ -1,51 +1,76 @@
-# fgsea 1.38 alignment boundary
+# fgsea reference alignment
 
-Status: the clean PyFgsea `0.2.0rc6` candidate defines the reference and
-artifact gates below. The clean candidate has not yet produced accepted
-cross-platform artifacts, reference-image digests, Figure 1 receipts, a formal
-Figure 2 receipt, or a manuscript-impact decision.
+PyFgsea uses two named R fgsea reference lanes. Each lane answers a different
+question and must be reported separately.
 
-## Two non-interchangeable reference lanes
-
-| Lane | PyFgsea | R | Bioconductor | fgsea | Permitted use |
+| Lane | PyFgsea | R | Bioconductor | fgsea | Purpose |
 | --- | --- | --- | --- | --- | --- |
-| `legacy_publication` | 0.1.4 | 4.4.3 | 3.20 | 1.32.2 | Reproduce the comparison declared by the published paper |
-| `current_conformance` | 0.2.0rc6 candidate; 0.2.0 target | 4.6.0 | 3.23 | 1.38.0 | Evaluate the repaired implementation against the current reference |
+| `legacy_publication` | 0.1.4 | 4.4.3 | 3.20 | 1.32.2 | Reproduce the comparison declared in the published paper |
+| `current_conformance` | 0.2.0rc7 candidate; 0.2.0 target | 4.6.0 | 3.23 | 1.38.0 | Test the repaired implementation against the current reference |
 
-The exact URLs, source hashes, source commits, base-image digests and pending
-receipt fields are recorded in `reference_manifest.json`. The corresponding
-container definitions are `Dockerfile.reference-fgsea-1.32.2` and
-`Dockerfile.reference-fgsea-1.38.0`.
+Do not pool these lanes or describe them as one unspecified fgsea reference.
+A result against fgsea 1.32.2 does not establish conformance with fgsea 1.38.0,
+and a current-reference result does not rewrite the paper's historical
+comparison.
 
-“Aligned” means comparison under a declared lane with matched score type,
-pathway universe, size filters, sample size, epsilon, seeds and result mode. It
-does not mean bitwise identity between different random-number generators, and
-it does not retroactively reinterpret the publication's 1.32.2 comparison as a
-1.38.0 comparison.
+## Aligned comparison
 
-## Evidence gates
+An aligned comparison uses the declared lane and matches:
 
-An accepted lane receipt must bind all of the following:
+- score type and result mode;
+- ranked genes and pathway membership;
+- minimum and maximum pathway sizes;
+- exact or binned pathway-size handling;
+- sample size, simple-permutation count, and epsilon;
+- random seeds and thread count; and
+- unresolved and failure-state handling.
 
-- a clean PyFgsea commit and tree;
-- an annotated release tag;
-- sdist, wheel and installed native-core SHA-256 values;
-- R, Bioconductor and fgsea versions;
-- fgsea source and OCI image digests;
-- input hashes, exact parameters, command lines and output hashes;
-- unresolved/failure-state counts rather than silently omitted pathways.
+Aligned comparison does not mean bitwise identity between different
+random-number generators. Numerical results must be assessed with the declared
+ES, NES, p-value, error, overlap, runtime, and memory metrics.
 
-The dual-lane Figure 1 pipeline is defined in `repro/figure1_dual_lane/`. Its
-existence and lightweight tests are not substitutes for executing both lanes
-inside their verified environments.
+## Reference definitions
 
-## Manuscript decision boundary
+Machine-readable versions, source URLs, source SHA-256 values, commits,
+base-image digests, and pending run-record fields are stored in
+`reference_manifest.json`.
 
-Figure 1, the accepted Figure 2 contract, null calibration, deep-tail and tie
-cases, Bland–Altman analysis, window sensitivity, pathway-set overlap, thread
-scaling, runtime and memory must be recalculated from verified artifacts. Only
-then can the project distinguish among a software update with unchanged paper
-conclusions, an author correction with changed values but unchanged biological
-conclusions, or a corrigendum affecting key claims.
+The container definitions are:
 
-No source-level test result alone closes that decision.
+- `Dockerfile.reference-fgsea-1.32.2` for `legacy_publication`;
+- `Dockerfile.reference-fgsea-1.38.0` for `current_conformance`.
+
+Each container verifies its R, Bioconductor, and fgsea versions and writes its
+resolved package versions and session details into the OCI image.
+
+## Required records
+
+A complete reference run requires:
+
+1. a clean worktree at the recorded PyFgsea commit and tree;
+2. an annotated release-candidate tag that peels to that commit;
+3. source tests and Rust tests;
+4. an sdist built from the recorded source;
+5. a wheel built from that verified sdist;
+6. clean-environment installation of the wheel;
+7. installed version and native-core checks;
+8. passing installed-wheel tests;
+9. the exact R, Bioconductor, and fgsea environment;
+10. the fgsea source and built OCI image digests;
+11. exact parameters and command lines; and
+12. SHA-256 values for inputs, artifacts, native cores, and outputs.
+
+The run record must include unresolved and failure-state counts. Missing pathways
+or missing R output cannot be treated as agreement.
+
+The Figure 1 implementation is in
+[`repro/figure1_dual_lane/`](../repro/figure1_dual_lane/README.md). Lightweight
+tests validate its contracts, but they do not execute the two R reference
+lanes.
+
+## Current limitations
+
+Figure 1, Figure 2, null-calibration, deep-tail, tie, Bland-Altman,
+window-sensitivity, pathway-overlap, scaling, runtime, and memory results remain
+separate result sets. Source-level or wheel-level tests alone do not
+determine whether published numerical or biological conclusions change.

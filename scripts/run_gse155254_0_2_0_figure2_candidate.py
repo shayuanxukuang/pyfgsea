@@ -1,11 +1,7 @@
-"""Generate a fail-closed, artifact-bound Figure 2 recalculation receipt.
+"""Reproduce Figure 2 from fixed inputs, parameters, and release artifacts.
 
-The historical record does not uniquely identify the Figure 2 step size and
-NES-permutation count.  The project author accepted the explicit 500-cell,
-50-cell-step, 2000-permutation contract on 2026-09-01.  This runner binds that
-contract to a clean annotated release candidate and to the exact installed
-wheel/native core recorded by ``verify_pyfgsea_artifacts.py``.  It does not
-mark the manuscript or publication as accepted.
+The runner verifies the clean annotated release tag, installed wheel and native
+core, recorded parameters, reference version, inputs, results, and output files.
 """
 
 from __future__ import annotations
@@ -35,10 +31,10 @@ import pandas as pd
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-CONTRACT_PATH = REPO_ROOT / "repro" / "figure2_gse155254" / "author_parameter_contract.json"
+PARAMETER_PATH = REPO_ROOT / "repro" / "figure2_gse155254" / "figure2_parameters.json"
 REFERENCE_MANIFEST_PATH = REPO_ROOT / "reference_manifest.json"
-EXPECTED_VERSION = "0.2.0rc6"
-EXPECTED_CARGO_VERSION = "0.2.0-rc6"
+EXPECTED_VERSION = "0.2.0rc7"
+EXPECTED_CARGO_VERSION = "0.2.0-rc7"
 EXPECTED_ALGORITHM_REVISION = "fgsea-1.38-pr178-v1"
 EXPECTED_FGSEA_REFERENCE = "1.38.0"
 EXPECTED_DATASET_SHA256 = "9d9d1db60fe06037c5bfcf1a6ce06adfa74fe6ef715d910ef8b7e004d05cd21e"
@@ -48,7 +44,7 @@ EXPECTED_N_WINDOWS = 62
 EXPECTED_N_PATHWAYS = 43
 EXPECTED_N_ROWS = EXPECTED_N_WINDOWS * EXPECTED_N_PATHWAYS
 BH_ATOL = 1e-14
-RELEASE_TAG_PATTERN = re.compile(r"v0\.2\.0-rc6")
+RELEASE_TAG_PATTERN = re.compile(r"v0\.2\.0-rc7")
 
 PARAMETERS: dict[str, Any] = {
     "pseudotime_key": "dpt_pseudotime",
@@ -70,30 +66,28 @@ PARAMETERS: dict[str, Any] = {
     "use_nes_cache": False,
     "max_levels": None,
 }
-ACCEPTED_VALUES = {
-    "window_size": 500,
-    "step": 50,
-    "nperm_nes": 2000,
-    "score_type": "std",
-    "bin_width": 0,
-    "use_nes_cache": False,
+RECORDED_PARAMETERS: dict[str, Any] = {
+    **PARAMETERS,
+    "pathway_size_policy": "exact",
 }
 TARGET_PATHWAYS = ("heme Metabolism", "E2F Targets")
-RESEARCH_CONTEXT = {
-    "research_mode": "in-silico computational analysis",
-    "input_provenance": (
-        "processed single-cell data derived from public accession GSE155254; "
-        "the exact H5AD and Hallmark GMT bytes are enforced by SHA-256"
-    ),
-    "computational_operation": "rolling-window trajectory GSEA recalculation",
-    "intended_artifact": "parameter-bound Figure 2 tables, plots, and run receipt",
-    "claim_boundary": "descriptive numerical/software-alignment evidence only",
-    "physical_experiment_requested": False,
-}
 
 
-class BindingError(RuntimeError):
-    """Raised when a formal evidence-binding gate fails."""
+class Figure2Error(RuntimeError):
+    """Raised when Figure 2 inputs or verification checks are invalid."""
+
+    def __init__(self, message: str) -> None:
+        if "rerun" not in message.lower():
+            separator = "" if message.rstrip().endswith((".", "!", "?")) else "."
+            message = (
+                f"{message}{separator} Correct the reported input, artifact, or "
+                "configuration and rerun."
+            )
+        super().__init__(message)
+
+
+# Compatibility for callers that imported the previous exception name.
+BindingError = Figure2Error
 
 
 def utc_now() -> str:
@@ -133,17 +127,23 @@ def _git(*args: str, binary: bool = False) -> str | bytes:
 
 def _require_mapping(value: Any, context: str) -> Mapping[str, Any]:
     if not isinstance(value, Mapping):
-        raise BindingError(f"{context} must be a JSON object")
+        raise Figure2Error(
+            f"{context} is not a JSON object. Replace it with an object and rerun."
+        )
     return value
 
 
 def _load_json(path: Path, context: str) -> Mapping[str, Any]:
     if not path.is_file():
-        raise BindingError(f"{context} does not exist: {path}")
+        raise Figure2Error(
+            f"{context} was not found at {path}. Restore the file and rerun."
+        )
     try:
         return _require_mapping(json.loads(path.read_text(encoding="utf-8")), context)
     except json.JSONDecodeError as error:
-        raise BindingError(f"{context} is not valid JSON: {path}") from error
+        raise Figure2Error(
+            f"{context} at {path} is not valid JSON. Fix the JSON and rerun."
+        ) from error
 
 
 def _load_artifact_verifier() -> Any:
@@ -152,7 +152,10 @@ def _load_artifact_verifier() -> Any:
         "pyfgsea_artifact_verifier_for_figure2", verifier_path
     )
     if spec is None or spec.loader is None:
-        raise BindingError(f"could not load artifact verifier: {verifier_path}")
+        raise Figure2Error(
+            f"The artifact verifier could not be loaded from {verifier_path}. "
+            "Restore scripts/verify_pyfgsea_artifacts.py and rerun."
+        )
     verifier = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(verifier)
     return verifier
@@ -161,7 +164,10 @@ def _load_artifact_verifier() -> Any:
 def _require_external_output(output_dir: Path) -> Path:
     output_dir = output_dir.expanduser().resolve()
     if _is_within(output_dir, REPO_ROOT):
-        raise BindingError("--output-dir must be outside the verified Git worktree")
+        raise Figure2Error(
+            "The output directory is inside the Git checkout. Choose a directory "
+            "outside the checkout and rerun."
+        )
     if output_dir.exists():
         raise FileExistsError(
             f"Refusing to overwrite an existing evidence directory: {output_dir}"
@@ -173,13 +179,21 @@ def _require_external_output(output_dir: Path) -> Path:
 def _capture_release_git_state(expected_commit: str, expected_tag: str) -> dict[str, Any]:
     expected_commit = expected_commit.lower()
     if re.fullmatch(r"[0-9a-f]{40}", expected_commit) is None:
-        raise BindingError("--expected-git-commit must be a full lowercase 40-hex SHA")
+        raise Figure2Error(
+            "The expected commit is not a full lowercase 40-character SHA. "
+            "Pass the release commit from git rev-parse HEAD and rerun."
+        )
     if RELEASE_TAG_PATTERN.fullmatch(expected_tag) is None:
-        raise BindingError("--expected-git-tag must be v0.2.0-rc6")
+        raise Figure2Error(
+            "The expected tag is not v0.2.0-rc7. Pass the RC7 tag and rerun."
+        )
 
     head = str(_git("rev-parse", "HEAD")).strip().lower()
     if head != expected_commit:
-        raise BindingError(f"repository HEAD is {head}, expected {expected_commit}")
+        raise Figure2Error(
+            f"The checkout is at {head}, not {expected_commit}. Check out the "
+            "expected release commit and rerun."
+        )
     status = bytes(
         _git(
             "status",
@@ -190,17 +204,24 @@ def _capture_release_git_state(expected_commit: str, expected_tag: str) -> dict[
         )
     )
     if status:
-        raise BindingError("repository must be clean for a formal Figure 2 run")
+        raise Figure2Error(
+            "The Git checkout contains tracked or untracked changes. Commit, stash, "
+            "or remove them and rerun from the release commit."
+        )
 
     tag_ref = f"refs/tags/{expected_tag}"
     object_type = str(_git("cat-file", "-t", tag_ref)).strip()
     if object_type != "tag":
-        raise BindingError(f"release tag {expected_tag!r} is not annotated")
+        raise Figure2Error(
+            f"The release tag {expected_tag!r} is lightweight, not annotated. "
+            "Use the annotated release-candidate tag and rerun."
+        )
     tag_object = str(_git("rev-parse", tag_ref)).strip().lower()
     peeled_commit = str(_git("rev-parse", f"{tag_ref}^{{}}")).strip().lower()
     if peeled_commit != expected_commit:
-        raise BindingError(
-            f"release tag {expected_tag!r} peels to {peeled_commit}, expected {expected_commit}"
+        raise Figure2Error(
+            f"The release tag {expected_tag!r} points to {peeled_commit}, not "
+            f"{expected_commit}. Use the matching tag and commit and rerun."
         )
     tree = str(_git("rev-parse", "HEAD^{tree}")).strip().lower()
     return {
@@ -221,45 +242,59 @@ def _require_unchanged_git_state(start: Mapping[str, Any]) -> dict[str, Any]:
     tag = _require_mapping(start.get("release_tag"), "start release tag")
     end = _capture_release_git_state(str(start["commit"]), str(tag["name"]))
     if end != dict(start):
-        raise BindingError("release Git identity changed during the Figure 2 run")
+        raise Figure2Error(
+            "The commit, tree, tag, or worktree state changed while Figure 2 was "
+            "running. Restore the starting release checkout and rerun."
+        )
     return end
 
 
-def _load_author_contract() -> dict[str, Any]:
-    payload = dict(_load_json(CONTRACT_PATH, "author parameter contract"))
-    if payload.get("author_parameter_contract_status") != "accepted":
-        raise BindingError("Figure 2 author parameter contract is not accepted")
-    if payload.get("accepted_at_date") != "2026-09-01":
-        raise BindingError("Figure 2 contract has an unexpected acceptance date")
-    if payload.get("publication_accepted") is not False:
-        raise BindingError("parameter acceptance must not imply publication acceptance")
-    accepted = _require_mapping(payload.get("accepted_values"), "accepted_values")
-    if dict(accepted) != ACCEPTED_VALUES:
-        raise BindingError(
-            f"accepted Figure 2 values differ from the runner: {dict(accepted)!r}"
+def _load_figure2_parameters() -> dict[str, Any]:
+    payload = dict(_load_json(PARAMETER_PATH, "Figure 2 parameter file"))
+    expected_keys = {"schema_version", "dataset", "recorded_on", "parameters"}
+    if set(payload) != expected_keys:
+        raise Figure2Error(
+            "Figure 2 parameter file has unexpected fields. Keep only "
+            "schema_version, dataset, recorded_on, and parameters, then rerun."
         )
-    semantics = _require_mapping(
-        payload.get("pathway_size_semantics"), "pathway_size_semantics"
-    )
-    if semantics.get("policy") != "exact":
-        raise BindingError("Figure 2 pathway size policy must be exact")
-    enforced = _require_mapping(semantics.get("enforced_by"), "pathway size enforcement")
-    if dict(enforced) != {"bin_width": 0, "mode": "aligned"}:
-        raise BindingError("exact pathway-size enforcement differs from the runner")
-    for key, value in ACCEPTED_VALUES.items():
-        if PARAMETERS[key] != value:
-            raise BindingError(f"runner parameter {key} differs from accepted contract")
+    if payload.get("schema_version") != 1:
+        raise Figure2Error(
+            "Figure 2 parameter schema is not version 1. Set schema_version to 1 and rerun."
+        )
+    if payload.get("dataset") != "GSE155254":
+        raise Figure2Error(
+            "Figure 2 parameter file names a different dataset. Set dataset to "
+            "GSE155254 and rerun."
+        )
+    if payload.get("recorded_on") != "2026-09-01":
+        raise Figure2Error(
+            "Figure 2 parameter date differs from the recorded configuration. "
+            "Restore recorded_on to 2026-09-01 and rerun."
+        )
+    recorded = _require_mapping(payload.get("parameters"), "Figure 2 parameters")
+    if recorded.get("pathway_size_policy") != "exact":
+        raise Figure2Error(
+            "Figure 2 pathway_size_policy is not exact. Set it to exact and rerun."
+        )
+    if dict(recorded) != RECORDED_PARAMETERS:
+        raise Figure2Error(
+            f"Figure 2 parameters differ from the runner: {dict(recorded)!r}. "
+            "Make the JSON parameters match RECORDED_PARAMETERS and rerun."
+        )
     return {
-        "path": CONTRACT_PATH.relative_to(REPO_ROOT).as_posix(),
-        "sha256": sha256_file(CONTRACT_PATH),
-        "contract": payload,
+        "path": PARAMETER_PATH.relative_to(REPO_ROOT).as_posix(),
+        "sha256": sha256_file(PARAMETER_PATH),
+        "record": payload,
     }
 
 
 def _load_reference_contract() -> dict[str, Any]:
     payload = _load_json(REFERENCE_MANIFEST_PATH, "reference manifest")
     if payload.get("schema_version") != 2:
-        raise BindingError("reference manifest schema_version must be 2")
+        raise Figure2Error(
+            "The reference manifest schema is not version 2. Restore the version 2 "
+            "reference_manifest.json and rerun."
+        )
     profiles = _require_mapping(payload.get("profiles"), "reference profiles")
     current = _require_mapping(
         profiles.get("current_conformance"), "current reference profile"
@@ -270,7 +305,11 @@ def _load_reference_contract() -> dict[str, Any]:
         "pyfgsea_algorithm_revision": EXPECTED_ALGORITHM_REVISION,
     }
     if any(current.get(key) != value for key, value in expected.items()):
-        raise BindingError("current fgsea reference contract differs from the RC6 runner")
+        raise Figure2Error(
+            "The current reference profile does not specify PyFgsea 0.2.0rc7, "
+            "fgsea 1.38.0, and the expected algorithm revision. Restore those "
+            "values in reference_manifest.json and rerun."
+        )
     return {
         "manifest_path": REFERENCE_MANIFEST_PATH.relative_to(REPO_ROOT).as_posix(),
         "manifest_sha256": sha256_file(REFERENCE_MANIFEST_PATH),
@@ -285,11 +324,14 @@ def _load_reference_contract() -> dict[str, Any]:
 def _verify_input(path: Path, expected_sha256: str, label: str) -> dict[str, Any]:
     path = path.expanduser().resolve()
     if not path.is_file():
-        raise FileNotFoundError(path)
+        raise Figure2Error(
+            f"The {label} file was not found at {path}. Restore the file and rerun."
+        )
     observed = sha256_file(path)
     if observed != expected_sha256:
-        raise BindingError(
-            f"{label} hash mismatch: expected {expected_sha256}, found {observed}"
+        raise Figure2Error(
+            f"The {label} SHA-256 is {observed}, not {expected_sha256}. Use the "
+            "recorded Figure 2 input file and rerun."
         )
     return {"path": str(path), "bytes": path.stat().st_size, "sha256": observed}
 
@@ -313,8 +355,9 @@ def _reverify_release_artifacts(
             receipt_git.get("source_manifest"), "artifact receipt source manifest"
         )
         if dict(recorded_hash_manifest) != expected_hash_manifest:
-            raise BindingError(
-                "artifact receipt source manifest differs from the release commit"
+            raise Figure2Error(
+                "The receipt source-file list differs from the release commit. "
+                "Regenerate the artifact bundle from that commit and rerun."
             )
         source_manifest_sha256 = verifier._source_manifest_sha256(expected_sources)
         expected_test_sources = verifier._git_installed_test_manifest(
@@ -326,24 +369,31 @@ def _reverify_release_artifacts(
             "installed-test source manifest",
         )
         if dict(recorded_test_manifest) != expected_test_manifest:
-            raise BindingError(
-                "installed-test source manifest differs from the release commit"
+            raise Figure2Error(
+                "The installed-test file list differs from the release commit. "
+                "Regenerate the artifact bundle from that commit and rerun."
             )
         test_manifest_sha256 = verifier._source_manifest_sha256(
             expected_test_sources
         )
         if installed_tests.get("test_source_manifest_sha256") != test_manifest_sha256:
-            raise BindingError("installed-test source aggregate hash differs from Git")
+            raise Figure2Error(
+                "The installed-test file summary does not match Git. Regenerate the "
+                "artifact bundle from the release commit and rerun."
+            )
         actual_sdist = verifier._verify_sdist(
             sdist_path, expected_sources, expected_version=EXPECTED_VERSION
         )
         actual_wheel = verifier._verify_wheel(
             wheel_path, expected_sources, expected_version=EXPECTED_VERSION
         )
-    except BindingError:
+    except Figure2Error:
         raise
     except verifier.VerificationError as error:
-        raise BindingError(f"artifact source-boundary verification failed: {error}") from error
+        raise Figure2Error(
+            f"The sdist or wheel contents do not match the release source: {error}. "
+            "Rebuild the artifact bundle from the release commit and rerun."
+        ) from error
 
     for context, recorded, actual in (
         ("sdist", sdist, actual_sdist),
@@ -355,9 +405,10 @@ def _reverify_release_artifacts(
                 # bundle path has already been resolved and hash-checked.
                 continue
             if recorded.get(key) != value:
-                raise BindingError(
-                    f"artifact receipt {context} field {key!r} differs from "
-                    "independent verification"
+                raise Figure2Error(
+                    f"The recorded {context} field {key!r} differs from the file "
+                    "that was independently checked. Regenerate the artifact "
+                    "bundle and rerun."
                 )
     return {
         "source_manifest_sha256": source_manifest_sha256,
@@ -376,19 +427,29 @@ def _resolve_bundle_artifact(
 ) -> Path:
     """Resolve one artifact from a relocatable ``dist/`` + ``evidence/`` bundle."""
     if receipt_path.parent.name != "evidence":
-        raise BindingError(
-            "artifact receipt must use the <bundle>/evidence/receipt.json layout"
+        raise Figure2Error(
+            "The receipt is not at <bundle>/evidence/receipt.json. Restore the "
+            "downloaded bundle layout and rerun."
         )
     raw = record.get("bundle_path")
     if not isinstance(raw, str) or not raw or "\\" in raw:
-        raise BindingError(f"artifact {label} has no safe POSIX bundle_path")
+        raise Figure2Error(
+            f"The {label} bundle_path is missing or invalid. Regenerate the receipt "
+            "with a relative POSIX path and rerun."
+        )
     relative = PurePosixPath(raw)
     if relative.is_absolute() or any(part in ("", ".", "..") for part in relative.parts):
-        raise BindingError(f"artifact {label} has an unsafe bundle_path: {raw!r}")
+        raise Figure2Error(
+            f"The {label} bundle_path {raw!r} leaves the bundle. Regenerate the "
+            "receipt with a path under dist/ or evidence/ and rerun."
+        )
     bundle_root = receipt_path.parent.parent.resolve()
     artifact_path = bundle_root.joinpath(*relative.parts).resolve()
     if not _is_within(artifact_path, bundle_root):
-        raise BindingError(f"artifact {label} escapes the downloaded bundle")
+        raise Figure2Error(
+            f"The {label} path resolves outside the downloaded bundle. Restore the "
+            "bundle and rerun."
+        )
     return artifact_path
 
 
@@ -412,7 +473,11 @@ def _verify_installed_test_evidence(
         "wheel_sha256": wheel_sha256,
     }
     if any(evidence.get(key) != expected for key, expected in expected_fields.items()):
-        raise BindingError("installed-test evidence contract is incomplete or inconsistent")
+        raise Figure2Error(
+            "The installed-test record is missing required values or names a "
+            "different commit or wheel. Run the artifact verifier again and rerun "
+            "Figure 2 with its receipt."
+        )
 
     test_manifest = _require_mapping(
         evidence.get("test_source_manifest"), "installed-test source manifest"
@@ -420,21 +485,30 @@ def _verify_installed_test_evidence(
     if not test_manifest or re.fullmatch(
         r"[0-9a-f]{64}", str(evidence.get("test_source_manifest_sha256", ""))
     ) is None:
-        raise BindingError("installed-test source manifest is empty or unhashed")
+        raise Figure2Error(
+            "The installed-test file list is empty or has no SHA-256 summary. Run "
+            "the artifact verifier again and rerun Figure 2 with its receipt."
+        )
 
     counts = _require_mapping(evidence.get("counts"), "installed-test counts")
     expected_count_keys = {"passed", "total", "failed", "errors", "skipped"}
     if set(counts) != expected_count_keys or not all(
         isinstance(counts[key], int) and counts[key] >= 0 for key in expected_count_keys
     ):
-        raise BindingError("installed-test counts are malformed")
+        raise Figure2Error(
+            "The installed-test counts are missing or invalid. Run the artifact "
+            "verifier again and rerun Figure 2 with its receipt."
+        )
     if (
         counts["total"] <= 0
         or counts["failed"] != 0
         or counts["errors"] != 0
         or counts["passed"] + counts["skipped"] != counts["total"]
     ):
-        raise BindingError("installed-test receipt does not record a passing suite")
+        raise Figure2Error(
+            "The installed-wheel test suite did not pass. Fix the failed tests, "
+            "regenerate the artifact bundle, and rerun Figure 2."
+        )
 
     junit = _require_mapping(evidence.get("junit"), "installed-test JUnit")
     junit_path = _resolve_bundle_artifact(receipt_path, junit, "installed-test JUnit")
@@ -443,7 +517,10 @@ def _verify_installed_test_evidence(
         or sha256_file(junit_path) != junit.get("sha256")
         or junit_path.stat().st_size != junit.get("bytes")
     ):
-        raise BindingError("installed-test JUnit is missing or has changed")
+        raise Figure2Error(
+            "The installed-test JUnit file is missing or its hash or size changed. "
+            "Restore or regenerate the artifact bundle and rerun."
+        )
     return {
         "status": "passed",
         "git_commit": git_commit,
@@ -468,23 +545,41 @@ def _verify_artifact_receipt(
 ) -> dict[str, Any]:
     receipt_path = receipt_path.expanduser().resolve()
     if _is_within(receipt_path, REPO_ROOT):
-        raise BindingError("artifact receipt must be outside the verified Git worktree")
+        raise Figure2Error(
+            "The artifact receipt is inside the Git checkout. Use the receipt from "
+            "an external downloaded artifact bundle and rerun."
+        )
     payload = _load_json(receipt_path, "artifact receipt")
     if payload.get("schema_version") != 1:
-        raise BindingError("artifact receipt schema_version must be 1")
+        raise Figure2Error(
+            "The artifact receipt schema is not version 1. Regenerate the bundle "
+            "with the current artifact verifier and rerun."
+        )
     if (
         payload.get("status") != "passed"
         or payload.get("all_artifact_chain_gates_passed") is not True
     ):
-        raise BindingError("artifact receipt did not pass every artifact-chain gate")
+        raise Figure2Error(
+            "The artifact receipt reports a failed verification check. Fix that "
+            "failure, regenerate a passing artifact bundle, and rerun Figure 2."
+        )
 
     receipt_git = _require_mapping(payload.get("git"), "artifact receipt git")
     if str(receipt_git.get("commit", "")).lower() != git_state["commit"]:
-        raise BindingError("artifact receipt commit does not match the Figure 2 checkout")
+        raise Figure2Error(
+            "The artifact receipt names a different commit than the Figure 2 "
+            "checkout. Use the matching checkout and receipt and rerun."
+        )
     if str(receipt_git.get("tree", "")).lower() != git_state["tree"]:
-        raise BindingError("artifact receipt tree does not match the Figure 2 checkout")
+        raise Figure2Error(
+            "The artifact receipt names a different Git tree than the Figure 2 "
+            "checkout. Use the matching checkout and receipt and rerun."
+        )
     if receipt_git.get("clean_before_and_after") is not True:
-        raise BindingError("artifact receipt did not preserve a clean checkout")
+        raise Figure2Error(
+            "The artifact build did not record a clean checkout before and after. "
+            "Rebuild from a clean release checkout and rerun."
+        )
     _require_mapping(
         receipt_git.get("source_manifest"), "artifact receipt source manifest"
     )
@@ -492,15 +587,27 @@ def _verify_artifact_receipt(
     receipt_tag = _require_mapping(receipt_git.get("release_tag"), "artifact release tag")
     for key in ("name", "annotated", "tag_object", "peeled_commit"):
         if receipt_tag.get(key) != expected_tag.get(key):
-            raise BindingError(f"artifact receipt release-tag field {key!r} does not match")
+            raise Figure2Error(
+                f"The artifact receipt release-tag field {key!r} does not match "
+                "the checkout. Use the receipt from the same annotated tag and rerun."
+            )
 
     expected = _require_mapping(payload.get("expected"), "artifact receipt expected")
     if expected.get("cargo_version") != EXPECTED_CARGO_VERSION:
-        raise BindingError("artifact receipt has an unexpected Cargo version")
+        raise Figure2Error(
+            f"The artifact receipt does not record Cargo version "
+            f"{EXPECTED_CARGO_VERSION}. Rebuild RC7 artifacts and rerun."
+        )
     if expected.get("pyfgsea_version") != EXPECTED_VERSION:
-        raise BindingError("artifact receipt has an unexpected PyFgsea version")
+        raise Figure2Error(
+            f"The artifact receipt does not record PyFgsea {EXPECTED_VERSION}. "
+            "Use the RC7 artifact bundle and rerun."
+        )
     if expected.get("algorithm_revision") != EXPECTED_ALGORITHM_REVISION:
-        raise BindingError("artifact receipt has an unexpected algorithm revision")
+        raise Figure2Error(
+            "The artifact receipt names a different algorithm revision. Rebuild "
+            "the RC7 artifacts with the expected Rust core and rerun."
+        )
 
     chain = _require_mapping(payload.get("artifact_chain"), "artifact chain")
     sdist = _require_mapping(chain.get("sdist"), "artifact sdist")
@@ -522,53 +629,97 @@ def _verify_artifact_receipt(
         "installed_tests_junit": installed_tests["junit"]["bundle_path"],
     }
     if dict(bundle) != expected_bundle:
-        raise BindingError("artifact bundle contract is missing or inconsistent")
+        raise Figure2Error(
+            "The artifact bundle paths do not match the receipt. Restore or "
+            "regenerate the complete bundle and rerun."
+        )
     sdist_path = _resolve_bundle_artifact(receipt_path, sdist, "sdist")
     wheel_path = _resolve_bundle_artifact(receipt_path, wheel, "wheel")
     if _is_within(sdist_path, REPO_ROOT) or _is_within(wheel_path, REPO_ROOT):
-        raise BindingError("verified sdist and wheel must be outside the Git worktree")
+        raise Figure2Error(
+            "The sdist or wheel path is inside the Git checkout. Use artifacts from "
+            "an external downloaded bundle and rerun."
+        )
     if not sdist_path.is_file() or sha256_file(sdist_path) != sdist.get("sha256"):
-        raise BindingError("artifact receipt sdist is missing or has changed")
+        raise Figure2Error(
+            "The sdist is missing or its SHA-256 changed. Restore or regenerate the "
+            "artifact bundle and rerun."
+        )
     if not wheel_path.is_file() or sha256_file(wheel_path) != wheel.get("sha256"):
-        raise BindingError("artifact receipt wheel is missing or has changed")
+        raise Figure2Error(
+            "The wheel is missing or its SHA-256 changed. Restore or regenerate the "
+            "artifact bundle and rerun."
+        )
     if wheel.get("build_input_sdist_sha256") != sdist.get("sha256"):
-        raise BindingError("wheel is not bound to the verified sdist hash")
+        raise Figure2Error(
+            "The wheel was not built from the recorded sdist. Rebuild the wheel from "
+            "that sdist, regenerate the receipt, and rerun."
+        )
     if wheel.get("wheel_built_from_verified_sdist") is not True:
-        raise BindingError("artifact receipt does not prove sdist-to-wheel construction")
+        raise Figure2Error(
+            "The receipt does not confirm that the wheel came from the checked "
+            "sdist. Regenerate the artifact bundle with the current verifier."
+        )
     if wheel.get("wheel_member_boundary_exact") is not True:
-        raise BindingError("artifact wheel member boundary was not verified")
+        raise Figure2Error(
+            "The wheel file list was not checked exactly. Regenerate the artifact "
+            "bundle with the current verifier and rerun."
+        )
     if sdist.get("pyfgsea_source_set_exact") is not True:
-        raise BindingError("artifact sdist package source boundary was not exact")
+        raise Figure2Error(
+            "The sdist PyFgsea source-file list is not exact. Rebuild it from the "
+            "release commit, regenerate the receipt, and rerun."
+        )
     if sdist.get("native_binary_count") != 0:
-        raise BindingError("artifact sdist contains a native binary")
+        raise Figure2Error(
+            "The sdist contains a native binary. Rebuild a source-only sdist and rerun."
+        )
     if wheel.get("pyfgsea_source_set_exact") is not True:
-        raise BindingError("artifact wheel package source boundary was not exact")
+        raise Figure2Error(
+            "The wheel PyFgsea file list is not exact. Rebuild it from the checked "
+            "sdist, regenerate the receipt, and rerun."
+        )
     if sdist.get("cargo_version") != EXPECTED_CARGO_VERSION:
-        raise BindingError(
+        raise Figure2Error(
             f"artifact sdist Cargo version is not {EXPECTED_CARGO_VERSION}"
         )
     if sdist.get("metadata_version") != EXPECTED_VERSION:
-        raise BindingError(f"artifact sdist metadata version is not {EXPECTED_VERSION}")
+        raise Figure2Error(f"artifact sdist metadata version is not {EXPECTED_VERSION}")
     if wheel.get("metadata_version") != EXPECTED_VERSION:
-        raise BindingError(f"artifact wheel metadata version is not {EXPECTED_VERSION}")
+        raise Figure2Error(f"artifact wheel metadata version is not {EXPECTED_VERSION}")
     if wheel.get("verified_source_manifest_sha256") != sdist.get(
         "verified_source_manifest_sha256"
     ):
-        raise BindingError("sdist and wheel source manifests differ")
+        raise Figure2Error(
+            "The sdist and wheel contain different source-file summaries. Rebuild "
+            "the wheel from the checked sdist and rerun."
+        )
     if installed.get("core_sha256") != wheel.get("core_sha256"):
-        raise BindingError("installed core hash differs from the wheel core hash")
+        raise Figure2Error(
+            "The installed native core differs from the wheel. Reinstall the checked "
+            "wheel in a fresh environment and rerun."
+        )
     if installed.get("direct_url_wheel_sha256") != wheel.get("sha256"):
-        raise BindingError("installed direct_url hash differs from the wheel hash")
+        raise Figure2Error(
+            "The installed distribution points to a different wheel. Reinstall the "
+            "checked wheel in a fresh environment and rerun."
+        )
     if installed.get("pyfgsea_version") != EXPECTED_VERSION:
-        raise BindingError(f"installed artifact module version is not {EXPECTED_VERSION}")
+        raise Figure2Error(f"installed artifact module version is not {EXPECTED_VERSION}")
     if installed.get("distribution_version") != EXPECTED_VERSION:
-        raise BindingError(
+        raise Figure2Error(
             f"installed artifact distribution version is not {EXPECTED_VERSION}"
         )
     if installed.get("algorithm_revision") != EXPECTED_ALGORITHM_REVISION:
-        raise BindingError("installed artifact algorithm revision is unexpected")
+        raise Figure2Error(
+            "The installed native core reports a different algorithm revision. "
+            "Install the RC7 wheel from the checked bundle and rerun."
+        )
     if installed.get("package_and_core_inside_venv") is not True:
-        raise BindingError("artifact receipt package/core paths are not inside its venv")
+        raise Figure2Error(
+            "The receipt records PyFgsea or its core outside the test environment. "
+            "Regenerate the artifact bundle in a fresh virtual environment and rerun."
+        )
 
     source_reverification = _reverify_release_artifacts(
         receipt_git,
@@ -585,9 +736,14 @@ def _verify_artifact_receipt(
         try:
             core_bytes = archive.read(core_member)
         except KeyError as error:
-            raise BindingError(f"wheel does not contain {core_member!r}") from error
+            raise Figure2Error(
+                f"The wheel does not contain {core_member!r}. Rebuild the wheel and rerun."
+            ) from error
     if _sha256_bytes(core_bytes) != wheel.get("core_sha256"):
-        raise BindingError("native core bytes no longer match the artifact receipt")
+        raise Figure2Error(
+            "The native core in the wheel differs from the receipt. Restore or "
+            "regenerate the artifact bundle and rerun."
+        )
 
     return {
         "path": str(receipt_path),
@@ -620,7 +776,10 @@ def _direct_url_sha256(direct_url: Mapping[str, Any]) -> str:
     value = archive_info.get("hash")
     if isinstance(value, str) and value.startswith("sha256="):
         return value.removeprefix("sha256=").lower()
-    raise BindingError("installed direct_url.json has no SHA-256")
+    raise Figure2Error(
+        "The installed direct_url.json has no wheel SHA-256. Reinstall the checked "
+        "wheel with pip in a fresh environment and rerun."
+    )
 
 
 def _verify_installed_pyfgsea(artifact: Mapping[str, Any]) -> dict[str, Any]:
@@ -633,31 +792,52 @@ def _verify_installed_pyfgsea(artifact: Mapping[str, Any]) -> dict[str, Any]:
     executable = Path(sys.executable).resolve()
     prefix = Path(sys.prefix).resolve()
     if _is_within(package_path, REPO_ROOT) or _is_within(core_path, REPO_ROOT):
-        raise BindingError("Figure 2 must import PyFgsea from the verified wheel, not the checkout")
+        raise Figure2Error(
+            "Figure 2 imported PyFgsea from the source checkout. Install the checked "
+            "wheel in a fresh environment and rerun outside the checkout."
+        )
     if not _is_within(package_path, prefix) or not _is_within(core_path, prefix):
-        raise BindingError("loaded PyFgsea package/core are outside the active environment")
+        raise Figure2Error(
+            "PyFgsea or its native core was loaded from outside the active "
+            "environment. Reinstall the checked wheel in that environment and rerun."
+        )
 
     base_prefix = Path(getattr(sys, "base_prefix", sys.prefix)).resolve()
     if base_prefix == prefix:
-        raise BindingError("Figure 2 must run in a fresh virtual environment")
+        raise Figure2Error(
+            "Figure 2 is running without an isolated virtual environment. Create a "
+            "fresh environment, install the checked wheel, and rerun."
+        )
     if pyfgsea.__version__ != EXPECTED_VERSION or distribution.version != EXPECTED_VERSION:
-        raise BindingError(
+        raise Figure2Error(
             f"loaded PyFgsea module/distribution version is not {EXPECTED_VERSION}"
         )
     revision = core.algorithm_revision()
     if revision != EXPECTED_ALGORITHM_REVISION:
-        raise BindingError(f"unexpected statistical core revision: {revision}")
+        raise Figure2Error(
+            f"The native core reports revision {revision!r}, not "
+            f"{EXPECTED_ALGORITHM_REVISION!r}. Install the checked RC7 wheel and rerun."
+        )
     core_sha256 = sha256_file(core_path)
     wheel = _require_mapping(artifact.get("wheel"), "receipt wheel")
     if core_sha256 != wheel.get("core_sha256"):
-        raise BindingError("loaded native core hash differs from the verified wheel")
+        raise Figure2Error(
+            "The loaded native core differs from the checked wheel. Reinstall that "
+            "wheel in a fresh environment and rerun."
+        )
     direct_url_text = distribution.read_text("direct_url.json")
     if direct_url_text is None:
-        raise BindingError("installed distribution has no direct_url.json")
+        raise Figure2Error(
+            "The installed distribution has no direct_url.json. Install the checked "
+            "wheel directly with pip and rerun."
+        )
     direct_url = _require_mapping(json.loads(direct_url_text), "direct_url.json")
     direct_url_sha256 = _direct_url_sha256(direct_url)
     if direct_url_sha256 != wheel.get("sha256"):
-        raise BindingError("loaded distribution direct_url hash differs from the verified wheel")
+        raise Figure2Error(
+            "The installed distribution came from a different wheel. Install the "
+            "checked wheel from the artifact bundle and rerun."
+        )
     wheel_path = Path(str(wheel.get("path", ""))).resolve()
     verified_members: dict[str, str] = {}
     with zipfile.ZipFile(wheel_path) as archive:
@@ -666,10 +846,16 @@ def _verify_installed_pyfgsea(artifact: Mapping[str, Any]) -> dict[str, Any]:
                 continue
             installed_path = Path(distribution.locate_file(member)).resolve()
             if not installed_path.is_file():
-                raise BindingError(f"installed wheel member is missing: {member}")
+                raise Figure2Error(
+                    f"The installed wheel file {member} is missing. Reinstall the "
+                    "checked wheel in a fresh environment and rerun."
+                )
             wheel_member_sha = _sha256_bytes(archive.read(member))
             if sha256_file(installed_path) != wheel_member_sha:
-                raise BindingError(f"installed wheel member has changed: {member}")
+                raise Figure2Error(
+                    f"The installed wheel file {member} has changed. Reinstall the "
+                    "checked wheel in a fresh environment and rerun."
+                )
             verified_members[member] = wheel_member_sha
     package_root = package_path.parent
     actual_members = {
@@ -682,9 +868,10 @@ def _verify_installed_pyfgsea(artifact: Mapping[str, Any]) -> dict[str, Any]:
     if actual_members != set(verified_members):
         missing = sorted(set(verified_members) - actual_members)
         extra = sorted(actual_members - set(verified_members))
-        raise BindingError(
-            "installed pyfgsea member boundary differs from the wheel; "
-            f"missing={missing!r}, extra={extra!r}"
+        raise Figure2Error(
+            "The installed PyFgsea file list differs from the wheel: "
+            f"missing={missing!r}, extra={extra!r}. Reinstall the checked wheel "
+            "in a fresh environment and rerun."
         )
     return {
         "python_executable": str(executable),
@@ -715,7 +902,7 @@ def formal_preflight(
     expected_tag: str,
 ) -> dict[str, Any]:
     git_state = _capture_release_git_state(expected_commit, expected_tag)
-    contract = _load_author_contract()
+    parameter_record = _load_figure2_parameters()
     reference_contract = _load_reference_contract()
     artifact = _verify_artifact_receipt(artifact_receipt, git_state)
     installed = _verify_installed_pyfgsea(artifact)
@@ -725,13 +912,12 @@ def formal_preflight(
     }
     return {
         "git": git_state,
-        "author_parameter_contract": contract,
+        "figure2_parameters": parameter_record,
         "reference_contract": reference_contract,
         "artifact_receipt": artifact,
         "installed_artifact": installed,
         "inputs": inputs,
-        "parameters": dict(PARAMETERS),
-        "research_context": dict(RESEARCH_CONTEXT),
+        "parameters": dict(RECORDED_PARAMETERS),
         "environment_versions": _environment_versions(),
     }
 
@@ -753,7 +939,7 @@ def bh_adjust(values: Iterable[float]) -> np.ndarray:
     return adjusted
 
 
-def _audit_results(results: pd.DataFrame) -> dict[str, Any]:
+def _validate_results(results: pd.DataFrame) -> dict[str, Any]:
     required = {
         "Pathway",
         "NES",
@@ -765,29 +951,50 @@ def _audit_results(results: pd.DataFrame) -> dict[str, Any]:
     }
     missing = sorted(required.difference(results.columns))
     if missing:
-        raise BindingError(f"trajectory result is missing required columns: {missing}")
+        raise Figure2Error(
+            f"The trajectory output is missing columns: {missing}. Return every "
+            "required Figure 2 column and rerun."
+        )
     if len(results) != EXPECTED_N_ROWS:
-        raise BindingError(f"expected {EXPECTED_N_ROWS} rows, found {len(results)}")
+        raise Figure2Error(
+            f"The trajectory output has {len(results)} rows, not {EXPECTED_N_ROWS}. "
+            "Use the recorded window and pathway inputs and rerun."
+        )
     duplicate_count = int(results.duplicated(["window_id", "Pathway"]).sum())
     if duplicate_count:
-        raise BindingError(f"trajectory grid has {duplicate_count} duplicate keys")
+        raise Figure2Error(
+            f"The trajectory output has {duplicate_count} duplicate window-pathway "
+            "keys. Remove the duplicates at their source and rerun."
+        )
     window_ids = sorted(int(value) for value in results["window_id"].unique())
     if window_ids != list(range(EXPECTED_N_WINDOWS)):
-        raise BindingError("trajectory window IDs are not the complete 0..61 grid")
+        raise Figure2Error(
+            "The trajectory output does not contain window IDs 0 through 61. Check "
+            "the recorded window parameters and input data, then rerun."
+        )
     if int(results["Pathway"].nunique()) != EXPECTED_N_PATHWAYS:
-        raise BindingError("trajectory result does not contain exactly 43 pathways")
+        raise Figure2Error(
+            "The trajectory output does not contain exactly 43 pathways. Use the "
+            "recorded gene-set file and parameters, then rerun."
+        )
     per_window = results.groupby("window_id")["Pathway"].nunique()
     per_pathway = results.groupby("Pathway")["window_id"].nunique()
     if not (per_window == EXPECTED_N_PATHWAYS).all() or not (
         per_pathway == EXPECTED_N_WINDOWS
     ).all():
-        raise BindingError("trajectory result is not a complete 62 x 43 grid")
+        raise Figure2Error(
+            "The trajectory output is not a complete 62 by 43 window-pathway grid. "
+            "Check the recorded inputs and parameters, then rerun."
+        )
     status_counts = {
         str(key): int(value)
         for key, value in results["status"].value_counts(dropna=False).sort_index().items()
     }
     if status_counts != {"resolved": EXPECTED_N_ROWS}:
-        raise BindingError(f"formal Figure 2 requires all rows resolved: {status_counts}")
+        raise Figure2Error(
+            f"Figure 2 contains unresolved rows: {status_counts}. Resolve the "
+            "reported numerical failures before rerunning."
+        )
     pvalues = results["P-value"].to_numpy(dtype=np.float64)
     padj = results["padj"].to_numpy(dtype=np.float64)
     nes = results["NES"].to_numpy(dtype=np.float64)
@@ -796,22 +1003,30 @@ def _audit_results(results: pd.DataFrame) -> dict[str, Any]:
         or (pvalues <= 0).any()
         or (pvalues > 1).any()
     ):
-        raise BindingError("formal results require p-values in (0, 1]")
+        raise Figure2Error(
+            "Figure 2 contains non-finite or out-of-range p-values. Fix the "
+            "calculation so every p-value is in (0, 1], then rerun."
+        )
     if (
         not np.isfinite(padj).all()
         or (padj < 0).any()
         or (padj > 1).any()
         or not np.isfinite(nes).all()
     ):
-        raise BindingError("formal results require padj in [0, 1] and finite NES")
+        raise Figure2Error(
+            "Figure 2 contains an invalid adjusted p-value or NES. Fix the "
+            "calculation so padj is in [0, 1] and NES is finite, then rerun."
+        )
 
     independent = np.empty(len(results), dtype=np.float64)
     for indices in results.groupby("window_id", sort=False).indices.values():
         independent[indices] = bh_adjust(results.iloc[indices]["P-value"])
     max_abs_diff = float(np.max(np.abs(padj - independent)))
     if max_abs_diff > BH_ATOL:
-        raise BindingError(
-            f"independent within-window BH differs by {max_abs_diff}, tolerance {BH_ATOL}"
+        raise Figure2Error(
+            f"The recorded adjusted p-values differ from an independent within-window "
+            f"BH calculation by {max_abs_diff}, above {BH_ATOL}. Fix the adjustment "
+            "calculation and rerun."
         )
     return {
         "n_rows": int(len(results)),
@@ -829,6 +1044,10 @@ def _audit_results(results: pd.DataFrame) -> dict[str, Any]:
             "matches_core": True,
         },
     }
+
+
+# Compatibility for callers that used the previous helper name.
+_audit_results = _validate_results
 
 
 def pathway_summary(results: pd.DataFrame) -> pd.DataFrame:
@@ -868,7 +1087,10 @@ def plot_target_curves(results: pd.DataFrame, png_path: Path, pdf_path: Path) ->
 
     missing = [name for name in TARGET_PATHWAYS if name not in set(results["Pathway"])]
     if missing:
-        raise BindingError(f"required Figure 2 pathways are missing: {missing}")
+        raise Figure2Error(
+            f"Figure 2 is missing required pathways: {missing}. Use the recorded "
+            "gene-set file and rerun."
+        )
     fig, axes = plt.subplots(len(TARGET_PATHWAYS), 1, figsize=(8.2, 6.6), sharex=True)
     for axis, pathway in zip(np.atleast_1d(axes), TARGET_PATHWAYS):
         curve = results.loc[results["Pathway"] == pathway].sort_values("pt_mid")
@@ -887,7 +1109,7 @@ def plot_target_curves(results: pd.DataFrame, png_path: Path, pdf_path: Path) ->
         axis.set_ylabel("NES")
         axis.legend(loc="best", frameon=False, fontsize=8)
     axes[-1].set_xlabel("Pseudotime midpoint")
-    fig.suptitle("PyFgsea 0.2.0rc6 Figure 2 parameter-bound recalculation")
+    fig.suptitle("PyFgsea 0.2.0rc7 Figure 2 reproduction")
     fig.tight_layout()
     fig.savefig(png_path, dpi=300, bbox_inches="tight")
     fig.savefig(pdf_path, bbox_inches="tight")
@@ -977,9 +1199,15 @@ def run(
 
         adata = sc.read_h5ad(frozen_dataset)
         if adata.shape != EXPECTED_DATASET_SHAPE:
-            raise BindingError(f"unexpected GSE155254 shape: {adata.shape}")
+            raise Figure2Error(
+                f"The GSE155254 matrix shape is {adata.shape}, not "
+                f"{EXPECTED_DATASET_SHAPE}. Use the recorded processed dataset and rerun."
+            )
         if PARAMETERS["pseudotime_key"] not in adata.obs:
-            raise BindingError("the frozen processed input lacks dpt_pseudotime")
+            raise Figure2Error(
+                "The processed dataset has no dpt_pseudotime column. Use the recorded "
+                "processed dataset or restore that column and rerun."
+            )
         results = run_trajectory_gsea(
             adata,
             gmt_path=str(frozen_gene_sets),
@@ -990,21 +1218,27 @@ def run(
             **PARAMETERS,
         )
         if results.empty:
-            raise BindingError("trajectory recalculation returned no pathways")
-        result_audit = _audit_results(results)
+            raise Figure2Error(
+                "The trajectory calculation returned no pathways. Check the recorded "
+                "gene sets and parameters, then rerun."
+            )
+        result_validation = _validate_results(results)
         results = results.sort_values(
             ["window_id", "padj", "P-value", "Pathway"], kind="mergesort"
         ).reset_index(drop=True)
         summary = pathway_summary(results)
         targets = summary.loc[summary["Pathway"].isin(TARGET_PATHWAYS)].copy()
         if len(targets) != len(TARGET_PATHWAYS):
-            raise BindingError("target pathway summary is incomplete")
+            raise Figure2Error(
+                "The Figure 2 target summary is incomplete. Restore both recorded "
+                "target pathways in the gene-set file and rerun."
+            )
 
         result_path = incomplete_dir / "trajectory_results.csv"
         summary_path = incomplete_dir / "pathway_summary.csv"
         target_path = incomplete_dir / "figure2_target_pathway_summary.csv"
-        png_path = incomplete_dir / "figure2_formal.png"
-        pdf_path = incomplete_dir / "figure2_formal.pdf"
+        png_path = incomplete_dir / "figure2.png"
+        pdf_path = incomplete_dir / "figure2.pdf"
         results.to_csv(result_path, index=False)
         summary.to_csv(summary_path, index=False)
         targets.to_csv(target_path, index=False)
@@ -1027,7 +1261,7 @@ def run(
         }
 
         end_git = _require_unchanged_git_state(start_git)
-        end_contract = _load_author_contract()
+        end_parameters = _load_figure2_parameters()
         end_reference_contract = _load_reference_contract()
         end_artifact = _verify_artifact_receipt(artifact_receipt, end_git)
         end_installed = _verify_installed_pyfgsea(end_artifact)
@@ -1040,51 +1274,62 @@ def run(
             ),
         }
         end_environment = _environment_versions()
-        if end_contract != preflight["author_parameter_contract"]:
-            raise BindingError("author parameter contract changed during the run")
+        if end_parameters != preflight["figure2_parameters"]:
+            raise Figure2Error(
+                "Figure 2 parameters changed during the run. Restore the recorded "
+                "parameter file and rerun from a clean checkout."
+            )
         if end_reference_contract != preflight["reference_contract"]:
-            raise BindingError("fgsea reference contract changed during the run")
+            raise Figure2Error(
+                "The fgsea reference profile changed while Figure 2 was running. "
+                "Restore reference_manifest.json and rerun from a clean checkout."
+            )
         if end_artifact != preflight["artifact_receipt"]:
-            raise BindingError("artifact receipt or release artifacts changed during the run")
+            raise Figure2Error(
+                "The artifact receipt, sdist, or wheel changed while Figure 2 was "
+                "running. Restore the downloaded bundle and rerun."
+            )
         if end_installed != preflight["installed_artifact"]:
-            raise BindingError("installed wheel environment changed during the run")
+            raise Figure2Error(
+                "The installed PyFgsea environment changed while Figure 2 was running. "
+                "Create a fresh environment, install the checked wheel, and rerun."
+            )
         if end_inputs != preflight["inputs"]:
-            raise BindingError("source inputs changed during the run")
+            raise Figure2Error(
+                "The dataset or gene-set file changed while Figure 2 was running. "
+                "Restore the recorded inputs and rerun."
+            )
         if end_environment != preflight["environment_versions"]:
-            raise BindingError("dependency versions changed during the run")
+            raise Figure2Error(
+                "A dependency version changed while Figure 2 was running. Recreate "
+                "the environment with fixed package versions and rerun."
+            )
         if frozen_inputs["dataset"]["sha256"] != end_inputs["dataset"]["sha256"]:
-            raise BindingError("frozen dataset bytes differ from the final source input")
+            raise Figure2Error(
+                "The copied dataset differs from the source dataset. Restore the "
+                "recorded input file and rerun."
+            )
         if frozen_inputs["gene_sets"]["sha256"] != end_inputs["gene_sets"]["sha256"]:
-            raise BindingError("frozen gene-set bytes differ from the final source input")
+            raise Figure2Error(
+                "The copied gene-set file differs from the source file. Restore the "
+                "recorded input file and rerun."
+            )
 
         release_tag_name = str(start_git["release_tag"]["name"])
         manifest = {
             "schema_version": 2,
-            "artifact_type": "pyfgsea-figure2-formal-recalculation",
-            "binding_status": "bound-to-clean-tag-and-verified-wheel",
-            "author_parameter_contract": {
-                "status": "accepted",
-                "publication_accepted": False,
-                "path": preflight["author_parameter_contract"]["path"],
-                "sha256": preflight["author_parameter_contract"]["sha256"],
-                "contract_id": preflight["author_parameter_contract"]["contract"][
-                    "contract_id"
+            "artifact_type": "pyfgsea-figure2-reproduction",
+            "verification_status": "verified",
+            "figure2_parameters": {
+                "path": preflight["figure2_parameters"]["path"],
+                "sha256": preflight["figure2_parameters"]["sha256"],
+                "dataset": preflight["figure2_parameters"]["record"]["dataset"],
+                "recorded_on": preflight["figure2_parameters"]["record"][
+                    "recorded_on"
                 ],
-                "accepted_at_date": preflight["author_parameter_contract"][
-                    "contract"
-                ]["accepted_at_date"],
             },
             "reference_contract": preflight["reference_contract"],
-            "evidence_binding": (
-                f"bound-to-clean-{release_tag_name}-and-verified-wheel"
-            ),
-            "publication_accepted": False,
-            "publication_binding": "pending-manuscript-impact-adjudication",
-            "binding_blockers": [
-                "manuscript and supplement have not yet been impact-adjudicated",
-                "legacy/current Figure 1 and supplemental lanes remain incomplete",
-            ],
-            "research_context": dict(RESEARCH_CONTEXT),
+            "verification_basis": f"clean-{release_tag_name}-and-verified-wheel",
             "started_at_utc": started_at,
             "finished_at_utc": utc_now(),
             "elapsed_seconds": time.perf_counter() - timer,
@@ -1104,11 +1349,11 @@ def run(
                 "platform": platform.platform(),
                 "packages": end_environment,
             },
-            "parameters": dict(PARAMETERS),
+            "parameters": dict(RECORDED_PARAMETERS),
             "inputs": preflight["inputs"],
             "frozen_input_artifacts": frozen_input_artifacts,
             "dataset_shape": [int(adata.n_obs), int(adata.n_vars)],
-            "result_audit": result_audit,
+            "result_validation": result_validation,
             "artifacts": artifacts,
         }
         return _publish_evidence(incomplete_dir, output_dir, manifest)
@@ -1129,7 +1374,10 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--preflight-only",
         action="store_true",
-        help="Verify Git, contract, inputs, and the installed artifact without computing GSEA.",
+        help=(
+            "Verify Git, parameters, inputs, and the installed wheel without "
+            "computing GSEA."
+        ),
     )
     return parser
 
@@ -1154,7 +1402,7 @@ def main() -> int:
         args.expected_git_commit,
         args.expected_git_tag,
     )
-    print(f"Formal Figure 2 evidence written without overwrite: {output}")
+    print(f"Figure 2 outputs written to: {output}")
     return 0
 
 

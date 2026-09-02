@@ -1,15 +1,5 @@
 #!/usr/bin/env python3
-"""Build and verify the PyFgsea release artifact chain.
-
-The verifier deliberately owns the complete chain:
-
-    clean Git commit -> sdist -> wheel built from that sdist -> fresh venv install
-    -> full commit-bound installed-wheel test suite
-
-A success receipt is written only after every check passes.  On failure the
-program exits non-zero and leaves no receipt that could be mistaken for release
-evidence.
-"""
+"""Build an sdist, build and install its wheel, then run the release tests."""
 
 from __future__ import annotations
 
@@ -430,7 +420,7 @@ def _verify_sdist(
         missing = sorted(expected_members - actual_members)
         extra = sorted(actual_members - expected_members)
         raise VerificationError(
-            "sdist source boundary differs from the committed release inputs; "
+            "sdist sources differ from the committed release inputs; "
             f"missing={missing!r}, extra={extra!r}"
         )
 
@@ -1316,7 +1306,7 @@ def _parser() -> argparse.ArgumentParser:
         description=(
             "Build a PyFgsea sdist from a clean commit, build its wheel, install "
             "that wheel with its trajectory extra into a fresh venv, run the "
-            "commit-bound installed test suite, and emit a fail-closed JSON receipt."
+            "installed test suite, and write a JSON run record."
         )
     )
     parser.add_argument("--repo", type=Path, required=True, help="Clean Git worktree")

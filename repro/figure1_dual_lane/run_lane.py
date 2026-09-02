@@ -34,7 +34,7 @@ import pandas as pd  # noqa: E402
 
 try:
     import psutil
-except ImportError:  # pragma: no cover - environment gate
+except ImportError:  # pragma: no cover - checked before the run
     psutil = None  # type: ignore[assignment]
 
 try:
@@ -190,14 +190,14 @@ def _verify_artifact_receipt(
 
     receipt = read_json(receipt_path)
     if receipt.get("schema_version") != 1 or receipt.get("status") != "passed":
-        raise ValueError("artifact receipt did not pass its schema/status gate")
+        raise ValueError("artifact report schema or status is invalid")
     if lane == "legacy":
         if receipt.get("kind") != "figure1_legacy_artifact_receipt":
-            raise ValueError("legacy lane requires a legacy artifact-binding receipt")
+            raise ValueError("legacy reference run requires a legacy artifact report")
         if receipt.get("suite_version") != SUITE_VERSION:
             raise ValueError("legacy artifact receipt belongs to a different suite")
         if receipt.get("all_legacy_artifact_gates_passed") is not True:
-            raise ValueError("legacy artifact receipt did not pass all gates")
+            raise ValueError("legacy artifact report did not pass all checks")
         git = receipt.get("git")
         if not isinstance(git, Mapping):
             raise ValueError("legacy artifact receipt lacks Git identity")
@@ -248,12 +248,12 @@ def _verify_artifact_receipt(
     else:
         if receipt.get("all_artifact_chain_gates_passed") is not True:
             raise ValueError(
-                "current artifact receipt did not pass all artifact-chain gates"
+                "current artifact report did not pass all package checks"
             )
         expected = receipt.get("expected")
         expected_fields = {
-            "cargo_version": "0.2.0-rc6",
-            "pyfgsea_version": "0.2.0rc6",
+            "cargo_version": "0.2.0-rc7",
+            "pyfgsea_version": "0.2.0rc7",
             "algorithm_revision": "fgsea-1.38-pr178-v1",
         }
         if not isinstance(expected, Mapping) or any(
@@ -390,7 +390,7 @@ def _verify_artifact_receipt(
 def _verify_reference_receipt(
     lane: str, receipt_path: Path, evidence_git: Mapping[str, Any]
 ) -> dict[str, Any]:
-    """Bind the R runner to one passed OCI-build receipt and frozen tarball."""
+    """Check the R runner against one OCI build report and image tarball."""
 
     contract = REFERENCE_ARTIFACT_CONTRACTS[lane]
     lane_contract = LANE_CONTRACTS[lane]
@@ -514,7 +514,7 @@ def _verify_reference_receipt(
 def verify_installed_lane(
     lane: str, *, expected_wheel_sha256: str, expected_core_sha256: str
 ) -> tuple[Any, dict[str, Any]]:
-    """Bind an imported module and native core to one exact installed wheel."""
+    """Check the imported module and native core against the installed wheel."""
 
     contract = LANE_CONTRACTS[lane]
     expected_wheel = require_sha256(expected_wheel_sha256, label="expected wheel hash")
@@ -744,7 +744,7 @@ def _memory_sampler(
     samples: list[int],
     errors: list[str],
 ) -> None:
-    if psutil is None:  # pragma: no cover - checked before a formal run
+    if psutil is None:  # pragma: no cover - checked before the reference run
         raise RuntimeError("psutil is required for peak-RSS evidence")
     try:
         process = psutil.Process(pid)
@@ -769,7 +769,7 @@ def _memory_sampler(
 
 
 def _measure_call(function: Callable[[], Any]) -> tuple[Any, dict[str, float | int]]:
-    if psutil is None:  # pragma: no cover - checked before a formal run
+    if psutil is None:  # pragma: no cover - checked before the reference run
         raise RuntimeError("psutil is required for peak-RSS evidence")
     process = psutil.Process(os.getpid())
     baseline = process.memory_info().rss
@@ -1025,9 +1025,7 @@ def run_lane(args: argparse.Namespace) -> Path:
 
     output_dir = Path(args.output_dir).resolve()
     if _is_within(output_dir, REPO_ROOT):
-        raise ValueError(
-            "formal lane outputs must be outside the evidence Git checkout"
-        )
+        raise ValueError("Choose an output directory outside the repository")
     output_dir = ensure_empty_output_dir(output_dir)
     initial_git = verify_clean_git_checkout(
         REPO_ROOT,
@@ -1313,14 +1311,14 @@ def run_lane(args: argparse.Namespace) -> Path:
             "pvalue_log_transform": "-log10(max(pvalue, 1e-300))",
             "manual_metric_overrides_permitted": False,
         },
-        "claim_boundaries": {
+        "result_scope": {
             "legacy_lane_identity": "official PyPI 0.1.4 artifact lane",
             "legacy_native_core_source_reproducible": False,
             "ties_scope": "same recorded Python/platform environment sensitivity only",
             "ties_cross_platform_equivalence_claimed": False,
             "reference_runtime": (
-                "receipt-bound linux/amd64 OCI profile with all six "
-                "/opt/reference evidence hashes verified"
+                "recorded linux/amd64 OCI profile with all six "
+                "/opt/reference output hashes checked"
             ),
         },
     }

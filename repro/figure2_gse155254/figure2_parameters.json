@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "dataset": "GSE155254",
+  "recorded_on": "2026-09-01",
+  "parameters": {
+    "pseudotime_key": "dpt_pseudotime",
+    "window_size": 500,
+    "step": 50,
+    "min_size": 15,
+    "max_size": 500,
+    "sample_size": 101,
+    "seed": 42,
+    "eps": 1e-50,
+    "nperm_nes": 2000,
+    "nperm_simple": 1000,
+    "gsea_param": 1.0,
+    "mode": "aligned",
+    "score_type": "std",
+    "tie_policy": "gene_id",
+    "pathway_size_policy": "exact",
+    "bin_width": 0,
+    "calculate_nes": true,
+    "use_nes_cache": false,
+    "max_levels": null
+  }
+}

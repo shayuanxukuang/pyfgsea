@@ -10,7 +10,11 @@ import pandas as pd
 import pytest
 
 from repro.data_utils import generate_test_data as historical_generate_test_data
-from repro.figure1_dual_lane.adjudicate import concordance_metrics
+from repro.figure1_dual_lane.adjudicate import adjudicate
+from repro.figure1_dual_lane.compare_results import (
+    compare_results,
+    concordance_metrics,
+)
 from repro.figure1_dual_lane.common import read_json, verify_file_record, write_json
 from repro.figure1_dual_lane.prepare_inputs import (
     FROZEN_INPUT_ROOT,
@@ -26,6 +30,10 @@ from repro.figure1_dual_lane.run_lane import (
     _validate_input_manifest,
 )
 from repro.figure1_dual_lane.verify_legacy_artifact import _verify_record
+
+
+def test_previous_figure1_entry_name_remains_available() -> None:
+    assert adjudicate is compare_results
 
 
 def test_current_artifact_bundle_paths_are_relocatable_and_confined(
