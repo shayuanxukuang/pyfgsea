@@ -1,8 +1,8 @@
-"""Assemble the GSE155254 Figure 2 from frozen inputs and a verified RC8 run.
+"""Assemble GSE155254 Figure 2 from frozen inputs and a functional table run.
 
 This script does not recompute UMAP coordinates or enrichment statistics. It
-uses only the frozen inputs and trajectory table contained in the supplied
-Figure 2 run directory.
+uses the frozen inputs and trajectory table in the supplied Figure 2 run, plus
+the two public GEO control/gata307mut assignment tables.
 """
 
 from __future__ import annotations
@@ -34,8 +34,7 @@ import pandas as pd
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 RUNNER_PATH = Path(__file__).resolve()
-EXPECTED_COMMIT = "ee5855bad7200655e580f44fdf4087bb1bad67b5"
-EXPECTED_TAG = "v0.2.0-rc8"
+EXPECTED_ALGORITHM_REVISION = "fgsea-1.38-pr178-v1"
 EXPECTED_DATASET_SHAPE = (3576, 3000)
 EXPECTED_N_WINDOWS = 62
 EXPECTED_N_PATHWAYS = 43
@@ -67,10 +66,31 @@ PATHWAY_COLORS = {
     "heme Metabolism": "#b91c1c",
     "E2F Targets": "#1d4ed8",
 }
+PUBLIC_ASSIGNMENT_LABELS = ("control", "gata307mut")
+PUBLIC_ASSIGNMENT_SOURCES: dict[str, dict[str, str]] = {
+    "GSM4698215_rep1": {
+        "accession": "GSM4698215",
+        "filename": "GSM4698215_g1mut_scRNA_rep1_donor_assignments.tsv.gz",
+        "url": (
+            "https://ftp.ncbi.nlm.nih.gov/geo/samples/GSM4698nnn/"
+            "GSM4698215/suppl/"
+            "GSM4698215_g1mut_scRNA_rep1_donor_assignments.tsv.gz"
+        ),
+    },
+    "GSM4698216_rep2": {
+        "accession": "GSM4698216",
+        "filename": "GSM4698216_g1mut_scRNA_rep2_donor_assignments.tsv.gz",
+        "url": (
+            "https://ftp.ncbi.nlm.nih.gov/geo/samples/GSM4698nnn/"
+            "GSM4698216/suppl/"
+            "GSM4698216_g1mut_scRNA_rep2_donor_assignments.tsv.gz"
+        ),
+    },
+}
 
 
 class Figure2AssemblyError(RuntimeError):
-    """Raised when the verified run cannot support Figure 2 assembly."""
+    """Raised when the functional run cannot support Figure 2 assembly."""
 
 
 def _utc_now() -> str:
@@ -118,19 +138,42 @@ def _resolved_file(path: Path, parent: Path, context: str) -> Path:
     return resolved
 
 
-def _input_paths(figure2_run_dir: Path) -> dict[str, Path]:
+def _input_paths(
+    figure2_run_dir: Path,
+    dataset_path: Path,
+    gene_sets_path: Path,
+    assignment_dir: Path,
+) -> dict[str, Path]:
     run_dir = figure2_run_dir.expanduser().resolve()
     if not run_dir.is_dir():
         raise Figure2AssemblyError(f"Figure 2 run directory was not found at {run_dir}")
+    assignments = assignment_dir.expanduser().resolve()
+    if not assignments.is_dir():
+        raise Figure2AssemblyError(
+            f"Public assignment directory was not found at {assignments}"
+        )
     paths = {
         "run_dir": run_dir,
-        "run_manifest": run_dir / "run_manifest.json",
-        "dataset": run_dir / "frozen_inputs" / "gse155254_ery_only_pt.h5ad",
-        "gene_sets": run_dir / "frozen_inputs" / "hallmark_enrichr.gmt",
+        "assignment_dir": assignments,
+        "run_summary": run_dir / "run_summary.json",
+        "dataset": dataset_path.expanduser().resolve(),
+        "gene_sets": gene_sets_path.expanduser().resolve(),
         "trajectory_results": run_dir / "trajectory_results.csv",
     }
-    for name in ("run_manifest", "dataset", "gene_sets", "trajectory_results"):
+    for name in ("run_summary", "trajectory_results"):
         paths[name] = _resolved_file(paths[name], run_dir, name.replace("_", " "))
+    for name in ("dataset", "gene_sets"):
+        if not paths[name].is_file():
+            raise Figure2AssemblyError(
+                f"{name.replace('_', ' ')} was not found at {paths[name]}"
+            )
+    for sample_id, source in PUBLIC_ASSIGNMENT_SOURCES.items():
+        key = f"assignment_{sample_id}"
+        paths[key] = _resolved_file(
+            assignments / source["filename"],
+            assignments,
+            f"public assignment file for {sample_id}",
+        )
     return paths
 
 
@@ -142,7 +185,7 @@ def _require_external_output(output_dir: Path, run_dir: Path) -> Path:
         )
     if _is_within(output, run_dir):
         raise Figure2AssemblyError(
-            "The output directory must not modify the verified Figure 2 run"
+            "The output directory must not modify the functional Figure 2 run"
         )
     if output.exists():
         raise FileExistsError(f"Refusing to overwrite existing output: {output}")
@@ -154,74 +197,45 @@ def _same_json_value(observed: Any, expected: Any) -> bool:
     return type(observed) is type(expected) and observed == expected
 
 
-def _validate_release_state(value: Any, context: str) -> None:
-    state = _require_mapping(value, context)
-    if state.get("commit") != EXPECTED_COMMIT or state.get("clean") is not True:
+def _validate_run_summary(summary: Mapping[str, Any]) -> None:
+    if summary.get("schema_version") != 1 or summary.get("status") != "complete":
+        raise Figure2AssemblyError("run_summary does not report a complete table run")
+    if summary.get("artifact_type") != "pyfgsea-figure2-panel-d-table":
+        raise Figure2AssemblyError("run_summary has the wrong artifact type")
+    dataset = _require_mapping(summary.get("dataset"), "run_summary dataset")
+    if tuple(dataset.get("shape", ())) != EXPECTED_DATASET_SHAPE:
         raise Figure2AssemblyError(
-            f"{context} must identify the clean RC8 commit {EXPECTED_COMMIT}"
-        )
-    tag = _require_mapping(state.get("release_tag"), f"{context} release tag")
-    expected_tag = {
-        "name": EXPECTED_TAG,
-        "annotated": True,
-        "peeled_commit": EXPECTED_COMMIT,
-    }
-    if any(tag.get(key) != expected for key, expected in expected_tag.items()):
-        raise Figure2AssemblyError(
-            f"{context} must identify annotated tag {EXPECTED_TAG} at RC8"
+            f"run_summary dataset shape is not {EXPECTED_DATASET_SHAPE}"
         )
 
+    runtime = _require_mapping(summary.get("runtime"), "run_summary runtime")
+    if (
+        runtime.get("package_version") != runtime.get("distribution_version")
+        or runtime.get("algorithm_revision") != EXPECTED_ALGORITHM_REVISION
+    ):
+        raise Figure2AssemblyError("run_summary has the wrong installed runtime")
 
-def _validate_run_manifest(manifest: Mapping[str, Any]) -> None:
-    if manifest.get("verification_status") != "verified":
-        raise Figure2AssemblyError("run_manifest verification_status is not verified")
-    if manifest.get("schema_version") != 2:
-        raise Figure2AssemblyError("run_manifest schema_version is not 2")
-    if tuple(manifest.get("dataset_shape", ())) != EXPECTED_DATASET_SHAPE:
-        raise Figure2AssemblyError(
-            f"run_manifest dataset_shape is not {EXPECTED_DATASET_SHAPE}"
-        )
-
-    git = _require_mapping(manifest.get("git"), "run_manifest git")
-    _validate_release_state(git.get("start"), "run_manifest git.start")
-    _validate_release_state(git.get("end"), "run_manifest git.end")
-    if git.get("unchanged") is not True:
-        raise Figure2AssemblyError("run_manifest Git state changed during the run")
-
-    parameters = _require_mapping(manifest.get("parameters"), "run_manifest parameters")
+    parameters = _require_mapping(summary.get("parameters"), "run_summary parameters")
     for name, expected in EXPECTED_PARAMETERS.items():
         if not _same_json_value(parameters.get(name), expected):
             raise Figure2AssemblyError(
-                f"run_manifest parameter {name!r} is not {expected!r}"
+                f"run_summary parameter {name!r} is not {expected!r}"
             )
 
-    validation = _require_mapping(
-        manifest.get("result_validation"), "run_manifest result_validation"
-    )
+    validation = _require_mapping(summary.get("results"), "run_summary results")
     expected_values = {
         "complete_grid": True,
-        "expected_grid": [EXPECTED_N_WINDOWS, EXPECTED_N_PATHWAYS],
         "n_windows": EXPECTED_N_WINDOWS,
         "n_pathways": EXPECTED_N_PATHWAYS,
         "n_rows": EXPECTED_N_ROWS,
         "resolved_rows": EXPECTED_N_ROWS,
-        "status_counts": {"resolved": EXPECTED_N_ROWS},
+        "pathway_size_policy": "exact",
     }
     if any(
         validation.get(key) != expected for key, expected in expected_values.items()
     ):
         raise Figure2AssemblyError(
-            "run_manifest does not report the complete resolved 62 x 43 grid"
-        )
-    bh = _require_mapping(validation.get("bh"), "run_manifest BH validation")
-    if (
-        bh.get("matches_core") is not True
-        or bh.get("scope") != "within-window"
-        or not isinstance(bh.get("max_absolute_difference"), (int, float))
-        or float(bh["max_absolute_difference"]) > BH_ATOL
-    ):
-        raise Figure2AssemblyError(
-            "run_manifest does not report a matching within-window BH calculation"
+            "run_summary does not report the complete resolved 62 x 43 grid"
         )
 
 
@@ -361,6 +375,26 @@ def _gene_vector(adata: ad.AnnData, gene: str) -> np.ndarray:
     return np.asarray(values, dtype=float).reshape(-1)
 
 
+def _expression_matrix_scope(adata: ad.AnnData) -> dict[str, Any]:
+    named_layers = sorted(str(name) for name in adata.layers.keys() if name is not None)
+    if adata.raw is not None or named_layers:
+        raise Figure2AssemblyError(
+            "the frozen dataset is expected to have no adata.raw or named layers"
+        )
+    return {
+        "matrix_used": "adata.X",
+        "representation": "scaled_expression",
+        "raw_present": False,
+        "named_layers": [],
+        "log1p_metadata_present": "log1p" in adata.uns,
+        "interpretation": (
+            "adata.X was overwritten by scaling during preparation; log1p metadata "
+            "records an earlier preprocessing step and does not describe the matrix "
+            "used for Figure 2"
+        ),
+    }
+
+
 def _validate_adata(adata: ad.AnnData) -> dict[str, Any]:
     if tuple(adata.shape) != EXPECTED_DATASET_SHAPE:
         raise Figure2AssemblyError(
@@ -372,6 +406,11 @@ def _validate_adata(adata: ad.AnnData) -> dict[str, Any]:
         )
     if "dpt_pseudotime" not in adata.obs:
         raise Figure2AssemblyError("frozen dataset is missing dpt_pseudotime")
+    missing_obs = [name for name in ("sample_id", "condition") if name not in adata.obs]
+    if missing_obs:
+        raise Figure2AssemblyError(
+            f"frozen dataset is missing obs columns: {', '.join(missing_obs)}"
+        )
     if "X_umap" not in adata.obsm:
         raise Figure2AssemblyError("frozen dataset is missing precomputed X_umap")
     missing_markers = [gene for gene in MARKERS if gene not in adata.var_names]
@@ -407,12 +446,124 @@ def _validate_adata(adata: ad.AnnData) -> dict[str, Any]:
             raise Figure2AssemblyError(f"marker {gene} must be finite for every cell")
         if float(values.std(ddof=0)) == 0.0:
             raise Figure2AssemblyError(f"marker {gene} has zero population variance")
+    sample_ids = adata.obs["sample_id"].astype(str).to_numpy()
+    condition_labels = adata.obs["condition"].astype(str).to_numpy()
     return {
         "cell_id": cell_ids,
+        "sample_id": sample_ids,
+        "condition_label": condition_labels,
         "pseudotime": pseudotime,
         "umap": umap,
         "marker_values": marker_values,
+        "expression_matrix": _expression_matrix_scope(adata),
     }
+
+
+def _load_public_assignments(
+    paths: Mapping[str, Path], data: Mapping[str, Any]
+) -> tuple[pd.DataFrame, dict[str, Any]]:
+    cell_ids = pd.Index(np.asarray(data["cell_id"], dtype=str), name="cell_id")
+    sample_ids = np.asarray(data["sample_id"], dtype=str)
+    frames: list[pd.DataFrame] = []
+    source_summaries: list[dict[str, Any]] = []
+    for sample_id, source in PUBLIC_ASSIGNMENT_SOURCES.items():
+        assignment_path = paths[f"assignment_{sample_id}"]
+        frame = pd.read_csv(
+            assignment_path,
+            sep="\t",
+            compression="infer",
+            dtype=str,
+        )
+        missing = sorted({"barcode", "assignment"}.difference(frame.columns))
+        if missing:
+            raise Figure2AssemblyError(
+                f"public assignment file for {sample_id} is missing columns: "
+                f"{', '.join(missing)}"
+            )
+        selected = frame.loc[:, ["barcode", "assignment"]].astype(str)
+        unexpected = sorted(
+            set(selected["assignment"]).difference(PUBLIC_ASSIGNMENT_LABELS)
+        )
+        if unexpected:
+            raise Figure2AssemblyError(
+                f"public assignment file for {sample_id} contains unexpected labels: "
+                f"{', '.join(unexpected)}"
+            )
+        selected["cell_id"] = sample_id + ":" + selected["barcode"]
+        subset = selected.loc[selected["cell_id"].isin(cell_ids)]
+        source_summaries.append(
+            {
+                "sample_id": sample_id,
+                "accession": source["accession"],
+                "filename": source["filename"],
+                "url": source["url"],
+                "source_rows": len(selected),
+                "erythroid_subset_matches": len(subset),
+                "erythroid_subset_assignment_counts": {
+                    label: int((subset["assignment"] == label).sum())
+                    for label in PUBLIC_ASSIGNMENT_LABELS
+                },
+            }
+        )
+        frames.append(selected)
+
+    combined = pd.concat(frames, ignore_index=True)
+    if combined["cell_id"].duplicated().any():
+        raise Figure2AssemblyError("public assignment cell identifiers are not unique")
+    lookup = combined.set_index("cell_id")
+    aligned = lookup.reindex(cell_ids)
+    matched = aligned["assignment"].notna().to_numpy()
+    assignments = aligned["assignment"].fillna("unmatched").to_numpy(dtype=str)
+    accession_by_sample = {
+        sample: source["accession"]
+        for sample, source in PUBLIC_ASSIGNMENT_SOURCES.items()
+    }
+    accessions = np.asarray(
+        [accession_by_sample.get(sample, "unavailable") for sample in sample_ids],
+        dtype=str,
+    )
+    assignment_table = pd.DataFrame(
+        {
+            "cell_id": cell_ids.to_numpy(),
+            "public_assignment": assignments,
+            "public_assignment_match_status": np.where(matched, "matched", "unmatched"),
+            "public_assignment_source_accession": accessions,
+        }
+    )
+    assignment_counts = {
+        label: int(np.count_nonzero(assignments == label))
+        for label in (*PUBLIC_ASSIGNMENT_LABELS, "unmatched")
+    }
+    condition_counts = {
+        str(label): int(count)
+        for label, count in pd.Series(data["condition_label"])
+        .value_counts(dropna=False)
+        .sort_index()
+        .items()
+    }
+    summary = {
+        "source_files": source_summaries,
+        "label_semantics": (
+            "GEO names these files donor_assignments, but their recorded labels are "
+            "control and gata307mut; no donor identity is inferred"
+        ),
+        "subset_assignment_counts": assignment_counts,
+        "matched_cells": int(matched.sum()),
+        "unmatched_cells": int((~matched).sum()),
+        "total_cells": len(cell_ids),
+        "pooled_in_figure": True,
+        "frozen_condition_label": {
+            "column": "condition",
+            "counts": condition_counts,
+            "status": (
+                "legacy sample-prefix inference labelled the frozen subset uniformly "
+                "as Disease; this label is not used for grouping or interpretation"
+                if condition_counts == {"Disease": len(cell_ids)}
+                else "legacy inferred label; not used for grouping or interpretation"
+            ),
+        },
+    }
+    return assignment_table, summary
 
 
 def _population_zscore(values: Sequence[float] | np.ndarray) -> np.ndarray:
@@ -459,8 +610,11 @@ def _smooth_scaled_expression(
     return smoothed
 
 
-def _build_cell_tables(adata: ad.AnnData) -> tuple[pd.DataFrame, pd.DataFrame]:
+def _build_cell_tables(
+    adata: ad.AnnData, paths: Mapping[str, Path]
+) -> tuple[pd.DataFrame, pd.DataFrame, dict[str, Any], dict[str, Any]]:
     data = _validate_adata(adata)
+    assignment_table, assignment_summary = _load_public_assignments(paths, data)
     cell_ids = data["cell_id"]
     pseudotime = data["pseudotime"]
     umap = data["umap"]
@@ -476,6 +630,15 @@ def _build_cell_tables(adata: ad.AnnData) -> tuple[pd.DataFrame, pd.DataFrame]:
     cell_source = pd.DataFrame(
         {
             "cell_id": cell_ids,
+            "sample_id": data["sample_id"],
+            "frozen_inferred_condition_label": data["condition_label"],
+            "public_assignment": assignment_table["public_assignment"],
+            "public_assignment_match_status": assignment_table[
+                "public_assignment_match_status"
+            ],
+            "public_assignment_source_accession": assignment_table[
+                "public_assignment_source_accession"
+            ],
             "umap1": umap[:, 0],
             "umap2": umap[:, 1],
             "dpt_pseudotime": pseudotime,
@@ -504,7 +667,12 @@ def _build_cell_tables(adata: ad.AnnData) -> tuple[pd.DataFrame, pd.DataFrame]:
             "MKI67_smoothed_scaled": _smooth_scaled_expression(ordered_mki67),
         }
     )
-    return cell_source, marker_profiles
+    return (
+        cell_source,
+        marker_profiles,
+        dict(data["expression_matrix"]),
+        assignment_summary,
+    )
 
 
 def _select_target_pathways(results: pd.DataFrame) -> pd.DataFrame:
@@ -699,61 +867,70 @@ def _runner_git_state() -> dict[str, Any]:
     }
 
 
-def _input_record(path: Path, declared: Any = None) -> dict[str, Any]:
-    record: dict[str, Any] = {
+def _input_record(path: Path) -> dict[str, Any]:
+    return {
         "path": str(path),
         "bytes": path.stat().st_size,
         "sha256": _sha256_file(path),
         "sha256_role": "provenance_only",
     }
-    if isinstance(declared, Mapping) and isinstance(declared.get("sha256"), str):
-        record["upstream_declared_sha256"] = declared["sha256"]
-    return record
 
 
 def _write_manifest(
     path: Path,
     *,
     paths: Mapping[str, Path],
-    upstream_manifest: Mapping[str, Any],
+    upstream_summary: Mapping[str, Any],
     result_validation: Mapping[str, Any],
     gene_set_validation: Mapping[str, Any],
+    expression_matrix: Mapping[str, Any],
+    assignment_summary: Mapping[str, Any],
+    rendered_figure: bool,
     artifacts: Mapping[str, Any],
 ) -> dict[str, Any]:
-    frozen = _require_mapping(
-        upstream_manifest.get("frozen_input_artifacts"),
-        "run_manifest frozen_input_artifacts",
+    assignment_inputs: dict[str, Any] = {}
+    for sample_id, source in PUBLIC_ASSIGNMENT_SOURCES.items():
+        record = _input_record(paths[f"assignment_{sample_id}"])
+        record.update(
+            {
+                "accession": source["accession"],
+                "filename": source["filename"],
+                "url": source["url"],
+            }
+        )
+        assignment_inputs[sample_id] = record
+    assignment_counts = _require_mapping(
+        assignment_summary.get("subset_assignment_counts"),
+        "public assignment counts",
     )
-    upstream_artifacts = _require_mapping(
-        upstream_manifest.get("artifacts"), "run_manifest artifacts"
-    )
+    total_cells = int(assignment_summary["total_cells"])
     manifest: dict[str, Any] = {
         "schema_version": 1,
-        "artifact_type": "pyfgsea-figure2-full-assembly",
+        "artifact_type": (
+            "pyfgsea-figure2-full-assembly"
+            if rendered_figure
+            else "pyfgsea-figure2-table-assembly"
+        ),
         "assembly_status": "assembled",
         "panel_status": {
             "panels_a_c": "deterministic_reconstruction_from_frozen_h5ad",
-            "panel_d": "verified_rc8_rerun",
+            "panel_d": "installed_pyfgsea_functional_rerun",
+            "rendered_figure": "generated" if rendered_figure else "not_requested",
         },
         "created_at_utc": _utc_now(),
         "upstream": {
             "figure2_run_dir": str(paths["run_dir"]),
-            "verification_status": upstream_manifest["verification_status"],
-            "git_commit": EXPECTED_COMMIT,
-            "git_tag": EXPECTED_TAG,
-            "parameters": dict(upstream_manifest["parameters"]),
+            "status": upstream_summary["status"],
+            "runtime": dict(upstream_summary["runtime"]),
+            "parameters": dict(upstream_summary["parameters"]),
             "result_validation": dict(result_validation),
-            "path_resolution": (
-                "fixed run-relative filenames; upstream absolute paths were not followed"
-            ),
+            "path_resolution": "explicit dataset, gene-set, and run-directory inputs",
             "inputs": {
-                "run_manifest": _input_record(paths["run_manifest"]),
-                "dataset": _input_record(paths["dataset"], frozen.get("dataset")),
-                "gene_sets": _input_record(paths["gene_sets"], frozen.get("gene_sets")),
-                "trajectory_results": _input_record(
-                    paths["trajectory_results"],
-                    upstream_artifacts.get("trajectory_results.csv"),
-                ),
+                "run_summary": _input_record(paths["run_summary"]),
+                "dataset": _input_record(paths["dataset"]),
+                "gene_sets": _input_record(paths["gene_sets"]),
+                "trajectory_results": _input_record(paths["trajectory_results"]),
+                "public_assignments": assignment_inputs,
             },
             "gene_set_validation": dict(gene_set_validation),
         },
@@ -780,6 +957,8 @@ def _write_manifest(
                     "precomputed obs['dpt_pseudotime'] from the erythroid-subset graph"
                 ),
                 "pseudotime_tie_order": "numpy.lexsort(cell_id, pseudotime)",
+                "frozen_expression_matrix": dict(expression_matrix),
+                "public_assignments": dict(assignment_summary),
                 "panel_b": {
                     "markers": list(MARKERS),
                     "standardization": "per-marker population z-score (ddof=0)",
@@ -793,7 +972,11 @@ def _write_manifest(
                     ),
                 },
                 "panel_d": {
-                    "source": "verified upstream trajectory_results.csv; no GSEA recomputation",
+                    "source": "functional upstream trajectory_results.csv; no GSEA recomputation",
+                    "ranking_matrix": (
+                        "scaled adata.X from the frozen H5AD; no raw or named "
+                        "expression layer is available"
+                    ),
                     "pathways": list(TARGET_PATHWAYS),
                     "significance_points": "padj < 0.05",
                     "multiple_testing_scope": "Benjamini-Hochberg within each window",
@@ -807,11 +990,30 @@ def _write_manifest(
             "panel_b": "marker-dominant heuristic states, not cell-type annotations",
             "panel_d": "within-window FDR only; not trajectory-wide inference",
             "dataset_scope": (
-                "3576 Disease-labelled cells from two samples; donor assignments and "
-                "a control group are unavailable"
+                f"{total_cells} erythroid-subset cells pooled across public assignment "
+                f"categories: {assignment_counts['control']} control, "
+                f"{assignment_counts['gata307mut']} gata307mut, and "
+                f"{assignment_counts['unmatched']} unmatched; Figure 2 is descriptive "
+                "and is not a group comparison"
             ),
+            "frozen_condition_label": dict(
+                _require_mapping(
+                    assignment_summary.get("frozen_condition_label"),
+                    "frozen condition label",
+                )
+            ),
+            "public_assignments": {
+                "matched_cells": assignment_summary["matched_cells"],
+                "unmatched_cells": assignment_summary["unmatched_cells"],
+                "pooled_in_figure": True,
+                "label_semantics": (
+                    "control/gata307mut assignment from the public GEO files; not "
+                    "donor identity"
+                ),
+            },
             "excluded_claims": [
-                "control-versus-disease inference",
+                "control-versus-gata307mut inference",
+                "donor-level inference",
                 "disease-only inference",
                 "causal or mechanistic inference",
             ],
@@ -823,13 +1025,26 @@ def _write_manifest(
     return manifest
 
 
-def assemble_figure2(figure2_run_dir: Path, output_dir: Path) -> dict[str, Any]:
+def assemble_figure2(
+    figure2_run_dir: Path,
+    dataset_path: Path,
+    gene_sets_path: Path,
+    assignment_dir: Path,
+    output_dir: Path,
+    *,
+    render_figure: bool = True,
+) -> dict[str, Any]:
     """Validate inputs and atomically publish the reconstructed Figure 2."""
 
-    paths = _input_paths(figure2_run_dir)
+    paths = _input_paths(
+        figure2_run_dir,
+        dataset_path,
+        gene_sets_path,
+        assignment_dir,
+    )
     output = _require_external_output(output_dir, paths["run_dir"])
-    upstream_manifest = _load_json(paths["run_manifest"], "run_manifest.json")
-    _validate_run_manifest(upstream_manifest)
+    upstream_summary = _load_json(paths["run_summary"], "run_summary.json")
+    _validate_run_summary(upstream_summary)
     gene_set_validation = _validate_gene_sets(paths["gene_sets"])
 
     try:
@@ -845,7 +1060,9 @@ def assemble_figure2(figure2_run_dir: Path, output_dir: Path) -> dict[str, Any]:
         adata = ad.read_h5ad(paths["dataset"])
     except Exception as error:
         raise Figure2AssemblyError("frozen H5AD dataset could not be read") from error
-    cell_source, marker_profiles = _build_cell_tables(adata)
+    cell_source, marker_profiles, expression_matrix, assignment_summary = (
+        _build_cell_tables(adata, paths)
+    )
 
     staging = Path(
         tempfile.mkdtemp(
@@ -857,39 +1074,44 @@ def assemble_figure2(figure2_run_dir: Path, output_dir: Path) -> dict[str, Any]:
         cell_source.to_csv(staging / "figure2_cell_source.csv", **csv_options)
         marker_profiles.to_csv(staging / "figure2_marker_profiles.csv", **csv_options)
         pathway_profiles.to_csv(staging / "figure2_pathway_profiles.csv", **csv_options)
-        _render_figure(
-            cell_source,
-            marker_profiles,
-            pathway_profiles,
-            staging / "figure2_full_rc8.png",
-            staging / "figure2_full_rc8.pdf",
-        )
+        if render_figure:
+            _render_figure(
+                cell_source,
+                marker_profiles,
+                pathway_profiles,
+                staging / "figure2_full_rc8.png",
+                staging / "figure2_full_rc8.pdf",
+            )
 
         rows_by_name = {
             "figure2_cell_source.csv": len(cell_source),
             "figure2_marker_profiles.csv": len(marker_profiles),
             "figure2_pathway_profiles.csv": len(pathway_profiles),
         }
+        artifact_names = [
+            "figure2_cell_source.csv",
+            "figure2_marker_profiles.csv",
+            "figure2_pathway_profiles.csv",
+        ]
+        if render_figure:
+            artifact_names[:0] = ["figure2_full_rc8.png", "figure2_full_rc8.pdf"]
         artifacts = {
             name: _file_record(
                 staging / name,
                 output / name,
                 rows=rows_by_name.get(name),
             )
-            for name in (
-                "figure2_full_rc8.png",
-                "figure2_full_rc8.pdf",
-                "figure2_cell_source.csv",
-                "figure2_marker_profiles.csv",
-                "figure2_pathway_profiles.csv",
-            )
+            for name in artifact_names
         }
         manifest = _write_manifest(
             staging / "assembly_manifest.json",
             paths=paths,
-            upstream_manifest=upstream_manifest,
+            upstream_summary=upstream_summary,
             result_validation=result_validation,
             gene_set_validation=gene_set_validation,
+            expression_matrix=expression_matrix,
+            assignment_summary=assignment_summary,
+            rendered_figure=render_figure,
             artifacts=artifacts,
         )
         if output.exists():
@@ -906,20 +1128,43 @@ def _parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description=(
             "Reconstruct Figure 2 panels A-C from frozen inputs and assemble them "
-            "with a verified RC8 panel-D run."
+            "with a completed functional Panel-D run."
         )
     )
     parser.add_argument(
         "--figure2-run-dir",
         required=True,
         type=Path,
-        help="Verified RC8 Figure 2 run directory.",
+        help="Completed functional Panel-D run directory.",
+    )
+    parser.add_argument(
+        "--dataset",
+        required=True,
+        type=Path,
+        help="Frozen GSE155254 erythroid-subset H5AD.",
+    )
+    parser.add_argument(
+        "--gene-sets",
+        required=True,
+        type=Path,
+        help="Gene-set GMT used for the Panel-D run.",
+    )
+    parser.add_argument(
+        "--assignment-dir",
+        required=True,
+        type=Path,
+        help="Directory containing the two public GEO assignment TSV files.",
     )
     parser.add_argument(
         "--output-dir",
         required=True,
         type=Path,
-        help="New output directory outside the checkout and verified run.",
+        help="New output directory outside the checkout and functional run.",
+    )
+    parser.add_argument(
+        "--tables-only",
+        action="store_true",
+        help="Write source tables and the manifest without rendering image files.",
     )
     return parser.parse_args(argv)
 
@@ -927,7 +1172,14 @@ def _parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
 def main(argv: Sequence[str] | None = None) -> int:
     args = _parse_args(argv)
     try:
-        assemble_figure2(args.figure2_run_dir, args.output_dir)
+        assemble_figure2(
+            args.figure2_run_dir,
+            args.dataset,
+            args.gene_sets,
+            args.assignment_dir,
+            args.output_dir,
+            render_figure=not args.tables_only,
+        )
     except (Figure2AssemblyError, FileExistsError) as error:
         print(f"Figure 2 assembly failed: {error}", file=sys.stderr)
         return 1
