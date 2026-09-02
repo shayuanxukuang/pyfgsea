@@ -303,7 +303,8 @@ def main() -> int:
         item.get("recomputation_status") != "not-run"
         for item in manifest["profiles"].values()
     )
-    manifest["configuration_status"] = "artifacts-recorded-pending-validation"
+    manifest["manifest_type"] = "pyfgsea-reference-run-record"
+    manifest["record_status"] = "artifacts-recorded-pending-validation"
 
     rendered = json.dumps(manifest, indent=2, sort_keys=False) + "\n"
     if args.dry_run:

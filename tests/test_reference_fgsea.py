@@ -22,7 +22,15 @@ def test_reference_manifest_freezes_legacy_and_current_lanes():
     current = manifest["profiles"]["current_conformance"]
 
     assert manifest["schema_version"] == 2
-    assert (legacy["r_version"], legacy["fgsea_version"], legacy["pyfgsea_version"]) == (
+    assert manifest["manifest_type"] == "pyfgsea-reference-template"
+    assert manifest["generated_results"] is False
+    assert "configuration_status" not in manifest
+    assert "host_validation" not in manifest
+    assert (
+        legacy["r_version"],
+        legacy["fgsea_version"],
+        legacy["pyfgsea_version"],
+    ) == (
         "4.4.3",
         "1.32.2",
         "0.1.4",
@@ -46,20 +54,18 @@ def test_reference_manifest_freezes_legacy_and_current_lanes():
     assert len(current["fgsea_source"]["sha256"]) == 64
     assert len(legacy["fgsea_source"]["sha256"]) == 64
 
-    host = manifest["host_validation"]
-    assert host["docker_profiles_static_validation_only"] is True
-    local = host["isolated_local_validation"]["current_conformance"]
-    assert local["status"] == "not-run-for-clean-rc7"
-    assert local["artifact_binding"] is False
-
 
 def _reference_rscript():
     configured = os.environ.get("PYFGSEA_REFERENCE_RSCRIPT")
     if configured and not Path(configured).is_file():
-        pytest.fail(f"configured PYFGSEA_REFERENCE_RSCRIPT does not exist: {configured}")
+        pytest.fail(
+            f"configured PYFGSEA_REFERENCE_RSCRIPT does not exist: {configured}"
+        )
     executable = configured or shutil.which("Rscript")
     if not executable:
-        pytest.skip("Rscript is not available; frozen R conformance lane was not requested")
+        pytest.skip(
+            "Rscript is not available; frozen R conformance lane was not requested"
+        )
     version = subprocess.run(
         [
             executable,
@@ -118,7 +124,15 @@ def test_optional_r_fgsea_138_es_conformance(tmp_path):
         "sep='\\t',row.names=FALSE,quote=FALSE)"
     )
     subprocess.run(
-        [rscript, "--vanilla", "-e", expression, str(stats_path), str(sets_path), str(output_path)],
+        [
+            rscript,
+            "--vanilla",
+            "-e",
+            expression,
+            str(stats_path),
+            str(sets_path),
+            str(output_path),
+        ],
         check=True,
         capture_output=True,
         text=True,
