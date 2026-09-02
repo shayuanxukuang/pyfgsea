@@ -8,4 +8,5 @@
 - Read the package version from `Cargo.toml`.
 - Record numerical defaults and reference-package versions.
 - Keep paper reproduction separate from current-reference benchmarks.
-- Run `make check` before opening a pull request.
+- Run `make check` in an activated development environment before opening a
+  pull request; it builds the native extension before running Python tests.
