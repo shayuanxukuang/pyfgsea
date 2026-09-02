@@ -47,6 +47,19 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
+      - name: Match the release-check run to v0.2.0
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          commit="$(git rev-parse 'refs/tags/v0.2.0^{commit}')"
+          test "$(git rev-parse HEAD)" = "$commit"
+          run_json="$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$SOURCE_RUN_ID")"
+          test "$(jq -r .conclusion <<<"$run_json")" = "success"
+          test "$(jq -r .head_sha <<<"$run_json")" = "$commit"
+          test "$(jq -r .path <<<"$run_json")" = ".github/workflows/pyfgsea-0.2.0-artifacts.yml"
+
       - name: Install comparison dependencies
         shell: bash
         run: |
