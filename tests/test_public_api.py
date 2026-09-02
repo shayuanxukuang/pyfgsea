@@ -18,6 +18,13 @@ def test_star_import_only_advertises_existing_public_names() -> None:
     assert all(hasattr(pyfgsea, name) for name in pyfgsea.__all__)
 
 
+def test_plotting_exports_only_implemented_functions() -> None:
+    assert plotting.__all__ == [
+        "plot_pathway_dynamics",
+        "plot_trajectory_heatmap",
+    ]
+
+
 def test_heatmap_wrapper_preserves_second_positional_save_path(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:

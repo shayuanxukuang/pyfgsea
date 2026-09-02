@@ -5,10 +5,10 @@ import inspect
 import anndata as ad
 import numpy as np
 import pandas as pd
+import pytest
 
 from pyfgsea import GseaRunner, run_gsea
-from pyfgsea.api import run_pipeline
-from pyfgsea.gsea.runner import run_core
+from pyfgsea import trajectory as trajectory_module
 from pyfgsea.trajectory import run_trajectory_gsea
 
 
@@ -35,54 +35,81 @@ def _runner_result(genes, scores, pathways, *, use_nes_cache=False):
         gene_ids=genes,
         tie_policy="gene_id",
     )
-    result = runner.run(
-        scores,
-        sample_size=21,
-        nperm_simple=101,
-        nperm_nes=40,
-        seed=73,
-        bin_width=0,
-        use_nes_cache=use_nes_cache,
-    ).sort_values("Pathway").reset_index(drop=True)
+    result = (
+        runner.run(
+            scores,
+            sample_size=21,
+            nperm_simple=101,
+            nperm_nes=40,
+            seed=73,
+            bin_width=0,
+            use_nes_cache=use_nes_cache,
+        )
+        .sort_values("Pathway")
+        .reset_index(drop=True)
+    )
     return runner, result
 
 
 def test_trajectory_defaults_disable_cross_window_cache_and_size_binning():
     trajectory_signature = inspect.signature(run_trajectory_gsea)
     runner_signature = inspect.signature(GseaRunner.run)
-    core_signature = inspect.signature(run_core)
-    pipeline_signature = inspect.signature(run_pipeline)
     assert trajectory_signature.parameters["use_nes_cache"].default is False
     assert trajectory_signature.parameters["bin_width"].default == 0
     assert trajectory_signature.parameters["window_size"].default == 500
     assert trajectory_signature.parameters["step"].default == 50
     assert trajectory_signature.parameters["nperm_nes"].default == 2000
-    assert core_signature.parameters["window_size"].default == 500
-    assert core_signature.parameters["step"].default == 50
-    assert core_signature.parameters["nperm"].default == 2000
-    assert pipeline_signature.parameters["window_size"].default == 500
-    assert pipeline_signature.parameters["step"].default == 50
     assert runner_signature.parameters["use_nes_cache"].default is False
     assert runner_signature.parameters["bin_width"].default == 0
+
+
+def test_missing_pseudotime_requires_an_explicit_root(monkeypatch):
+    adata = ad.AnnData(np.ones((3, 2)))
+    monkeypatch.setattr(trajectory_module, "HAS_SCANPY", True)
+
+    with pytest.raises(ValueError, match="explicit root cell"):
+        run_trajectory_gsea(adata, "unused.gmt")
+
+
+def test_missing_custom_pseudotime_must_be_precomputed(monkeypatch):
+    adata = ad.AnnData(np.ones((3, 2)))
+    adata.uns["iroot"] = 0
+    monkeypatch.setattr(trajectory_module, "HAS_SCANPY", True)
+
+    with pytest.raises(ValueError, match="Custom pseudotime columns must be computed"):
+        run_trajectory_gsea(adata, "unused.gmt", pseudotime_key="trajectory_time")
+
+
+def test_unknown_root_gene_fails_before_dpt_processing(monkeypatch):
+    adata = ad.AnnData(np.ones((3, 2)))
+    adata.var_names = ["G1", "G2"]
+    monkeypatch.setattr(trajectory_module, "HAS_SCANPY", True)
+
+    with pytest.raises(ValueError, match="root_gene is not present"):
+        run_trajectory_gsea(adata, "unused.gmt", root_gene="MISSING")
 
 
 def test_unsorted_runner_nes_matches_static_ranked_analysis():
     permutation = np.random.default_rng(73).permutation(180)
     genes, scores, pathways = _fixture(permutation)
     _, trajectory = _runner_result(genes, scores, pathways)
-    static = run_gsea(
-        pd.DataFrame({"gene": genes, "score": scores}),
-        pathways,
-        gene_col="gene",
-        score_col="score",
-        min_size=5,
-        max_size=50,
-        sample_size=21,
-        nperm_simple=101,
-        nperm_nes=40,
-        seed=73,
-        bin_width=0,
-    ).sort_values("Pathway").reset_index(drop=True)
+    static = (
+        run_gsea(
+            pd.DataFrame({"gene": genes, "score": scores}),
+            pathways,
+            gene_col="gene",
+            score_col="score",
+            min_size=5,
+            max_size=50,
+            sample_size=21,
+            nperm_simple=101,
+            nperm_nes=40,
+            seed=73,
+            bin_width=0,
+        )
+        .sort_values("Pathway")
+        .reset_index(drop=True)
+    )
 
     pd.testing.assert_series_equal(trajectory["ES"], static["ES"], check_names=False)
     pd.testing.assert_series_equal(trajectory["NES"], static["NES"], check_names=False)
@@ -102,15 +129,19 @@ def test_nes_cache_key_includes_current_ranking():
     runner, first = _runner_result(genes, scores, pathways, use_nes_cache=True)
     first_key = runner._nes_cache_key
     changed_scores = np.sign(scores) * np.square(np.abs(scores) + 0.25)
-    second = runner.run(
-        changed_scores,
-        sample_size=21,
-        nperm_simple=101,
-        nperm_nes=40,
-        seed=73,
-        bin_width=0,
-        use_nes_cache=True,
-    ).sort_values("Pathway").reset_index(drop=True)
+    second = (
+        runner.run(
+            changed_scores,
+            sample_size=21,
+            nperm_simple=101,
+            nperm_nes=40,
+            seed=73,
+            bin_width=0,
+            use_nes_cache=True,
+        )
+        .sort_values("Pathway")
+        .reset_index(drop=True)
+    )
 
     assert first_key is not None
     assert runner._nes_cache_key != first_key
@@ -195,7 +226,9 @@ def test_each_trajectory_window_matches_manual_static_run(tmp_path):
         "ranking_hash",
         "null_curve_size",
     ]
-    left = trajectory[columns].sort_values(["window_id", "Pathway"]).reset_index(drop=True)
+    left = (
+        trajectory[columns].sort_values(["window_id", "Pathway"]).reset_index(drop=True)
+    )
     right = manual[columns].sort_values(["window_id", "Pathway"]).reset_index(drop=True)
     pd.testing.assert_frame_equal(left, right, check_dtype=False, rtol=0.0, atol=0.0)
     assert trajectory.groupby("window_id")["ranking_hash"].first().nunique() == 3

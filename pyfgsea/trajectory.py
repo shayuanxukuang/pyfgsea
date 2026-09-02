@@ -6,6 +6,7 @@ from typing import Any, Optional
 from .wrapper import GseaRunner, _normalize_run_options, load_gmt, prepare_pathways
 
 logger = logging.getLogger(__name__)
+DEFAULT_PSEUDOTIME_KEY = "dpt_pseudotime"
 
 HAS_SCANPY = False
 try:
@@ -40,13 +41,30 @@ def _subset_lineage(adata, lineage_col=None, lineage_keyword=None):
     return adata
 
 
+def _explicit_root_index(adata) -> int:
+    root_idx = adata.uns.get("iroot")
+    if isinstance(root_idx, (bool, np.bool_)) or not isinstance(
+        root_idx, (int, np.integer)
+    ):
+        raise ValueError(
+            "DPT requires an explicit root cell. Set adata.uns['iroot'], "
+            "provide root_gene, or provide a precomputed pseudotime column."
+        )
+    root_idx = int(root_idx)
+    if not 0 <= root_idx < adata.n_obs:
+        raise ValueError(f"adata.uns['iroot'] must be between 0 and {adata.n_obs - 1}")
+    return root_idx
+
+
 def _compute_dpt(adata, root_gene=None, n_top_genes=2000, n_pcs=30, n_neighbors=15):
     if not HAS_SCANPY:
         raise ImportError("scanpy is required for pseudotime computation")
 
-    if "dpt_pseudotime" in adata.obs:
+    if DEFAULT_PSEUDOTIME_KEY in adata.obs:
         logger.info("Using existing 'dpt_pseudotime' in adata.obs.")
         return adata
+    if root_gene is not None and root_gene not in adata.var_names:
+        raise ValueError(f"root_gene is not present in adata.var_names: {root_gene}")
 
     adata = _ensure_log1p(adata)
     logger.info("Re-processing manifold (PCA -> Neighbors -> Diffmap)...")
@@ -62,7 +80,7 @@ def _compute_dpt(adata, root_gene=None, n_top_genes=2000, n_pcs=30, n_neighbors=
     sc.pp.neighbors(adata_graph, n_neighbors=n_neighbors, n_pcs=n_pcs)
     sc.tl.diffmap(adata_graph)
 
-    if root_gene is not None and root_gene in adata.var_names:
+    if root_gene is not None:
         x = adata[:, root_gene].X
         if hasattr(x, "todense"):
             x_dense = x.todense()
@@ -74,9 +92,15 @@ def _compute_dpt(adata, root_gene=None, n_top_genes=2000, n_pcs=30, n_neighbors=
         root_idx = int(np.asarray(x_dense).ravel().argmax())
         adata_graph.uns["iroot"] = root_idx
         logger.info(f"Using root gene {root_gene}, iroot={root_idx}")
+    else:
+        root_idx = _explicit_root_index(adata_graph)
+        adata_graph.uns["iroot"] = root_idx
 
     sc.tl.dpt(adata_graph)
-    adata.obs["dpt_pseudotime"] = adata_graph.obs["dpt_pseudotime"]
+    if DEFAULT_PSEUDOTIME_KEY not in adata_graph.obs:
+        raise RuntimeError("Scanpy DPT did not produce 'dpt_pseudotime'")
+    adata.obs[DEFAULT_PSEUDOTIME_KEY] = adata_graph.obs[DEFAULT_PSEUDOTIME_KEY]
+    adata.uns["iroot"] = root_idx
     return adata
 
 
@@ -156,9 +180,23 @@ def run_trajectory_gsea(
 
     adata = _subset_lineage(adata, lineage_col, lineage_keyword)
 
+    pseudotime_source = "precomputed"
     if pseudotime_key not in adata.obs:
+        if pseudotime_key != DEFAULT_PSEUDOTIME_KEY:
+            raise ValueError(
+                f"Pseudotime column is missing: {pseudotime_key}. Custom "
+                "pseudotime columns must be computed before calling "
+                "run_trajectory_gsea."
+            )
+        if root_gene is None:
+            _explicit_root_index(adata)
         adata = _compute_dpt(adata, root_gene=root_gene)
+        pseudotime_source = "computed_dpt"
     elif root_gene is not None:
+        if pseudotime_key != DEFAULT_PSEUDOTIME_KEY:
+            raise ValueError(
+                "root_gene recomputation requires pseudotime_key='dpt_pseudotime'"
+            )
         # If root_gene is explicitly provided, we assume the user wants to recompute DPT
         # based on this new root, even if pseudotime_key exists.
         logger.info(
@@ -168,6 +206,7 @@ def run_trajectory_gsea(
         if "dpt_pseudotime" in adata.obs:
             del adata.obs["dpt_pseudotime"]
         adata = _compute_dpt(adata, root_gene=root_gene)
+        pseudotime_source = "computed_dpt"
 
     pt = adata.obs[pseudotime_key].to_numpy()
     ok = np.isfinite(pt)
@@ -260,6 +299,14 @@ def run_trajectory_gsea(
         "step": step,
         "min_size": min_size,
         "max_size": max_size,
+        "pseudotime_key": pseudotime_key,
+        "pseudotime_source": pseudotime_source,
+        "root_gene": root_gene,
+        "root_index": (
+            int(adata.uns["iroot"])
+            if pseudotime_source == "computed_dpt" and "iroot" in adata.uns
+            else None
+        ),
         "use_nes_cache": bool(use_nes_cache),
         **options,
     }

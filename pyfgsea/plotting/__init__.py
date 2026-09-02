@@ -2,9 +2,6 @@ from __future__ import annotations
 
 from typing import Any, Sequence
 
-from .overview import plot_overview_heatmap as plot_overview_heatmap
-from .fastproof import plot_fastproof as plot_fastproof
-
 
 def plot_trajectory_heatmap(
     df: Any,
@@ -52,8 +49,6 @@ def plot_pathway_dynamics(
 
 
 __all__ = [
-    "plot_fastproof",
-    "plot_overview_heatmap",
     "plot_pathway_dynamics",
     "plot_trajectory_heatmap",
 ]
