@@ -119,7 +119,7 @@ if (any(result$pval < 0 | result$pval > 1 | result$padj < 0 | result$padj > 1)) 
 }
 
 data.table::fwrite(result, result_path, sep = "\t", quote = FALSE)
-environment <- data.table::data.table(
+environment <- data.table::as.data.table(list(
   key = c(
     "r_version",
     "bioconductor_version",
@@ -144,7 +144,7 @@ environment <- data.table::data.table(
     sprintf("%.17g", unname(timing[["user.self"]])),
     sprintf("%.17g", unname(timing[["sys.self"]]))
   )
-)
+))
 data.table::fwrite(environment, environment_path, sep = "\t", quote = FALSE)
 session <- capture.output(sessionInfo())
 writeLines(session, session_path, useBytes = TRUE)
