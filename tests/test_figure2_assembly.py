@@ -21,55 +21,28 @@ figure2 = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(figure2)
 
 
-def _release_state() -> dict[str, object]:
+def _run_summary() -> dict[str, object]:
     return {
-        "clean": True,
-        "commit": figure2.EXPECTED_COMMIT,
-        "release_tag": {
-            "name": figure2.EXPECTED_TAG,
-            "annotated": True,
-            "peeled_commit": figure2.EXPECTED_COMMIT,
+        "schema_version": 1,
+        "artifact_type": "pyfgsea-figure2-panel-d-table",
+        "status": "complete",
+        "runtime": {
+            "package_version": "0.2.0rc8",
+            "distribution_version": "0.2.0rc8",
+            "algorithm_revision": figure2.EXPECTED_ALGORITHM_REVISION,
         },
-    }
-
-
-def _manifest() -> dict[str, object]:
-    return {
-        "schema_version": 2,
-        "verification_status": "verified",
-        "dataset_shape": list(figure2.EXPECTED_DATASET_SHAPE),
-        "git": {
-            "start": _release_state(),
-            "end": _release_state(),
-            "unchanged": True,
-        },
+        "dataset": {"shape": list(figure2.EXPECTED_DATASET_SHAPE)},
         "parameters": {
             **figure2.EXPECTED_PARAMETERS,
             "pseudotime_key": "dpt_pseudotime",
         },
-        "result_validation": {
+        "results": {
             "complete_grid": True,
-            "expected_grid": [
-                figure2.EXPECTED_N_WINDOWS,
-                figure2.EXPECTED_N_PATHWAYS,
-            ],
             "n_windows": figure2.EXPECTED_N_WINDOWS,
             "n_pathways": figure2.EXPECTED_N_PATHWAYS,
             "n_rows": figure2.EXPECTED_N_ROWS,
             "resolved_rows": figure2.EXPECTED_N_ROWS,
-            "status_counts": {"resolved": figure2.EXPECTED_N_ROWS},
-            "bh": {
-                "matches_core": True,
-                "max_absolute_difference": 0.0,
-                "scope": "within-window",
-            },
-        },
-        "frozen_input_artifacts": {
-            "dataset": {"sha256": "declared-dataset-provenance"},
-            "gene_sets": {"sha256": "declared-gmt-provenance"},
-        },
-        "artifacts": {
-            "trajectory_results.csv": {"sha256": "declared-results-provenance"}
+            "pathway_size_policy": "exact",
         },
     }
 
@@ -102,7 +75,15 @@ def _adata() -> ad.AnnData:
     n_obs, n_vars = figure2.EXPECTED_DATASET_SHAPE
     pseudotime = np.linspace(0.0, 1.0, n_obs)
     pseudotime[101] = pseudotime[100]
-    cell_ids = [f"cell-{index:04d}" for index in range(n_obs)]
+    sample_ids = np.where(
+        np.arange(n_obs) < n_obs // 2,
+        "GSM4698215_rep1",
+        "GSM4698216_rep2",
+    )
+    barcodes = [f"CELL{index:04d}-1" for index in range(n_obs)]
+    cell_ids = [
+        f"{sample_id}:{barcode}" for sample_id, barcode in zip(sample_ids, barcodes)
+    ]
     cd34 = 2.0 - 4.0 * pseudotime
     mki67 = 2.5 - 14.0 * np.square(pseudotime - 0.5)
     hbb = -2.0 + 4.0 * pseudotime
@@ -118,9 +99,17 @@ def _adata() -> ad.AnnData:
     ]
     adata = ad.AnnData(
         X=matrix,
-        obs=pd.DataFrame({"dpt_pseudotime": pseudotime}, index=pd.Index(cell_ids)),
+        obs=pd.DataFrame(
+            {
+                "sample_id": sample_ids,
+                "condition": "Disease",
+                "dpt_pseudotime": pseudotime,
+            },
+            index=pd.Index(cell_ids),
+        ),
         var=pd.DataFrame(index=pd.Index(var_names)),
     )
+    adata.uns["log1p"] = {"base": None}
     adata.obsm["X_umap"] = np.column_stack(
         [
             np.cos(2.0 * np.pi * pseudotime),
@@ -130,49 +119,104 @@ def _adata() -> ad.AnnData:
     return adata
 
 
-def _write_verified_run(tmp_path: Path) -> Path:
-    run_dir = tmp_path / "verified-run"
-    frozen_inputs = run_dir / "frozen_inputs"
-    frozen_inputs.mkdir(parents=True)
-    (run_dir / "run_manifest.json").write_text(
-        json.dumps(_manifest(), indent=2), encoding="utf-8"
+def _write_functional_run(tmp_path: Path) -> tuple[Path, Path, Path, Path]:
+    run_dir = tmp_path / "functional-run"
+    run_dir.mkdir()
+    (run_dir / "run_summary.json").write_text(
+        json.dumps(_run_summary(), indent=2), encoding="utf-8"
     )
     _results().to_csv(run_dir / "trajectory_results.csv", index=False)
-    _adata().write_h5ad(frozen_inputs / "gse155254_ery_only_pt.h5ad")
+    adata = _adata()
+    input_dir = tmp_path / "inputs"
+    input_dir.mkdir()
+    dataset = input_dir / "gse155254_ery_only_pt.h5ad"
+    adata.write_h5ad(dataset)
     pathways = [figure2.TARGET_PATHWAYS[0], figure2.TARGET_PATHWAYS[1]] + [
         f"Pathway {index:02d}" for index in range(figure2.EXPECTED_N_PATHWAYS - 2)
     ]
-    (frozen_inputs / "hallmark_enrichr.gmt").write_text(
+    gene_sets = input_dir / "hallmark_enrichr.gmt"
+    gene_sets.write_text(
         "".join(f"{pathway}\tfixture\tGENE1\tGENE2\n" for pathway in pathways),
         encoding="utf-8",
     )
-    return run_dir
+    assignment_dir = tmp_path / "public-assignments"
+    assignment_dir.mkdir()
+    for sample_id, source in figure2.PUBLIC_ASSIGNMENT_SOURCES.items():
+        barcodes = [
+            cell_id.split(":", maxsplit=1)[1]
+            for cell_id in adata.obs_names
+            if cell_id.startswith(f"{sample_id}:")
+        ][:2]
+        pd.DataFrame(
+            {
+                "barcode": barcodes,
+                "assignment": ["control", "gata307mut"],
+            }
+        ).to_csv(
+            assignment_dir / source["filename"],
+            sep="\t",
+            index=False,
+            compression="gzip",
+        )
+    return run_dir, dataset, gene_sets, assignment_dir
 
 
-def test_complete_assembly_from_verified_run(tmp_path: Path) -> None:
-    run_dir = _write_verified_run(tmp_path)
+def test_complete_assembly_from_functional_run(tmp_path: Path) -> None:
+    run_dir, dataset, gene_sets, assignment_dir = _write_functional_run(tmp_path)
     output_dir = tmp_path / "assembled-figure2"
 
-    manifest = figure2.assemble_figure2(run_dir, output_dir)
+    manifest = figure2.assemble_figure2(
+        run_dir,
+        dataset,
+        gene_sets,
+        assignment_dir,
+        output_dir,
+        render_figure=False,
+    )
 
     expected_files = {
         "assembly_manifest.json",
         "figure2_cell_source.csv",
-        "figure2_full_rc8.pdf",
-        "figure2_full_rc8.png",
         "figure2_marker_profiles.csv",
         "figure2_pathway_profiles.csv",
     }
     assert {path.name for path in output_dir.iterdir()} == expected_files
+    assert manifest["artifact_type"] == "pyfgsea-figure2-table-assembly"
     assert manifest["assembly_status"] == "assembled"
     assert manifest["panel_status"] == {
         "panels_a_c": "deterministic_reconstruction_from_frozen_h5ad",
-        "panel_d": "verified_rc8_rerun",
+        "panel_d": "installed_pyfgsea_functional_rerun",
+        "rendered_figure": "not_requested",
     }
-    assert manifest["upstream"]["verification_status"] == "verified"
+    assert manifest["upstream"]["status"] == "complete"
     assert manifest["claim_boundary"]["panel_b"].endswith("not cell-type annotations")
     assert manifest["upstream"]["inputs"]["dataset"]["sha256_role"] == (
         "provenance_only"
+    )
+    expression = manifest["assembly"]["methods"]["frozen_expression_matrix"]
+    assert expression["matrix_used"] == "adata.X"
+    assert expression["representation"] == "scaled_expression"
+    assert expression["raw_present"] is False
+    assert expression["named_layers"] == []
+    assert expression["log1p_metadata_present"] is True
+    assert "does not describe the matrix" in expression["interpretation"]
+    assignments = manifest["assembly"]["methods"]["public_assignments"]
+    assert assignments["subset_assignment_counts"] == {
+        "control": 2,
+        "gata307mut": 2,
+        "unmatched": figure2.EXPECTED_DATASET_SHAPE[0] - 4,
+    }
+    assert assignments["pooled_in_figure"] is True
+    assert manifest["claim_boundary"]["public_assignments"]["label_semantics"].endswith(
+        "not donor identity"
+    )
+    assert "not a group comparison" in manifest["claim_boundary"]["dataset_scope"]
+    assert set(manifest["upstream"]["inputs"]["public_assignments"]) == set(
+        figure2.PUBLIC_ASSIGNMENT_SOURCES
+    )
+    assert all(
+        record["sha256_role"] == "provenance_only"
+        for record in manifest["upstream"]["inputs"]["public_assignments"].values()
     )
 
     cell_source = pd.read_csv(output_dir / "figure2_cell_source.csv")
@@ -186,6 +230,11 @@ def test_complete_assembly_from_verified_run(tmp_path: Path) -> None:
         "heme Metabolism": 62,
     }
     assert {
+        "sample_id",
+        "frozen_inferred_condition_label",
+        "public_assignment",
+        "public_assignment_match_status",
+        "public_assignment_source_accession",
         "CD34_z",
         "MKI67_z",
         "HBB_z",
@@ -197,6 +246,12 @@ def test_complete_assembly_from_verified_run(tmp_path: Path) -> None:
         "MKI67-dominant",
         "HBB-dominant",
     }
+    assert cell_source["public_assignment"].value_counts().to_dict() == {
+        "unmatched": figure2.EXPECTED_DATASET_SHAPE[0] - 4,
+        "control": 2,
+        "gata307mut": 2,
+    }
+    assert set(cell_source["frozen_inferred_condition_label"]) == {"Disease"}
     assert {
         "HBB_smoothed_scaled",
         "MKI67_smoothed_scaled",
@@ -206,32 +261,30 @@ def test_complete_assembly_from_verified_run(tmp_path: Path) -> None:
 @pytest.mark.parametrize(
     ("change", "message"),
     [
-        (lambda value: value.update(verification_status="candidate"), "not verified"),
+        (lambda value: value.update(status="incomplete"), "complete table run"),
         (
-            lambda value: value["git"]["end"].update(commit="0" * 40),
-            "clean RC8 commit",
+            lambda value: value.update(artifact_type="legacy-receipt"),
+            "artifact type",
         ),
         (
-            lambda value: value["git"]["start"]["release_tag"].update(
-                name="v0.2.0-rc7"
-            ),
-            "annotated tag",
+            lambda value: value["runtime"].update(algorithm_revision="legacy"),
+            "installed runtime",
         ),
         (
             lambda value: value["parameters"].update(window_size=400),
             "window_size",
         ),
         (
-            lambda value: value.update(dataset_shape=[3575, 3000]),
-            "dataset_shape",
+            lambda value: value["dataset"].update(shape=[3575, 3000]),
+            "dataset shape",
         ),
     ],
 )
-def test_manifest_and_parameter_failures(change: object, message: str) -> None:
-    manifest = copy.deepcopy(_manifest())
-    change(manifest)
+def test_run_summary_and_parameter_failures(change: object, message: str) -> None:
+    summary = copy.deepcopy(_run_summary())
+    change(summary)
     with pytest.raises(figure2.Figure2AssemblyError, match=message):
-        figure2._validate_run_manifest(manifest)
+        figure2._validate_run_summary(summary)
 
 
 @pytest.mark.parametrize(
@@ -279,7 +332,9 @@ def test_missing_adata_fields_and_nonfinite_values() -> None:
         figure2._validate_adata(missing_marker)
 
     nonfinite_pseudotime = _adata()
-    nonfinite_pseudotime.obs.iloc[0, 0] = np.nan
+    nonfinite_pseudotime.obs.loc[
+        nonfinite_pseudotime.obs_names[0], "dpt_pseudotime"
+    ] = np.nan
     with pytest.raises(figure2.Figure2AssemblyError, match="must be finite"):
         figure2._validate_adata(nonfinite_pseudotime)
 
@@ -287,6 +342,16 @@ def test_missing_adata_fields_and_nonfinite_values() -> None:
     nonfinite_marker.X[0, 0] = np.nan
     with pytest.raises(figure2.Figure2AssemblyError, match="marker CD34"):
         figure2._validate_adata(nonfinite_marker)
+
+    with_raw = _adata()
+    with_raw.raw = with_raw
+    with pytest.raises(figure2.Figure2AssemblyError, match="no adata.raw"):
+        figure2._validate_adata(with_raw)
+
+    with_layer = _adata()
+    with_layer.layers["counts"] = with_layer.X.copy()
+    with pytest.raises(figure2.Figure2AssemblyError, match="no adata.raw"):
+        figure2._validate_adata(with_layer)
 
 
 def test_pseudotime_ties_use_cell_id_as_secondary_key() -> None:
@@ -312,7 +377,7 @@ def test_population_zscore_and_centered_rolling_mean() -> None:
 def test_output_guards_and_failed_staging_cleanup(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    run_dir = _write_verified_run(tmp_path)
+    run_dir, dataset, gene_sets, assignment_dir = _write_functional_run(tmp_path)
     with pytest.raises(figure2.Figure2AssemblyError, match="must not modify"):
         figure2._require_external_output(run_dir / "nested", run_dir)
 
@@ -328,6 +393,12 @@ def test_output_guards_and_failed_staging_cleanup(
 
     monkeypatch.setattr(figure2, "_render_figure", fail_render)
     with pytest.raises(RuntimeError, match="plot failed"):
-        figure2.assemble_figure2(run_dir, output)
+        figure2.assemble_figure2(
+            run_dir,
+            dataset,
+            gene_sets,
+            assignment_dir,
+            output,
+        )
     assert not output.exists()
     assert not list(tmp_path.glob(".failed-output-*/"))
