@@ -83,7 +83,7 @@ jobs:
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
           name: pyfgsea-artifact-chain-linux-x86_64
-          path: ${{ runner.temp }}/pyfgsea-figure1-v0.2.0-rc8/current-artifact
+          path: ${{ env.EVIDENCE_ROOT }}/current-artifact
           github-token: ${{ secrets.GITHUB_TOKEN }}
           run-id: ${{ env.SOURCE_RUN_ID }}
 
@@ -91,7 +91,7 @@ jobs:
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
           name: pyfgsea-reference-legacy-publication-receipt
-          path: ${{ runner.temp }}/pyfgsea-figure1-v0.2.0-rc8/legacy-reference
+          path: ${{ env.EVIDENCE_ROOT }}/legacy-reference
           github-token: ${{ secrets.GITHUB_TOKEN }}
           run-id: ${{ env.SOURCE_RUN_ID }}
 
@@ -99,7 +99,7 @@ jobs:
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
           name: pyfgsea-reference-legacy-publication-oci
-          path: ${{ runner.temp }}/pyfgsea-figure1-v0.2.0-rc8/legacy-oci
+          path: ${{ env.EVIDENCE_ROOT }}/legacy-oci
           github-token: ${{ secrets.GITHUB_TOKEN }}
           run-id: ${{ env.SOURCE_RUN_ID }}
 
@@ -107,7 +107,7 @@ jobs:
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
           name: pyfgsea-reference-current-conformance-receipt
-          path: ${{ runner.temp }}/pyfgsea-figure1-v0.2.0-rc8/current-reference
+          path: ${{ env.EVIDENCE_ROOT }}/current-reference
           github-token: ${{ secrets.GITHUB_TOKEN }}
           run-id: ${{ env.SOURCE_RUN_ID }}
 
@@ -115,7 +115,7 @@ jobs:
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
           name: pyfgsea-reference-current-conformance-oci
-          path: ${{ runner.temp }}/pyfgsea-figure1-v0.2.0-rc8/current-oci
+          path: ${{ env.EVIDENCE_ROOT }}/current-oci
           github-token: ${{ secrets.GITHUB_TOKEN }}
           run-id: ${{ env.SOURCE_RUN_ID }}
 
@@ -197,6 +197,9 @@ jobs:
             --env EVIDENCE_TAG="$EVIDENCE_TAG" \
             pyfgsea-reference-legacy:rc8 \
             bash -euo pipefail -c '
+              apt-get update
+              apt-get install -y --no-install-recommends git
+              rm -rf /var/lib/apt/lists/*
               git config --global --add safe.directory /repo
               uv python install 3.11.9
               uv venv --python 3.11.9 /evidence/venvs/legacy
@@ -235,6 +238,9 @@ jobs:
             --env EVIDENCE_TAG="$EVIDENCE_TAG" \
             pyfgsea-reference-current:rc8 \
             bash -euo pipefail -c '
+              apt-get update
+              apt-get install -y --no-install-recommends git
+              rm -rf /var/lib/apt/lists/*
               git config --global --add safe.directory /repo
               uv python install 3.11.9
               uv venv --python 3.11.9 /evidence/venvs/current
@@ -285,9 +291,9 @@ jobs:
           if-no-files-found: error
           retention-days: 90
           path: |
-            ${{ runner.temp }}/pyfgsea-figure1-v0.2.0-rc8/comparison-environment.txt
-            ${{ runner.temp }}/pyfgsea-figure1-v0.2.0-rc8/legacy-artifact/**
-            ${{ runner.temp }}/pyfgsea-figure1-v0.2.0-rc8/figure1-inputs/**
-            ${{ runner.temp }}/pyfgsea-figure1-v0.2.0-rc8/figure1-legacy/**
-            ${{ runner.temp }}/pyfgsea-figure1-v0.2.0-rc8/figure1-current/**
-            ${{ runner.temp }}/pyfgsea-figure1-v0.2.0-rc8/figure1-compared/**
+            ${{ env.EVIDENCE_ROOT }}/comparison-environment.txt
+            ${{ env.EVIDENCE_ROOT }}/legacy-artifact/**
+            ${{ env.EVIDENCE_ROOT }}/figure1-inputs/**
+            ${{ env.EVIDENCE_ROOT }}/figure1-legacy/**
+            ${{ env.EVIDENCE_ROOT }}/figure1-current/**
+            ${{ env.EVIDENCE_ROOT }}/figure1-compared/**
