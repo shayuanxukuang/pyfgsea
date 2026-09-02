@@ -153,6 +153,19 @@ def test_wheel_sources_and_native_core_are_hashed(tmp_path: Path) -> None:
     assert evidence["wheel_member_boundary_exact"] is True
 
 
+def test_wheel_rejects_entry_points(tmp_path: Path) -> None:
+    sources = _sources()
+    path = tmp_path / "pyfgsea-0.2.0-cp38-abi3-win_amd64.whl"
+    _write_wheel(path, sources)
+    with zipfile.ZipFile(path, "a") as archive:
+        archive.writestr(
+            "pyfgsea-0.2.0.dist-info/entry_points.txt",
+            "[console_scripts]\npyfgsea-traj=pyfgsea.cli.main:cli\n",
+        )
+    with pytest.raises(verify.VerificationError, match="must not define"):
+        verify._verify_wheel(path, sources, expected_version="0.2.0")
+
+
 @pytest.mark.parametrize("extra_member", ["injected.pth", "otherpkg/__init__.py"])
 def test_wheel_rejects_unexpected_top_level_members(
     tmp_path: Path, extra_member: str

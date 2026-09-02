@@ -32,9 +32,12 @@ REQUIRED_COMMIT_PATHS = (
     "Cargo.toml",
     "Cargo.lock",
     "CITATION.cff",
+    "examples/trajectory_demo.py",
     "LICENSE",
     "README.md",
     "pyproject.toml",
+    "repro/data/toy_pathways.gmt",
+    "repro/data/toy_trajectory.h5ad",
     "src/lib.rs",
 )
 NATIVE_SUFFIXES = (
@@ -550,6 +553,9 @@ def _verify_wheel(
     for required in (f"{dist_info}/WHEEL", f"{dist_info}/RECORD"):
         if required not in contents:
             raise VerificationError(f"wheel is missing {required!r}")
+    entry_points = f"{dist_info}/entry_points.txt"
+    if entry_points in contents:
+        raise VerificationError("wheel must not define console or plugin entry points")
 
     unexpected_members = sorted(
         name
