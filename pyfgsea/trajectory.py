@@ -34,7 +34,7 @@ def _subset_lineage(
     lineage_col=None,
     lineage_keyword=None,
     *,
-    root_index=None,
+    root_cell=None,
 ):
     if (lineage_col is None) != (lineage_keyword is None):
         raise ValueError("lineage_col and lineage_keyword must be provided together")
@@ -49,16 +49,13 @@ def _subset_lineage(
         )
         if not mask.any():
             raise ValueError(f"Lineage subset contains no cells: {lineage_keyword}")
-        if root_index is not None:
-            if not 0 <= root_index < adata.n_obs:
-                raise ValueError(
-                    f"Root cell index must be between 0 and {adata.n_obs - 1}"
-                )
-            if not mask[root_index]:
-                raise ValueError("The DPT root cell is excluded by the lineage subset")
         adata = adata[mask].copy()
-        if root_index is not None:
-            adata.uns["iroot"] = int(np.count_nonzero(mask[:root_index]))
+        if root_cell is not None:
+            adata.uns["iroot"] = _root_index_from_cell(
+                adata,
+                root_cell,
+                missing_message="The DPT root cell is excluded by the lineage subset",
+            )
         logger.info(f"Subset lineage '{lineage_keyword}': {adata.n_obs} cells")
     return adata
 
@@ -76,6 +73,31 @@ def _explicit_root_index(adata) -> int:
     if not 0 <= root_idx < adata.n_obs:
         raise ValueError(f"adata.uns['iroot'] must be between 0 and {adata.n_obs - 1}")
     return root_idx
+
+
+def _root_cell_from_index(adata, root_index: int) -> str:
+    if not 0 <= root_index < adata.n_obs:
+        raise ValueError(f"Root cell index must be between 0 and {adata.n_obs - 1}")
+    root_cell = str(adata.obs_names[root_index])
+    _root_index_from_cell(adata, root_cell)
+    return root_cell
+
+
+def _root_index_from_cell(
+    adata,
+    root_cell: str,
+    *,
+    missing_message: str = "The DPT root cell is missing from the analysis data",
+) -> int:
+    names = np.asarray([str(name) for name in adata.obs_names], dtype=object)
+    matches = np.flatnonzero(names == root_cell)
+    if matches.size == 0:
+        raise ValueError(missing_message)
+    if matches.size > 1:
+        raise ValueError(
+            f"DPT root cell name is not unique in adata.obs_names: {root_cell}"
+        )
+    return int(matches[0])
 
 
 def _explicit_root_source(adata) -> str:
@@ -262,23 +284,25 @@ def run_trajectory_gsea(
     needs_dpt = pseudotime_key not in adata.obs or root_gene is not None
     root_source = None
     root_index = None
+    root_cell = None
     if needs_dpt:
         if root_gene is not None:
             root_source = "root_gene"
         else:
             root_source = _explicit_root_source(adata)
             root_index = _root_index_from_source(adata, root_source)
+            root_cell = _root_cell_from_index(adata, root_index)
 
     adata = _subset_lineage(
         adata,
         lineage_col,
         lineage_keyword,
-        root_index=root_index,
+        root_cell=root_cell,
     )
     if needs_dpt:
         adata = adata.copy()
-        if root_index is not None and lineage_col is None:
-            adata.uns["iroot"] = root_index
+        if root_cell is not None:
+            adata.uns["iroot"] = _root_index_from_cell(adata, root_cell)
 
     pseudotime_source = "precomputed"
     if pseudotime_key not in adata.obs:
@@ -303,16 +327,39 @@ def run_trajectory_gsea(
     pt = adata.obs[pseudotime_key].to_numpy()
     ok = np.isfinite(pt)
     if not ok.all():
-        remapped_root_idx = None
         if pseudotime_source == "computed_dpt":
             root_idx = _explicit_root_index(adata)
+            root_cell = _root_cell_from_index(adata, root_idx)
             if not ok[root_idx]:
-                raise RuntimeError("The computed DPT root has non-finite pseudotime")
-            remapped_root_idx = int(np.count_nonzero(ok[:root_idx]))
+                raise RuntimeError(
+                    f"The computed DPT root has non-finite pseudotime: {root_cell}"
+                )
         adata = adata[ok].copy()
-        if remapped_root_idx is not None:
-            adata.uns["iroot"] = remapped_root_idx
+        if pseudotime_source == "computed_dpt":
+            if root_cell is None:
+                raise RuntimeError("The computed DPT root identity is unavailable")
+            adata.uns["iroot"] = _root_index_from_cell(adata, root_cell)
         pt = pt[ok]
+
+    root_index = None
+    if pseudotime_source == "computed_dpt":
+        root_index = _explicit_root_index(adata)
+        root_cell = _root_cell_from_index(adata, root_index)
+
+    params = {
+        "window_size": window_size,
+        "step": step,
+        "min_size": min_size,
+        "max_size": max_size,
+        "pseudotime_key": pseudotime_key,
+        "pseudotime_source": pseudotime_source,
+        "root_source": root_source,
+        "root_gene": root_gene,
+        "root_index": root_index,
+        "root_cell": root_cell,
+        "use_nes_cache": bool(use_nes_cache),
+        **options,
+    }
 
     order = np.argsort(pt)
     windows = _make_windows(order, window_size=window_size, step=step)
@@ -323,7 +370,9 @@ def run_trajectory_gsea(
     pathway_names, pathway_indices = prepare_pathways(genes, gmt, min_size, max_size)
 
     if not pathway_indices:
-        return pd.DataFrame()
+        result = pd.DataFrame()
+        result.attrs["params"] = params
+        return result
 
     # Initialize Runner
     runner = GseaRunner(
@@ -391,26 +440,12 @@ def run_trajectory_gsea(
 
     print("\nDone.")
     if not all_rows:
-        return pd.DataFrame()
+        result = pd.DataFrame()
+        result.attrs["params"] = params
+        return result
 
     df = pd.concat(all_rows, ignore_index=True)
-    df.attrs["params"] = {
-        "window_size": window_size,
-        "step": step,
-        "min_size": min_size,
-        "max_size": max_size,
-        "pseudotime_key": pseudotime_key,
-        "pseudotime_source": pseudotime_source,
-        "root_source": root_source,
-        "root_gene": root_gene,
-        "root_index": (
-            int(adata.uns["iroot"])
-            if pseudotime_source == "computed_dpt" and "iroot" in adata.uns
-            else None
-        ),
-        "use_nes_cache": bool(use_nes_cache),
-        **options,
-    }
+    df.attrs["params"] = params
     if out_csv:
         dirpath = os.path.dirname(out_csv)
         if dirpath:
